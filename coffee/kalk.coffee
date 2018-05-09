@@ -37,8 +37,6 @@ $('main').addEventListener "contextmenu", (event) ->
     if not absPos?
         absPos = pos $('main').getBoundingClientRect().left, $('main').getBoundingClientRect().top
         
-    log 'contextmenu', absPos
-    
     opt = items: [
         text:   'Show Menu'
         combo:  'alt'

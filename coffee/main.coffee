@@ -178,17 +178,6 @@ app.on 'ready', ->
 
     electron.globalShortcut.register prefs.get('shortcut'), showWindow
 
-    iconDir = slash.resolve "#{app.getPath('userData')}/icons"
-    fs.ensureDirSync iconDir
-
-    try
-        fs.accessSync slash.join(iconDir, 'kalk.png'), fs.R_OK
-    catch
-        try
-            fs.copySync "#{__dirname}/../img/kalk.png", slash.join iconDir, 'kalk.png'
-        catch err
-            log "can't copy kalk icon: #{err}"
-
     if slash.win()
         showWindow()
 
