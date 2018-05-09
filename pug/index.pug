@@ -1,7 +1,7 @@
 doctype html
 html(lang="en")
     head
-        meta(charset='utf-8')
+        meta(charset='utf-8', http-equiv="Content-Security-Policy", content="default-src 'none'; img-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'")
         title kalk
         link(rel='stylesheet' href='css/style.css'  type='text/css')
         link(rel='stylesheet' href='css/dark.css' type='text/css', id='style-link')
@@ -11,4 +11,3 @@ html(lang="en")
             #buffer
     script.
         require('./kalk.js')
-

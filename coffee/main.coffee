@@ -6,7 +6,7 @@
 000   000  000   000  000  000   000
 ###
 
-{ prefs, empty, slash, about, post, log, fs, _ } = require 'kxk'
+{ prefs, empty, slash, about, karg, post, log, fs, _ } = require 'kxk'
 
 electron = require 'electron'
 pkg      = require '../package.json'
@@ -20,11 +20,30 @@ win           = null
 tray          = null
 debug         = false
 
-# 000  00000000    0000000
-# 000  000   000  000
-# 000  00000000   000
-# 000  000        000
-# 000  000         0000000
+#  0000000   00000000    0000000    0000000
+# 000   000  000   000  000        000
+# 000000000  0000000    000  0000  0000000
+# 000   000  000   000  000   000       000
+# 000   000  000   000   0000000   0000000
+
+args  = karg """
+
+#{pkg.name}
+
+    noprefs   . ? don't load preferences  . = false
+    DevTools  . ? open developer tools    . = false
+
+version  #{pkg.version}
+
+""" #, dontExit: true
+
+app.exit 0 if not args?
+
+# 00000000    0000000    0000000  000000000  
+# 000   000  000   000  000          000     
+# 00000000   000   000  0000000      000     
+# 000        000   000       000     000     
+# 000         0000000   0000000      000     
 
 post.on 'toggleMaximize',       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
 post.on 'closeWin',             -> win?.close()
@@ -68,7 +87,7 @@ createWindow = ->
     win.setBounds bounds if bounds?
 
     win.loadURL "file://#{__dirname}/index.html"
-    win.webContents.openDevTools() if debug
+    win.webContents.openDevTools() if args.DevTools
     win.on 'ready-to-show', -> win.show()
     win.on 'closed', -> win = null
     win.on 'resize', saveBounds
@@ -173,8 +192,9 @@ app.on 'ready', ->
         ]
     ]
 
-    prefs.init
-        shortcut: 'CmdOrCtrl+Alt+C'
+    if not args.noprefs
+        prefs.init
+            shortcut: 'CmdOrCtrl+Alt+C'
 
     electron.globalShortcut.register prefs.get('shortcut'), showWindow
 
