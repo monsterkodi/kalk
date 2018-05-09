@@ -6,7 +6,7 @@
 000   000  000   000  000  000   000
 ###
 
-{ prefs, empty, slash, about, noon, childp, log, fs, _ } = require 'kxk'
+{ prefs, empty, slash, about, noon, post, log, fs, _ } = require 'kxk'
 
 electron = require 'electron'
 pkg      = require '../package.json'
@@ -15,7 +15,6 @@ app           = electron.app
 BrowserWindow = electron.BrowserWindow
 Tray          = electron.Tray
 Menu          = electron.Menu
-ipc           = electron.ipcMain
 sel           = null
 win           = null
 tray          = null
@@ -27,10 +26,10 @@ debug         = false
 # 000  000        000
 # 000  000         0000000
 
-ipc.on 'toggleMaximize',       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
-ipc.on 'closeWin',             -> win?.close()
-ipc.on 'showAbout',            -> showAbout()
-ipc.on 'quitApp',              -> quitApp()
+post.on 'toggleMaximize',       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
+post.on 'closeWin',             -> win?.close()
+post.on 'showAbout',            -> showAbout()
+post.on 'quitApp',              -> quitApp()
 
 #000   000  000  000   000  0000000     0000000   000   000
 #000 0 000  000  0000  000  000   000  000   000  000 0 000
@@ -134,14 +133,6 @@ app.on 'ready', ->
             label: "About #{pkg.name}"
             accelerator: 'CmdOrCtrl+.'
             click: -> showAbout()
-        ,
-            label: 'Clear Buffer'
-            accelerator: 'CmdOrCtrl+K'
-            click: -> clearBuffer()
-        ,
-            label: 'Save Buffer'
-            accelerator: 'CmdOrCtrl+S'
-            click: -> saveBuffer()
         ,
             type: 'separator'
         ,

@@ -1,6 +1,4 @@
 node_modules
-watch/Build
-watch/DerivedData
 Icon?
 package.json
 bin/*.json
