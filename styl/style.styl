@@ -34,31 +34,41 @@ body
     -webkit-user-select none
     -webkit-app-region  no-drag
     
+#main
+    overflow            hidden
+    scroll              none
+    
 // 0000000    000   000  000000000  000000000   0000000   000   000    
 // 000   000  000   000     000        000     000   000  0000  000    
 // 0000000    000   000     000        000     000   000  000 0 000    
 // 000   000  000   000     000        000     000   000  000  0000    
 // 0000000     0000000      000        000      0000000   000   000    
 
+#keys
+    position            absolute
+    bottom              10px
+    left                5px
+
 .button-row
     font-size           60px
     display             block
     overflow            visible
-    height              1.4em
+    height              90px
 
 .button
-    font-size           60px
-    width               1.2em
-    height              1.2em
+    padding-top         20px
+    font-size           35px
+    width               80px
+    height              60px
     text-align          center
-    border-radius       0.1em
-    margin              0.1em
+    border-radius       10px
+    margin              5px
     display             inline-block
     cursor              pointer
     &.wide
-        width           2.6em
+        width           172px
     &.tall
-        height          2.6em
+        height          150px
     
 // 000000000  000  000000000  000      00000000  0000000     0000000   00000000 
 //    000     000     000     000      000       000   000  000   000  000   000
