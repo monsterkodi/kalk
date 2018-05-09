@@ -73,10 +73,11 @@ showWindow = ->
 createWindow = ->
 
     win = new BrowserWindow
-        width:           1000
-        height:          1200
+        width:           395
+        height:          900
         backgroundColor: '#181818'
-        maximizable:     true
+        maximizable:     false
+        resizable:       false
         minimizable:     true
         fullscreen:      false
         show:            false

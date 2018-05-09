@@ -9,6 +9,7 @@
 { keyinfo, scheme, prefs, slash, post, elem, popup, pos, str, log, $ } = require 'kxk'
 
 keys      = require './keys'
+input     = require './input'
 pkg       = require '../package.json'
 electron  = require 'electron'
 
@@ -59,8 +60,7 @@ $('main').addEventListener "contextmenu", (event) ->
     
 window.onunload = -> document.onkeydown = null
 
-window.eval = global.eval = ->
-    throw new Error "Sorry, no eval()"
+window.eval = global.eval = -> throw new Error "no eval"
 
 # 000   000  00000000  000   000
 # 000  000   000        000 000
@@ -84,3 +84,4 @@ prefs.init()
 scheme.set prefs.get 'scheme', 'dark'
 setTitleBar()
 keys.init()
+input.init()

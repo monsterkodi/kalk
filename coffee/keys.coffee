@@ -1,22 +1,22 @@
+###
+000   000  00000000  000   000   0000000
+000  000   000        000 000   000     
+0000000    0000000     00000    0000000 
+000  000   000          000          000
+000   000  00000000     000     0000000 
+###
 
-# 000   000  00000000  000   000   0000000
-# 000  000   000        000 000   000     
-# 0000000    0000000     00000    0000000 
-# 000  000   000          000          000
-# 000   000  00000000     000     0000000 
-
-{ elem, log, $ } = require 'kxk'
+{ post, elem, log, $ } = require 'kxk'
 
 class Keys
 
     @keys = null
-    @init: -> 
-        @keys = new Keys $ "#keys"
+    @init: -> @keys = new Keys $ "#keys"
         
     constructor: (@view) ->
         
         row = (children) => @view.appendChild elem 'span', class:'button-row', children:children
-        button = (text, clss='button') -> elem class:clss, text:text 
+        button = (text, clss='button') => elem class:clss, text:text, click: @onButton
         
         row [
                 button "C"
@@ -46,5 +46,7 @@ class Keys
                 button "0", 'button wide'
                 button "."
             ]
+        
+    onButton: (event) => post.emit 'button', event.target.innerHTML
             
 module.exports = Keys
