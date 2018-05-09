@@ -18,7 +18,7 @@ electron  = require 'electron'
 # 000      000   000  000   000  000   000
 # 0000000   0000000   000   000  0000000
 
-post.on 'schemeChanged', -> log 'schemeChanged'
+post.on 'schemeChanged', -> 
 
 setTitleBar = ->
     
