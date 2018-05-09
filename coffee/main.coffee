@@ -6,7 +6,7 @@
 000   000  000   000  000  000   000
 ###
 
-{ prefs, empty, slash, about, noon, post, log, fs, _ } = require 'kxk'
+{ prefs, empty, slash, about, post, log, fs, _ } = require 'kxk'
 
 electron = require 'electron'
 pkg      = require '../package.json'
@@ -174,8 +174,7 @@ app.on 'ready', ->
     ]
 
     prefs.init
-        maxBuffers: 50
-        shortcut: 'CmdOrCtrl+Alt+V'
+        shortcut: 'CmdOrCtrl+Alt+C'
 
     electron.globalShortcut.register prefs.get('shortcut'), showWindow
 
