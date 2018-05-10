@@ -89,23 +89,20 @@ document.onkeydown = (event) ->
 
     { mod, key, combo, char } = keyinfo.forEvent event
 
-    log mod, key, combo
-    
     return if not combo
 
     return stopEvent(event) if 'unhandled' != window.mainmenu.globalModKeyComboEvent mod, key, combo, event
+    return stopEvent(event) if 'unhandled' != window.keys.globalModKeyComboEvent mod, key, combo, event
+    
+    # log mod, key, combo
     
     switch combo
         when 'i', 'command+i', 'ctrl+i', 'alt+i'    then return scheme.toggle()
         when 'esc'                                  then return post.toMain 'closeWin'
-        when 'down', 'right'                        then return log 'down right'
-        when 'up'  , 'left'                         then return log 'up left'
-        when 'enter'                                then return log 'enter'
-        when 'backspace', 'command+backspace', 'ctrl+backspace', 'delete' then log 'del'
 
 prefs.init()
 scheme.set prefs.get 'scheme', 'dark'
 window.titlebar = new Titlebar 
 window.mainmenu = new Menu 'menu'
-keys.init()
+window.keys     = keys.init()
 input.init()

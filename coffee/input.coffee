@@ -18,6 +18,8 @@ class Input
         post.on 'button', @onButton
         @view.appendChild elem class:'input'
         
-    onButton: (key) => log 'button', key
+    onButton: (key) => 
+        
+        log "Input.onButton '#{key}'", 
 
 module.exports = Input

@@ -6,12 +6,12 @@
 000   000  00000000     000     0000000 
 ###
 
-{ post, elem, log, $ } = require 'kxk'
+{ stopEvent, post, elem, log, $ } = require 'kxk'
 
 class Keys
 
     @keys = null
-    @init: -> @keys = new Keys $ "#keys"
+    @init: -> @keys = new Keys $ '#keys'
         
     constructor: (@view) ->
         
@@ -47,6 +47,28 @@ class Keys
                 button "."
             ]
         
-    onButton: (event) => post.emit 'button', event.target.innerHTML
+    onButton: (event) => post.emit 'button', event.target.innerHTML.trim()
+    
+    # 000   000  00000000  000   000
+    # 000  000   000        000 000 
+    # 0000000    0000000     00000  
+    # 000  000   000          000   
+    # 000   000  00000000     000   
+    
+    globalModKeyComboEvent: (mod, key, combo, event) ->
+
+        switch combo
+            when '/', '*', '+', '-', '=', '.'   then return post.emit 'button', combo
+            when 'enter'                        then return post.emit 'button', '↩'
+            when 'shift+8'                      then return post.emit 'button', '*'
+            when 'shift+='                      then return post.emit 'button', '+'
+            when 'num lock'                     then post.emit 'button', 'C'; return stopEvent event
+            
+        if combo.startsWith 'numpad'
+            return post.emit 'button', combo.split(' ')[1]
+        else if combo in [0..9].map (i) -> "#{i}"
+            return post.emit 'button', combo
+            
+        'unhandled'
             
 module.exports = Keys
