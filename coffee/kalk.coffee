@@ -6,7 +6,7 @@
 000   000  000   000  0000000  000   000  
 ###
 
-{ keyinfo, scheme, prefs, slash, post, elem, popup, pos, str, log, $ } = require 'kxk'
+{ keyinfo, scheme, stopEvent, prefs, slash, post, elem, popup, pos, str, log, $ } = require 'kxk'
 
 keys      = require './keys'
 input     = require './input'
@@ -87,8 +87,12 @@ menuAction = (name, args) ->
 
 document.onkeydown = (event) ->
 
-    { mod, key, combo } = keyinfo.forEvent event
+    { mod, key, combo, char } = keyinfo.forEvent event
 
+    return if not combo
+
+    return stopEvent(event) if 'unhandled' != window.mainmenu.globalModKeyComboEvent mod, key, combo, event
+    
     switch combo
         when 'i', 'command+i', 'ctrl+i', 'alt+i'    then return scheme.toggle()
         when 'esc'                                  then return post.toMain 'closeWin'

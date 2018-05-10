@@ -6,7 +6,7 @@
 000   000  00000000  000   000   0000000 
 ###
 
-{ post, elem, sds, log, $, _ } = require 'kxk'
+{ post, elem, sds, menu, log, $, _ } = require 'kxk'
 
 class Menu
 
@@ -59,7 +59,7 @@ class Menu
     
             text:   'Window'
             menu: [
-                text:   'Maximize',                     accel:  'alt+ctrl+shift+m'
+                text:   'Minimize',                     accel:  'alt+ctrl+shift+m'
             ,
                 text:   ''
             ,
@@ -81,21 +81,14 @@ class Menu
     
     constructor: ->
         
-        @loadMenu()
-        
-    loadMenu: =>
-        
-        @elem?.remove()
-        {menu} = require 'kxk'
         @menu = new menu items:Menu.template()
         @elem = @menu.elem
         window.titlebar.elem.insertBefore @elem, window.titlebar.elem.firstChild.nextSibling
         @show()
         
     visible: => @elem.style.display != 'none'
-    toggle:  => @elem.style.display = @visible() and 'none' or 'inline-block'
-    show:    => @elem.style.display = 'inline-block'; @menu?.focus?()
-    hide:    => @menu?.close(); @elem.style.display = 'none'
+    show:    => @elem.style.display = 'inline-block'; @menu?.focus?(); post.emit 'titlebar', 'hideTitle'
+    hide:    => @menu?.close(); @elem.style.display = 'none'; post.emit 'titlebar', 'showTitle'
     toggle:  => if @visible() then @hide() else @show()
 
     # 000   000  00000000  000   000

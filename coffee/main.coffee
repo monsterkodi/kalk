@@ -74,7 +74,8 @@ showWindow = ->
 createWindow = ->
 
     win = new BrowserWindow
-        width:           395
+        # width:           395
+        width:           390
         height:          900
         backgroundColor: '#181818'
         maximizable:     false
@@ -88,7 +89,7 @@ createWindow = ->
         icon:            slash.path __dirname + '/../img/kalk.ico'
 
     bounds = prefs.get 'bounds'
-    win.setBounds bounds if bounds?
+    win.setPosition bounds.x, bounds.y if bounds?
 
     win.loadURL "file://#{__dirname}/index.html"
     win.webContents.openDevTools() if args.DevTools

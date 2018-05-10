@@ -6,7 +6,7 @@
    000     000     000     0000000  00000000  0000000    000   000  000   000
 ###
 
-{ stopEvent, elem, slash, post, log, $ } = require 'kxk'
+{ elem, slash, post, log, $ } = require 'kxk'
 
 pkg = require '../package.json'
 
@@ -14,6 +14,8 @@ class Titlebar
     
     constructor: () ->
 
+        post.on 'titlebar', @onTitlebar
+        
         @elem =$ "#titlebar"
         @elem.ondblclick = (event) -> post.toMain 'maximizeWindow', window.winID
                 
@@ -35,14 +37,18 @@ class Titlebar
         @minimize.appendChild elem 'img', src:slash.fileUrl __dirname + '/../img/minimize.png'
         @minimize.addEventListener 'click', -> post.emit 'menuAction', 'Minimize'
 
-        # @maximize = elem class: 'winclose gray'
-        # @elem.appendChild @maximize
-        # @maximize.appendChild elem 'img', src:slash.fileUrl __dirname + '/../../img/maximize.png'
-        # @maximize.addEventListener 'click', -> post.emit 'menuAction', 'Maximize'
-        
         @close = elem class: 'winclose'
         @elem.appendChild @close
         @close.appendChild elem 'img', src:slash.fileUrl __dirname + '/../img/close.png'
         @close.addEventListener 'click', -> post.emit 'menuAction', 'Close Window'
-                
+         
+    showTitle: -> @title.style.display = 'initial'
+    hideTitle: -> @title.style.display = 'none'
+        
+    onTitlebar: (action) =>
+        
+        switch action
+            when 'showTitle' then @showTitle()
+            when 'hideTitle' then @hideTitle()
+        
 module.exports = Titlebar
