@@ -72,9 +72,9 @@ menuAction = (name, args) ->
     switch name
 
         when 'Toggle Scheme'    then return scheme.toggle()
-        when 'Toggle Menu'      then return window.mainmenu.toggle()
-        when 'Show Menu'        then return window.mainmenu.show()
-        when 'Hide Menu'        then return window.mainmenu.hide()
+        when 'Toggle Menu'      then return window.menu.toggle()
+        when 'Show Menu'        then return window.menu.show()
+        when 'Hide Menu'        then return window.menu.hide()
         when 'Open DevTools'    then return win.webContents.openDevTools()
         when 'Reload Window'    then return win.webContents.reloadIgnoringCache()
         when 'Close Window'     then return win.close()
@@ -97,14 +97,14 @@ document.onkeydown = (event) ->
 
     return if not combo
 
-    return stopEvent(event) if 'unhandled' != window.mainmenu.globalModKeyComboEvent mod, key, combo, event
+    return stopEvent(event) if 'unhandled' != window.menu.globalModKeyComboEvent mod, key, combo, event
     return stopEvent(event) if 'unhandled' != window.keys.globalModKeyComboEvent mod, key, combo, event
     
     # log mod, key, combo
     
     switch combo
         when 'i', 'command+i', 'ctrl+i', 'alt+i'    then return scheme.toggle()
-        when 'esc'                                  then return post.toMain 'closeWin'
+        # when 'esc'                                  then return post.toMain 'closeWin'
 
 prefs.init()
 scheme.set prefs.get 'scheme', 'dark'
@@ -112,4 +112,4 @@ window.titlebar = new Titlebar
 window.sheet    = new Sheet
 window.input    = new Input
 window.keys     = new Keys
-window.mainmenu = new Menu 'menu'
+window.menu     = new Menu

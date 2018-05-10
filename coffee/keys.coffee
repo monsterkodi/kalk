@@ -20,7 +20,6 @@ class Keys
         switch action
             when 'functions' then @functionKeys()
             when 'numbers'   then @numberKeys()
-            when 'symbols'   then @symbolKeys()
         
     setKeys: (@keys, keys) =>
         
@@ -71,68 +70,34 @@ class Keys
             @row [
                     @button "√"
                     @button "3√"
+                    @button "log"
+                    @button "deg"
+                ]
+            @row [
                     @button "^2"
-                    @button "^3"
+                    @button "^"
+                    @button "exp"
+                    @button "rad"
                 ]
             @row [
                     @button "sin"
                     @button "cos"
                     @button "tan"
-                    @button "deg"
+                    @button "hex"
                 ]
             @row [
-                    @button "asin"
-                    @button "acos"
-                    @button "atan"
-                    @button "rad"
-                ]
-            @row [
-                    @button "≪"
-                    @button "≫"
                     @button "1/x"
+                    @button "π"
+                    @button "ℇ"
                     @button "=", 'button tall'
                 ]
             @row [
-                    @button "ℂ"
+                    @button "ℵ" # ℂ
                     @button "("
                     @button ")"
                 ]
             ]
 
-    symbolKeys: ->
-        
-        @setKeys 'symbols', [
-            @row [
-                    @button "√"
-                    @button "3√"
-                    @button "^2"
-                    @button "^3"
-                ]
-            @row [
-                    @button "sin"
-                    @button "cos"
-                    @button "tan"
-                    @button "atan"
-                ]
-            @row [
-                    @button "("
-                    @button ")"
-                    @button "e"
-                    @button "x"
-                ]
-            @row [
-                    @button "≪"
-                    @button "≫"
-                    @button "1/x"
-                    @button "=", 'button tall'
-                ]
-            @row [
-                    @button "ℵ"
-                    @button "π"
-                    @button "ℇ"
-                ]
-            ]
-            
     onButton: (event) => post.emit 'button', event.target.innerHTML.trim()
     
     toggleKeys: ->
@@ -149,16 +114,30 @@ class Keys
     
     globalModKeyComboEvent: (mod, key, combo, event) ->
 
-        # log 'mod', mod, combo
+        log 'mod', mod, combo
         
         switch combo
             when 'ctrl'                         then @toggleKeys(); return stopEvent event
             when '/', '*', '+', '-', '=', '.'   then return post.emit 'button', combo
             when 'enter'                        then return post.emit 'button', '='
             when 'backspace'                    then return post.emit 'button', '⌫'
-            when 'delete'                       then return post.emit 'button', 'C'
+            when 'delete', 'esc'                then return post.emit 'button', 'C'
             when 'shift+8'                      then return post.emit 'button', '*'
+            when 'shift+6'                      then return post.emit 'button', '^'
             when 'shift+='                      then return post.emit 'button', '+'
+            when 'shift+9'                      then return post.emit 'button', '('
+            when 'shift+0'                      then return post.emit 'button', ')'
+            when 'e'                            then return post.emit 'button', 'ℇ'
+            when 'p'                            then return post.emit 'button', 'π'
+            when 's'                            then return post.emit 'button', 'sin'
+            when 'c'                            then return post.emit 'button', 'cos'
+            when 't'                            then return post.emit 'button', 'tan'
+            when 'd'                            then return post.emit 'button', 'deg'
+            when 'r'                            then return post.emit 'button', 'rad'
+            when 'l'                            then return post.emit 'button', 'log'
+            when 'x'                            then return post.emit 'button', 'exp'
+            when 'h'                            then return post.emit 'button', 'hex'
+            when 'i'                            then return post.emit 'button', '1/x'
             when 'num lock'                     then post.emit 'button', 'C'; return stopEvent event
             
         if combo.startsWith 'numpad'
