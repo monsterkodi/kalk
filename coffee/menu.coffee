@@ -28,29 +28,6 @@ class Menu
                 text:   'Quit',                         accel:  'ctrl+q'
             ]
         ,
-            # 00000000  0000000    000  000000000  
-            # 000       000   000  000     000     
-            # 0000000   000   000  000     000     
-            # 000       000   000  000     000     
-            # 00000000  0000000    000     000     
-            
-            # text: 'Edit'
-            # menu: [
-                # text: 'Undo',   accel: 'ctrl+z'
-            # ,
-                # text: 'Redo',   accel: 'ctrl+shift+z'
-            # ,
-                # text: ''
-            # ,
-                # text: 'Cut',    accel: 'ctrl+x'
-            # ,
-                # text: 'Copy',   accel: 'ctrl+c'
-            # ,
-                # text: 'Paste',  accel: 'ctrl+v'
-            # ,
-                # text: ''
-            # ]
-        # ,
             # 000   000  000  000   000  0000000     0000000   000   000
             # 000 0 000  000  0000  000  000   000  000   000  000 0 000
             # 000000000  000  000 0 000  000   000  000   000  000000000
@@ -63,11 +40,7 @@ class Menu
             ,
                 text:   ''
             ,
-                text:   'Hide Menu',                    accel:  'alt+shift+m'
-            ,
-                text:   'Show Menu',                    accel:  'alt+m'
-            ,
-                text:   ''
+                text:   'Toggle Menu',                  accel:  'alt+m'
             ,
                 text:   'Toggle Scheme',                accel:  'alt+i'
             ,

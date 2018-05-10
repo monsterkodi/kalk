@@ -34,9 +34,9 @@ $("#main").addEventListener "contextmenu", (event) ->
         absPos = pos $("#main").getBoundingClientRect().left, $("#main").getBoundingClientRect().top
         
     opt = items: [
-        text:   'Show Menu'
-        combo:  'alt'
-        cb:     -> electron.remote.getCurrentWindow().setMenuBarVisibility true
+        text:   'Toggle Menu'
+        combo:  'alt+m'
+        cb:     -> post.emit 'menuAction', 'Toggle Menu'
     ,
         text:   'About'
         combo:  'ctrl+.'
@@ -89,6 +89,8 @@ document.onkeydown = (event) ->
 
     { mod, key, combo, char } = keyinfo.forEvent event
 
+    log mod, key, combo
+    
     return if not combo
 
     return stopEvent(event) if 'unhandled' != window.mainmenu.globalModKeyComboEvent mod, key, combo, event

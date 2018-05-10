@@ -74,7 +74,6 @@ showWindow = ->
 createWindow = ->
 
     win = new BrowserWindow
-        # width:           395
         width:           390
         height:          900
         backgroundColor: '#181818'
