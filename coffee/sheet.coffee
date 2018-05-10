@@ -11,19 +11,25 @@ class Sheet
 
     constructor: ->
         
-        @view = $ "#sheet"
-        
+        @view   = $ "#sheet"
+        @calc   = elem class:'sheet-calc'
+        @result = elem class:'sheet-result'
+        @view.appendChild @calc
+        @view.appendChild @result
         post.on 'sheet', @onSheet
         
     onSheet: (action) =>
         
         switch action
-            when 'clear' then @view.innerHTML = ''
+            when 'clear' 
+                @calc.innerHTML = ''
+                @result.innerHTML = ''
             else
                 if action.text != str action.val
-                    log action.text, action.val
-                    @view.appendChild elem class:'sheet-line', text:"#{action.text} = #{action.val}"
+                    @calc.appendChild elem class:'sheet-line calc', text:action.text + ' ='
+                    @result.appendChild elem class:'sheet-line result', text:action.val
                 else
-                    @view.appendChild elem class:'sheet-line', text:"#{action.text}"
+                    @calc.appendChild elem class:'sheet-line calc', text:''
+                    @result.appendChild elem class:'sheet-line result', text:action.val
         
 module.exports = Sheet

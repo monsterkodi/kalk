@@ -33,6 +33,12 @@ class Input
             when '=' 
                 @text.innerHTML = @calculate @text.innerHTML
             else
-                @text.innerHTML += key
+                if @text.innerHTML != '0'
+                    @text.innerHTML += key
+                else
+                    if key in ['.', 'x', '+', '-', '/', '*']
+                        @text.innerHTML += key
+                    else
+                        @text.innerHTML = key
 
 module.exports = Input

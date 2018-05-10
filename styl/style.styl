@@ -58,19 +58,29 @@ body
     right               0
     height              300px
     overflow            auto
+    display             flex
+    flex-direction      row
     
+// .sheet-calc  
+    // border    1px solid red
+//     
+.sheet-result
+    // border    1px solid blue
+    float               right               
+
 .sheet-line
     white-space         nowrap
-    height              38px
+    height              26px
     text-align          right
-    font-size           30px
+    font-size           22px
     -webkit-user-select auto
     padding-right       10px
     display             block
     margin-left         auto
     width               94%
-    overflow-x          auto
-    overflow-y          hidden
+    overflow            hidden
+    &.result
+        text-align      left
     
 // 000  000   000  00000000   000   000  000000000  
 // 000  0000  000  000   000  000   000     000     
