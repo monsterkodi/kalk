@@ -6,20 +6,33 @@
 000  000   000  000         0000000      000   
 ###
 
-{ post, elem, log, $ } = require 'kxk'
+{ post, elem, empty, log, $ } = require 'kxk'
 
 class Input
 
-    @input = null
-    @init: -> new Input $ "#input"
-    
-    constructor: (@view) ->
+    constructor: ->
         
+        @view = $ "#input"
         post.on 'button', @onButton
-        @view.appendChild elem class:'input'
+        @text = elem class:'input-text'
+        @view.appendChild @text
+        
+    calculate: (text) ->
+        return '' if empty text
+        val = eval text
+        post.emit 'sheet', text:text, val:val
+        return val
         
     onButton: (key) => 
         
-        log "Input.onButton '#{key}'", 
+        # log "Input.onButton '#{key}'"
+        
+        switch key
+            when '⌫' then @text.innerHTML = @text.innerHTML.substr 0, @text.innerHTML.length-1
+            when 'C' then @text.innerHTML = ''
+            when '=' 
+                @text.innerHTML = @calculate @text.innerHTML
+            else
+                @text.innerHTML += key
 
 module.exports = Input

@@ -8,12 +8,13 @@
 
 { keyinfo, scheme, stopEvent, prefs, slash, post, elem, popup, pos, str, log, $ } = require 'kxk'
 
-keys      = require './keys'
-input     = require './input'
+Keys      = require './keys'
+Input     = require './input'
+Sheet     = require './sheet'
 Menu      = require './menu'
 Titlebar  = require './titlebar'
-pkg       = require '../package.json'
 electron  = require 'electron'
+pkg       = require '../package.json'
 
 remote    = electron.remote
 win       = window.win = remote.getCurrentWindow()
@@ -34,17 +35,21 @@ $("#main").addEventListener "contextmenu", (event) ->
         absPos = pos $("#main").getBoundingClientRect().left, $("#main").getBoundingClientRect().top
         
     opt = items: [
+        text:   'Clear Sheet'
+        combo:  'ctrl+k'
+        cb:     -> post.emit 'menuAction', 'Clear Sheet'
+    ,
         text:   'Toggle Menu'
         combo:  'alt+m'
         cb:     -> post.emit 'menuAction', 'Toggle Menu'
     ,
         text:   'About'
         combo:  'ctrl+.'
-        cb:      -> post.toMain 'showAbout'
+        cb:      -> post.emit 'menuAction', 'About kalk'
     ,
         text:   'Quit'
         combo:  'ctrl+q' 
-        cb:     -> post.toMain 'quitApp'
+        cb:     -> post.emit 'menuAction', 'Quit'
     ]
     
     opt.x = absPos.x
@@ -54,7 +59,7 @@ $("#main").addEventListener "contextmenu", (event) ->
     
 window.onunload = -> document.onkeydown = null
 
-window.eval = global.eval = -> throw new Error "no eval"
+# window.eval = global.eval = -> throw new Error "no eval"
 
 # 00     00  00000000  000   000  000   000      0000000    0000000  000000000  000   0000000   000   000
 # 000   000  000       0000  000  000   000     000   000  000          000     000  000   000  0000  000
@@ -66,14 +71,15 @@ menuAction = (name, args) ->
 
     switch name
 
-        when 'Toggle Scheme'         then return scheme.toggle()
-        when 'Toggle Menu'           then return window.mainmenu.toggle()
-        when 'Show Menu'             then return window.mainmenu.show()
-        when 'Hide Menu'             then return window.mainmenu.hide()
-        when 'Open DevTools'         then return win.webContents.openDevTools()
-        when 'Reload Window'         then return win.webContents.reloadIgnoringCache()
-        when 'Close Window'          then return win.close()
-        when 'Minimize'              then return win.minimize()
+        when 'Toggle Scheme'    then return scheme.toggle()
+        when 'Toggle Menu'      then return window.mainmenu.toggle()
+        when 'Show Menu'        then return window.mainmenu.show()
+        when 'Hide Menu'        then return window.mainmenu.hide()
+        when 'Open DevTools'    then return win.webContents.openDevTools()
+        when 'Reload Window'    then return win.webContents.reloadIgnoringCache()
+        when 'Close Window'     then return win.close()
+        when 'Clear Sheet'      then return post.emit 'sheet', 'clear'
+        when 'Minimize'         then return win.minimize()
         
     log "unhandled menu action! ------------ posting to main '#{name}' args: #{args}"
     
@@ -103,6 +109,7 @@ document.onkeydown = (event) ->
 prefs.init()
 scheme.set prefs.get 'scheme', 'dark'
 window.titlebar = new Titlebar 
+window.sheet    = new Sheet
+window.input    = new Input
+window.keys     = new Keys
 window.mainmenu = new Menu 'menu'
-window.keys     = keys.init()
-input.init()

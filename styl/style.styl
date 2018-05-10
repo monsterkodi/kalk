@@ -45,6 +45,33 @@ body
     overflow            hidden
     pointer-events      auto
     
+//  0000000  000   000  00000000  00000000  000000000  
+// 000       000   000  000       000          000     
+// 0000000   000000000  0000000   0000000      000     
+//      000  000   000  000       000          000     
+// 0000000   000   000  00000000  00000000     000     
+
+#sheet
+    position            absolute
+    top                 0
+    left                0
+    right               0
+    height              300px
+    overflow            auto
+    
+.sheet-line
+    white-space         nowrap
+    height              38px
+    text-align          right
+    font-size           30px
+    -webkit-user-select auto
+    padding-right       10px
+    display             block
+    margin-left         auto
+    width               94%
+    overflow-x          auto
+    overflow-y          hidden
+    
 // 000  000   000  00000000   000   000  000000000  
 // 000  0000  000  000   000  000   000     000     
 // 000  000 0 000  00000000   000   000     000     
@@ -57,12 +84,14 @@ body
     left                10px
     right               10px
 
-.input 
+.input-text 
     height              100px
-    width               355px
-    color               #fff
-    border              1px solid white
+    width               345px
     border-radius       10px
+    text-align          right
+    font-size           80px
+    -webkit-user-select auto
+    padding-right       10px
     
 // 000   000  00000000  000   000   0000000  
 // 000  000   000        000 000   000       

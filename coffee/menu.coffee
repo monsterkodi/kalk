@@ -25,6 +25,10 @@ class Menu
             ,
                 text:   ''
             ,
+                text:   'Clear Sheet',                  accel:  'ctrl+k'
+            ,
+                text:   ''
+            ,
                 text:   'Quit',                         accel:  'ctrl+q'
             ]
         ,

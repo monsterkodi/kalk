@@ -10,17 +10,16 @@
 
 class Keys
 
-    @keys = null
-    @init: -> @keys = new Keys $ '#keys'
+    constructor: ->
         
-    constructor: (@view) ->
+        @view = $ '#keys'
         
         row = (children) => @view.appendChild elem 'span', class:'button-row', children:children
         button = (text, clss='button') => elem class:clss, text:text, click: @onButton
         
         row [
                 button "C"
-                button "="
+                button "⌫"
                 button "/"
                 button "*"
             ]
@@ -40,7 +39,7 @@ class Keys
                 button "1"
                 button "2"
                 button "3"
-                button "↩", 'button tall'
+                button "=", 'button tall'
             ]
         row [
                 button "0", 'button wide'
@@ -59,7 +58,9 @@ class Keys
 
         switch combo
             when '/', '*', '+', '-', '=', '.'   then return post.emit 'button', combo
-            when 'enter'                        then return post.emit 'button', '↩'
+            when 'enter'                        then return post.emit 'button', '='
+            when 'backspace'                    then return post.emit 'button', '⌫'
+            when 'delete'                       then return post.emit 'button', 'C'
             when 'shift+8'                      then return post.emit 'button', '*'
             when 'shift+='                      then return post.emit 'button', '+'
             when 'num lock'                     then post.emit 'button', 'C'; return stopEvent event
