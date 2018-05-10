@@ -10,8 +10,13 @@
 
 keys      = require './keys'
 input     = require './input'
+Menu      = require './menu'
+Titlebar  = require './titlebar'
 pkg       = require '../package.json'
 electron  = require 'electron'
+
+remote    = electron.remote
+win       = window.win = remote.getCurrentWindow()
 
 # 000       0000000    0000000   0000000
 # 000      000   000  000   000  000   000
@@ -20,24 +25,13 @@ electron  = require 'electron'
 # 0000000   0000000   000   000  0000000
 
 post.on 'schemeChanged', -> 
+post.on 'menuAction', (action, args) -> menuAction action, args
 
-setTitleBar = ->
-    
-    if slash.win()
-        $('titlebar').remove()
-        $('.main').style.top = '0px'
-        return
-    html  = "<span class='titlebarName'>#{pkg.name}</span>"
-    html += "<span class='titlebarDot'> ● </span>"
-    html += "<span class='titlebarVersion'>#{pkg.version}</span>"
-    $('titlebar').innerHTML = html
-    $('titlebar').ondblclick = => post.toMain 'toggleMaximize'
-
-$('main').addEventListener "contextmenu", (event) ->
+$("#main").addEventListener "contextmenu", (event) ->
     
     absPos = pos event
     if not absPos?
-        absPos = pos $('main').getBoundingClientRect().left, $('main').getBoundingClientRect().top
+        absPos = pos $("#main").getBoundingClientRect().left, $("#main").getBoundingClientRect().top
         
     opt = items: [
         text:   'Show Menu'
@@ -62,6 +56,29 @@ window.onunload = -> document.onkeydown = null
 
 window.eval = global.eval = -> throw new Error "no eval"
 
+# 00     00  00000000  000   000  000   000      0000000    0000000  000000000  000   0000000   000   000
+# 000   000  000       0000  000  000   000     000   000  000          000     000  000   000  0000  000
+# 000000000  0000000   000 0 000  000   000     000000000  000          000     000  000   000  000 0 000
+# 000 0 000  000       000  0000  000   000     000   000  000          000     000  000   000  000  0000
+# 000   000  00000000  000   000   0000000      000   000   0000000     000     000   0000000   000   000
+
+menuAction = (name, args) ->
+
+    switch name
+
+        when 'Toggle Scheme'         then return scheme.toggle()
+        when 'Toggle Menu'           then return window.mainmenu.toggle()
+        when 'Show Menu'             then return window.mainmenu.show()
+        when 'Hide Menu'             then return window.mainmenu.hide()
+        when 'Open DevTools'         then return win.webContents.openDevTools()
+        when 'Reload Window'         then return win.webContents.reloadIgnoringCache()
+        when 'Close Window'          then return win.close()
+        when 'Minimize'              then return win.minimize()
+        
+    log "unhandled menu action! ------------ posting to main '#{name}' args: #{args}"
+    
+    post.toMain 'menuAction', name, args
+    
 # 000   000  00000000  000   000
 # 000  000   000        000 000
 # 0000000    0000000     00000
@@ -82,6 +99,7 @@ document.onkeydown = (event) ->
 
 prefs.init()
 scheme.set prefs.get 'scheme', 'dark'
-setTitleBar()
+window.titlebar = new Titlebar 
+window.mainmenu = new Menu 'menu'
 keys.init()
 input.init()

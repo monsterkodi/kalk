@@ -45,6 +45,7 @@ app.exit 0 if not args?
 # 000        000   000       000     000     
 # 000         0000000   0000000      000     
 
+post.on 'menuAction', (action, arg) -> log 'action!'; onMenuAction action, arg
 post.on 'toggleMaximize',       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
 post.on 'closeWin',             -> win?.close()
 post.on 'showAbout',            -> showAbout()
@@ -83,6 +84,8 @@ createWindow = ->
         show:            false
         titleBarStyle:   'hidden'
         autoHideMenuBar: true
+        frame:           false
+        icon:            slash.path __dirname + '/../img/kalk.ico'
 
     bounds = prefs.get 'bounds'
     win.setBounds bounds if bounds?
@@ -141,68 +144,21 @@ app.on 'ready', ->
     
     app.setName pkg.productName
 
-    # 00     00  00000000  000   000  000   000
-    # 000   000  000       0000  000  000   000
-    # 000000000  0000000   000 0 000  000   000
-    # 000 0 000  000       000  0000  000   000
-    # 000   000  00000000  000   000   0000000
-
-    Menu.setApplicationMenu Menu.buildFromTemplate [
-        label: app.getName()
-        submenu: [
-            label: "About #{pkg.name}"
-            accelerator: 'CmdOrCtrl+.'
-            click: -> showAbout()
-        ,
-            type: 'separator'
-        ,
-            label:       'Close Window'
-            accelerator: 'CmdOrCtrl+W'
-            click:       -> win?.close()
-        ,
-            label: 'Quit'
-            accelerator: 'CmdOrCtrl+Q'
-            click: -> quitApp()
-        ]
-    ,
-        # 000   000  000  000   000  0000000     0000000   000   000
-        # 000 0 000  000  0000  000  000   000  000   000  000 0 000
-        # 000000000  000  000 0 000  000   000  000   000  000000000
-        # 000   000  000  000  0000  000   000  000   000  000   000
-        # 00     00  000  000   000  0000000     0000000   00     00
-
-        label: 'Window'
-        submenu: [
-            label:       'Minimize'
-            accelerator: 'CmdOrCtrl+Alt+M'
-            click:       -> win?.minimize()
-        ,
-            label:       'Maximize'
-            accelerator: 'CmdOrCtrl+Shift+m'
-            click:       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
-        ,
-            type: 'separator'
-        ,
-            label:       'Reload Window'
-            accelerator: 'CmdOrCtrl+Alt+L'
-            click:       -> win?.webContents.reloadIgnoringCache()
-        ,
-            label:       'Toggle DevTools'
-            accelerator: 'CmdOrCtrl+Alt+I'
-            click:       -> win?.webContents.openDevTools()
-        ]
-    ]
-
     if not args.noprefs
         prefs.init
             shortcut: 'CmdOrCtrl+Alt+C'
 
     electron.globalShortcut.register prefs.get('shortcut'), showWindow
 
-    if slash.win()
-        showWindow()
+    showWindow()
 
-app.setName pkg.productName        
+onMenuAction = (action, arg) ->
+    log 'onMenuAction', action, arg
+    switch action
+        when 'Quit'       then quitApp()
+        when 'About kalk' then showAbout()
+        
+app.setName pkg.name        
         
 if app.makeSingleInstance showWindow
     app.quit()
