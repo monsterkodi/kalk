@@ -116,11 +116,11 @@ body
     bottom              10px
     left                5px
 
-.button-row
+// .key-table
+
+.key-row
     font-size           60px
-    display             block
     overflow            visible
-    height              90px
 
 // 0000000    000   000  000000000  000000000   0000000   000   000    
 // 000   000  000   000     000        000     000   000  0000  000    
@@ -128,26 +128,20 @@ body
 // 000   000  000   000     000        000     000   000  000  0000    
 // 0000000     0000000      000        000      0000000   000   000    
 
-.button
+.key
     vertical-align      top
+    // padding             3px
     padding-top         20px
     font-size           35px
     width               80px
     height              60px
     text-align          center
     border-radius       10px
-    margin              5px
-    display             inline-block
     cursor              pointer
     -webkit-user-select none
     -webkit-app-region  no-drag
-    &.wide
-        width           172px
-    &.tall
-        height          150px
-        &.bottom 
-            padding-top  105px
-            height       65px
+    &.bottom 
+        padding-top  105px
         
 // 000000000  000  000000000  000      00000000  0000000     0000000   00000000 
 //    000     000     000     000      000       000   000  000   000  000   000

@@ -13,6 +13,8 @@ class Keys
     constructor: ->
         
         @view = $ '#keys'
+        @table = elem 'table', class:'key-table', cellSpacing: '7px'
+        @view.appendChild @table
         @numberKeys()
         post.on 'keys', @onKeys
         
@@ -23,53 +25,55 @@ class Keys
         
     setKeys: (@keys, keys) =>
         
-        @view.innerHTML = ''
+        @table.innerHTML = ''
         for row in keys
-            @view.appendChild row
+            @table.appendChild row
         
-    row: (children) => elem 'span', class:'button-row', children:children
-    # button: (text, clss='button') => elem class:clss, text:text, click: @onButton
-    button: (text, clss='button') => 
+    row: (children) => elem 'tr', class:'key-row', children:children
+    key: (text, clss='key') => 
         if text == '_' 
-            elem class:'button hidden', text:"." 
+            elem 'td', class:'key hidden'
         else
-            elem class:clss, text:text, click: @onButton
+            cfg = class:clss, text:text, click: @onButton
+            if clss.indexOf('wide') >= 0
+                cfg.colSpan = 2
+            if clss.indexOf('tall') >= 0
+                cfg.rowSpan = 2
+            elem 'td', cfg
         
     numberKeys: ->
                 
         @setKeys 'numbers', [
             @row [
-                    @button "C", 'button tall'
-                    @button "√"
-                    @button "^"
-                    @button "/"
-                    @button "*"
+                    @key "C", 'key tall'
+                    @key "√"
+                    @key "^"
+                    @key "/"
+                    @key "*"
                 ]
             @row [
-                    @button "_"
-                    @button "7"
-                    @button "8"
-                    @button "9"
-                    @button "-"
+                    @key "7"
+                    @key "8"
+                    @key "9"
+                    @key "-"
                 ]
             @row [
-                    @button "⌫"
-                    @button "4"
-                    @button "5"
-                    @button "6"
-                    @button "+"
+                    @key "⌫"
+                    @key "4"
+                    @key "5"
+                    @key "6"
+                    @key "+"
                 ]
             @row [
-                    @button "ƒ", 'button tall bottom'
-                    @button "1"
-                    @button "2"
-                    @button "3"
-                    @button "=", 'button tall bottom'
+                    @key "ƒ", 'key tall bottom'
+                    @key "1"
+                    @key "2"
+                    @key "3"
+                    @key "=", 'key tall bottom'
                 ]
             @row [
-                    @button "_"
-                    @button "0", 'button wide'
-                    @button "."
+                    @key "0", 'key wide'
+                    @key "."
                 ]
             ]
     
@@ -77,38 +81,32 @@ class Keys
         
         @setKeys 'functions', [
             @row [
-                    @button "C", 'button tall'
-                    @button "_"
-                    @button "_"
-                    @button "log"
-                    @button "deg"
+                    @key "C", 'key tall'
+                    @key "sin"
+                    @key "cos"
+                    @key "tan"
+                    @key "π"                    
                 ]
             @row [
-                    @button "_"
-                    @button "_"
-                    @button "_"
-                    @button "exp"
-                    @button "rad"
+                    @key "log"
+                    @key "exp"
+                    @key "_"
+                    @key "ℇ"
                 ]
             @row [
-                    @button "⌫"
-                    @button "sin"
-                    @button "cos"
-                    @button "tan"
-                    @button "hex"
+                    @key "⌫"
+                    @key "deg"
+                    @key "rad"
                 ]
             @row [
-                    @button "ℵ", 'button tall bottom'
-                    @button "1/x"
-                    @button "π"
-                    @button "ℇ"
-                    @button "=", 'button tall bottom'
+                    @key "ℵ", 'key tall bottom'
+                    @key "1/x"
+                    @key "hex"
+                    @key "=", 'key tall bottom wide'
                 ]
             @row [
-                    @button "_"
-                    @button "_"
-                    @button "("
-                    @button ")"
+                    @key "("
+                    @key ")"
                 ]
             ]
 
