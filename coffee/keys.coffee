@@ -68,14 +68,14 @@ class Keys
         
         @setKeys 'functions', [
             @row [
+                    @button "C"
                     @button "√"
-                    @button "3√"
                     @button "log"
                     @button "deg"
                 ]
             @row [
-                    @button "^2"
                     @button "^"
+                    @button "^2"
                     @button "exp"
                     @button "rad"
                 ]

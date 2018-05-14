@@ -15,8 +15,8 @@ class Input
         
         @view = $ "#input"
         post.on 'button', @onButton
-        @text = elem class:'input-text'
-        @view.appendChild @text
+        @input = elem class:'input-text'
+        @view.appendChild @input
         
     calculate: (text) ->
         return '' if empty text
@@ -37,8 +37,8 @@ class Input
             for f in ['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'exp', 'sqrt', 'cbrt', 'pow']
                 global[f] = Math[f]
             """ + '\n' + coffee
-        log 'coffee', coffee
-        log 'script', CoffeeScript.compile coffee, bare:true
+        # log 'coffee', coffee
+        # log 'script', CoffeeScript.compile coffee, bare:true
         val = str eval CoffeeScript.compile coffee, bare:true
         
         text = text.replace /2\.718281828459045/g, 'ℇ'
@@ -47,35 +47,43 @@ class Input
         val  = val.replace  /Infinity/g, '∞'
         
         post.emit 'sheet', text:text, val:val
+        
+        val  = val.replace  /NaN/g, ''
         return val
+        
+    backspace:          -> @setText @text().substr 0, @textLength()-1
+    appendText:  (text) -> @setText @text() + text
+    textLength:         -> @text().length
+    clear:              -> @setText ''
+    
+    text:               -> @input.innerText
+    setText:     (text) -> @input.innerText = text
         
     onButton: (key) => 
         
-        log "Input.onButton '#{key}'"
+        # log "Input.onButton '#{key}'"
         
         switch key
             when 'ƒ' then post.emit 'keys', 'functions'
-            when 'ℂ' then post.emit 'keys', 'symbols'
             when 'ℵ' then post.emit 'keys', 'numbers'
-            when '⌫' then @text.innerText = @text.innerText.substr 0, @text.innerText.length-1
-            when 'C' then @text.innerText = ''
-            when '_' then @text.innerText += ' '
+            when '⌫' then @backspace()
+            when 'C' then @clear()
             when 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', '3√', '√', 'deg', 'rad', 'exp', 'log'
-                if not empty(@text.innerText) and @text.innerText[@text.innerText.length-1] not in ['+', '-', '/', '*']
-                    @text.innerText = @calculate key + ' ' + @text.innerText
+                if not empty(@text()) and @text()[@textLength()-1] not in ['+', '-', '/', '*']
+                    @setText @calculate key + ' ' + @text()
                 else
-                    @text.innerText += key + ' '
+                    @appendText key + ' '
             when '=' 
-                @text.innerText = @calculate @text.innerText
+                @setText @calculate @text()
             when '1/x'
-                @text.innerText = @calculate '1/(' + @text.innerText + ')'
+                @setText @calculate '1/(' + @text() + ')'
             else
-                if @text.innerText != '0'
-                    @text.innerText += key
+                if @text() != '0'
+                    @appendText key
                 else
                     if key in ['.', 'x', '+', '-', '/', '*', ' ']
-                        @text.innerText += key
+                        @appendText key
                     else
-                        @text.innerText = key
+                        @setText key
 
 module.exports = Input

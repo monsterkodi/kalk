@@ -45,7 +45,7 @@ app.exit 0 if not args?
 # 000        000   000       000     000     
 # 000         0000000   0000000      000     
 
-post.on 'menuAction', (action, arg) -> log 'action!'; onMenuAction action, arg
+post.on 'menuAction', (action, arg) -> onMenuAction action, arg
 post.on 'toggleMaximize',       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
 post.on 'closeWin',             -> win?.close()
 post.on 'showAbout',            -> showAbout()
@@ -153,7 +153,7 @@ app.on 'ready', ->
     showWindow()
 
 onMenuAction = (action, arg) ->
-    log 'onMenuAction', action, arg
+    # log 'onMenuAction', action, arg
     switch action
         when 'Quit'       then quitApp()
         when 'About kalk' then showAbout()
