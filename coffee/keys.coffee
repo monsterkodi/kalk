@@ -28,38 +28,47 @@ class Keys
             @view.appendChild row
         
     row: (children) => elem 'span', class:'button-row', children:children
-    button: (text, clss='button') => elem class:clss, text:text, click: @onButton
+    # button: (text, clss='button') => elem class:clss, text:text, click: @onButton
+    button: (text, clss='button') => 
+        if text == '_' 
+            elem class:'button hidden', text:"." 
+        else
+            elem class:clss, text:text, click: @onButton
         
     numberKeys: ->
                 
         @setKeys 'numbers', [
             @row [
-                    @button "C"
-                    @button "⌫"
+                    @button "C", 'button tall'
+                    @button "√"
+                    @button "^"
                     @button "/"
                     @button "*"
                 ]
             @row [
+                    @button "_"
                     @button "7"
                     @button "8"
                     @button "9"
                     @button "-"
                 ]
             @row [
+                    @button "⌫"
                     @button "4"
                     @button "5"
                     @button "6"
                     @button "+"
                 ]
             @row [
+                    @button "ƒ", 'button tall bottom'
                     @button "1"
                     @button "2"
                     @button "3"
-                    @button "=", 'button tall'
+                    @button "=", 'button tall bottom'
                 ]
             @row [
-                    @button "ƒ"
-                    @button "0"
+                    @button "_"
+                    @button "0", 'button wide'
                     @button "."
                 ]
             ]
@@ -68,31 +77,36 @@ class Keys
         
         @setKeys 'functions', [
             @row [
-                    @button "C"
-                    @button "√"
+                    @button "C", 'button tall'
+                    @button "_"
+                    @button "_"
                     @button "log"
                     @button "deg"
                 ]
             @row [
-                    @button "^"
-                    @button "^2"
+                    @button "_"
+                    @button "_"
+                    @button "_"
                     @button "exp"
                     @button "rad"
                 ]
             @row [
+                    @button "⌫"
                     @button "sin"
                     @button "cos"
                     @button "tan"
                     @button "hex"
                 ]
             @row [
+                    @button "ℵ", 'button tall bottom'
                     @button "1/x"
                     @button "π"
                     @button "ℇ"
-                    @button "=", 'button tall'
+                    @button "=", 'button tall bottom'
                 ]
             @row [
-                    @button "ℵ" # ℂ
+                    @button "_"
+                    @button "_"
                     @button "("
                     @button ")"
                 ]

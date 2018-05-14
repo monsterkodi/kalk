@@ -74,7 +74,7 @@ showWindow = ->
 createWindow = ->
 
     win = new BrowserWindow
-        width:           390
+        width:           480
         height:          900
         backgroundColor: '#181818'
         maximizable:     false
