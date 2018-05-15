@@ -7,6 +7,8 @@
 ###
 
 { post, elem, empty, log, str, $ } = require 'kxk'
+
+color        = require './color'
 CoffeeScript = require 'coffeescript'
 
 class Input
@@ -14,12 +16,16 @@ class Input
     constructor: ->
         
         @view = $ "#input"
+        @plain = ''
+        
         post.on 'button', @onButton
         @input = elem class:'input-text'
         @view.appendChild @input
         
     calculate: (text) ->
+        
         return '' if empty text
+        
         coffee = text
         coffee = coffee.replace /3√/g, 'cbrt'
         coffee = coffee.replace /√/g, 'sqrt'
@@ -49,15 +55,14 @@ class Input
         post.emit 'sheet', text:text, val:val
         
         val  = val.replace  /NaN/g, ''
-        return val
         
     backspace:          -> @setText @text().substr 0, @textLength()-1
     appendText:  (text) -> @setText @text() + text
     textLength:         -> @text().length
     clear:              -> @setText ''
     
-    text:               -> @input.innerText
-    setText:     (text) -> @input.innerText = text
+    text:               -> @plain
+    setText:     (text) -> @plain = text; @input.innerHTML = color @plain
         
     onButton: (key) => 
         

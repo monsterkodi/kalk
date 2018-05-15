@@ -7,6 +7,8 @@
 
 { post, elem, log, str, $ } = require 'kxk'
 
+color = require './color'
+
 class Sheet
 
     constructor: ->
@@ -26,10 +28,10 @@ class Sheet
                 @result.innerHTML = ''
             else
                 if action.text != str action.val
-                    @calc.appendChild elem class:'sheet-line calc', text:action.text + ' ='
-                    @result.appendChild elem class:'sheet-line result', text:action.val
+                    @calc.appendChild elem class:'sheet-line calc', html:color action.text + ' ='
+                    @result.appendChild elem class:'sheet-line result', html:color action.val
                 else
-                    @calc.appendChild elem class:'sheet-line calc', text:''
-                    @result.appendChild elem class:'sheet-line result', text:action.val
+                    @calc.appendChild elem class:'sheet-line calc', html:''
+                    @result.appendChild elem class:'sheet-line result', html:color action.val
         
 module.exports = Sheet
