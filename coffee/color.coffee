@@ -27,7 +27,6 @@ class Color
     colorize: (text) => 
     
         rngs = matchr.ranges @config, text
-        log text, rngs
         colorized = ''
         index = 0
         for rng in rngs
@@ -36,7 +35,6 @@ class Color
                 colorized += "&nbsp;"
             colorized += "<span class=\"#{rng.value}\">#{rng.match}</span>"
             index = rng.start + rng.match.length
-        log colorized
         return colorized
 
 
