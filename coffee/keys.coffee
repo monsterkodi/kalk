@@ -113,7 +113,7 @@ class Keys
     onButton: (event) => post.emit 'button', event.target.innerHTML.trim()
     
     toggleKeys: ->
-        log @keys
+        # log @keys
         switch @keys
             when 'numbers' then @functionKeys()
             else @numberKeys()
@@ -126,7 +126,7 @@ class Keys
     
     globalModKeyComboEvent: (mod, key, combo, event) ->
 
-        log 'mod', mod, combo
+        # log 'mod', mod, combo
         
         switch combo
             when 'ctrl'                         then @toggleKeys(); return stopEvent event

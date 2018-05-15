@@ -12,7 +12,13 @@ CoffeeScript = require 'coffeescript'
 
 class Calc
 
-    @calculate: (text) ->
+    @pow: (text) ->
+        while 0 < text.lastIndexOf '^'
+            i = text.lastIndexOf '^'
+            text = 'pow(' + @pow(text.slice(0,i)) + ', ' + text.slice(i+1) + ')'
+        text
+    
+    @calc: (text) ->
         
         return '' if empty text
         
@@ -23,18 +29,19 @@ class Calc
         coffee = coffee.replace /∞/g, 'Infinity'
         coffee = coffee.replace /log/g, 'Math.log'
         
-        if coffee.split('^').length == 2
-            coffee = 'pow ' + coffee.split('^')[0] + ', ' + coffee.split('^')[1]
+        if coffee.split('^').length > 1
+            coffee = @pow coffee
+            
+        log 'coffee', coffee
         
         coffee = """
             deg = (r) -> 180 * r / Math.PI
             rad = (d) -> Math.PI * d / 180
-            for f in ['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'exp', 'sqrt', 'cbrt', 'pow']
+            for f in ['sin', 'cos', 'tan', 'exp', 'sqrt', 'pow']
                 global[f] = Math[f]
             """ + '\n' + coffee
             
-        log 'coffee', coffee
-        log 'script', CoffeeScript.compile coffee, bare:true
+        # log 'script', CoffeeScript.compile coffee, bare:true
         
         val  = str eval CoffeeScript.compile coffee, bare:true
         
@@ -46,5 +53,27 @@ class Calc
         post.emit 'sheet', text:text, val:val
         
         val  = val.replace  /NaN/g, ''
+        
+    @textKey: (text, key) ->
+        # log 'textKey', text, 'key', key
+        switch key
+            when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
+                if not empty(text) and text[text.length-1] not in ['+', '-', '/', '*']
+                    text = @calc key + ' ' + text
+                else
+                    text += key + ' '
+            when '=' 
+                text = @calc text
+            when '1/x'
+                text =  @calc '1/(' + text + ')'
+            else
+                if text != '0'
+                    text += key
+                else
+                    if key in ['.', 'x', '+', '-', '/', '*', ' ']
+                        text += key
+                    else
+                        text = key
+        text
 
-module.exports = Calc.calculate
+module.exports = Calc

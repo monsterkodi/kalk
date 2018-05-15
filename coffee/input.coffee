@@ -39,22 +39,6 @@ class Input
             when 'ℵ' then post.emit 'keys', 'numbers'
             when '⌫' then @backspace()
             when 'C' then @clear()
-            when 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', '3√', '√', 'deg', 'rad', 'exp', 'log'
-                if not empty(@text()) and @text()[@textLength()-1] not in ['+', '-', '/', '*']
-                    @setText calc key + ' ' + @text()
-                else
-                    @appendText key + ' '
-            when '=' 
-                @setText calc @text()
-            when '1/x'
-                @setText calc '1/(' + @text() + ')'
-            else
-                if @text() != '0'
-                    @appendText key
-                else
-                    if key in ['.', 'x', '+', '-', '/', '*', ' ']
-                        @appendText key
-                    else
-                        @setText key
+            else @setText calc.textKey @text(), key
 
 module.exports = Input
