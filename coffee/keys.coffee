@@ -46,34 +46,34 @@ class Keys
         @setKeys 'numbers', [
             @row [
                     @key "C", 'key tall'
-                    @key "√"
-                    @key "^"
-                    @key "/"
-                    @key "*"
+                    @key "√", 'key op0'
+                    @key "^", 'key op0'
+                    @key "/", 'key op1'
+                    @key "*", 'key op1'
                 ]
             @row [
-                    @key "7"
-                    @key "8"
-                    @key "9"
-                    @key "-"
+                    @key "7", 'key digit'
+                    @key "8", 'key digit'
+                    @key "9", 'key digit'
+                    @key "-", 'key dot'
                 ]
             @row [
                     @key "⌫"
-                    @key "4"
-                    @key "5"
-                    @key "6"
-                    @key "+"
+                    @key "4", 'key digit'
+                    @key "5", 'key digit'
+                    @key "6", 'key digit'
+                    @key "+", 'key dot'
                 ]
             @row [
                     @key "ƒ", 'key tall bottom'
-                    @key "1"
-                    @key "2"
-                    @key "3"
+                    @key "1", 'key digit'
+                    @key "2", 'key digit'
+                    @key "3", 'key digit'
                     @key "=", 'key tall bottom'
                 ]
             @row [
-                    @key "0", 'key wide'
-                    @key "."
+                    @key "0", 'key wide digit'
+                    @key ".", 'key dot'
                 ]
             ]
     
@@ -82,31 +82,31 @@ class Keys
         @setKeys 'functions', [
             @row [
                     @key "C", 'key tall'
-                    @key "sin"
-                    @key "cos"
-                    @key "tan"
-                    @key "π"                    
+                    @key "sin", 'key function'
+                    @key "cos", 'key function'
+                    @key "tan", 'key function'
+                    @key "π", 'key constant'    
                 ]
             @row [
-                    @key "log"
-                    @key "exp"
+                    @key "log", 'key function'
+                    @key "exp", 'key function'
                     @key "_"
-                    @key "ℇ"
+                    @key "ℇ", 'key constant'
                 ]
             @row [
                     @key "⌫"
                     @key "°"
-                    @key "rad"
+                    @key "rad", 'key function'
                 ]
             @row [
                     @key "ℵ", 'key tall bottom'
                     @key "1/x"
-                    @key "hex"
-                    @key "=", 'key tall bottom wide'
+                    @key "hex", 'key function'
+                    @key "=", 'key tall bottom wide equals'
                 ]
             @row [
-                    @key "("
-                    @key ")"
+                    @key "(", 'key bracket'
+                    @key ")", 'key bracket'
                 ]
             ]
 

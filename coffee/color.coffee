@@ -25,7 +25,7 @@ class Color
             '[πℇ∞]': 'constant'
             '[√^]': 'op0'
             '[*/]': 'op1'
-            '[+-]': 'dot'
+            '(?:[^e])([+-])': 'dot'
     
     colorize: (text) => 
     
