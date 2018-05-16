@@ -95,7 +95,7 @@ class Keys
                 ]
             @row [
                     @key "⌫"
-                    @key "deg"
+                    @key "°"
                     @key "rad"
                 ]
             @row [
