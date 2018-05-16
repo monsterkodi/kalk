@@ -13,6 +13,11 @@ calc   = require './calc'
 
 describe 'calc', ->
 
+    it 'parse', ->
+        
+        expect calc.parse 'sin 2'
+        .to.eql calc.parse 'sin(2)'
+    
     it 'calc', ->
         expect calc.calc '2^2^2'
         .to.eql '16'

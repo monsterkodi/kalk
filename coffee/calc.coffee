@@ -42,8 +42,9 @@ class Calc
             """ + '\n' + coffee
             
         # log 'script', CoffeeScript.compile coffee, bare:true
-        
-        val  = str eval CoffeeScript.compile coffee, bare:true
+        evl  = eval CoffeeScript.compile coffee, bare:true
+        val  = str evl
+        log 'evl', evl, 'val', val
         
         text = text.replace /2\.718281828459045/g, 'ℇ'
         text = text.replace /3\.141592653589793/g, 'π'
@@ -58,7 +59,7 @@ class Calc
         # log 'textKey', text, 'key', key
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
-                if not empty(text) and text[text.length-1] not in ['+', '-', '/', '*']
+                if not empty(text) and text[text.length-1] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ℇ', 'π', '∞']
                     text = @calc key + ' ' + text
                 else
                     text += key + ' '
@@ -66,14 +67,15 @@ class Calc
                 text = @calc text
             when '1/x'
                 text =  @calc '1/(' + text + ')'
+            when '.', 'x', '+', '-', '/', '*', '^'
+                if not empty(text) 
+                    if text[text.length-1] not in ['.', 'x', '+', '-', '/', '*', '^']
+                        text += key
             else
                 if text != '0'
                     text += key
                 else
-                    if key in ['.', 'x', '+', '-', '/', '*', ' ']
-                        text += key
-                    else
-                        text = key
+                    text = key
         text
 
 module.exports = Calc
