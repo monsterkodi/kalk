@@ -8,32 +8,25 @@
 
 { empty, post, str, log } = require 'kxk'
 
-CoffeeScript = require 'coffeescript'
+math = require 'mathjs'
 
 class Calc
 
-    @pow: (text) ->
-        while 0 < text.lastIndexOf '^'
-            i = text.lastIndexOf '^'
-            text = 'pow(' + @pow(text.slice(0,i)) + ', ' + text.slice(i+1) + ')'
-        text
-    
     @calc: (text) ->
         
         return '' if empty text
         
-        coffee = text
-        coffee = coffee.replace /√/g, 'sqrt'
-        coffee = coffee.replace /π/g, 'Math.PI'
-        coffee = coffee.replace /ℇ/g, 'Math.E'
-        coffee = coffee.replace /∞/g, 'Infinity'
-        coffee = coffee.replace /log/g, 'Math.log'
+        expr = text
         
-        if coffee.split('^').length > 1
-            coffee = @pow coffee
-            
-        log 'coffee', coffee
+        expr = @closeParens expr
         
+        expr = expr.replace /√/g, 'sqrt'
+        expr = expr.replace /π/g, 'pi'
+        expr = expr.replace /ℇ/g, 'E'
+        expr = expr.replace /∞/g, 'Infinity'
+        expr = expr.replace /°/g, ' deg'
+        
+<<<<<<< HEAD
         coffee = """
             deg = (r) -> 180 * r / Math.PI
             rad = (d) -> Math.PI * d / 180
@@ -45,24 +38,58 @@ class Calc
         evl  = eval CoffeeScript.compile coffee, bare:true
         val  = str evl
         log 'evl', evl, 'val', val
+=======
+        math.config number: 'BigNumber', precision: 24
         
-        text = text.replace /2\.718281828459045/g, 'ℇ'
-        text = text.replace /3\.141592653589793/g, 'π'
-        text = text.replace /Infinity/g, '∞'
+        evl  = math.eval expr
+        if evl.value?
+            val = str evl.value
+        else if evl.toString?
+            val = evl.toString()
+        else
+            val  = str evl
+        log 'expr:', expr, 'val:', val
+>>>>>>> ae0d531c8555eb554367460415780ceca15d4a14
+        
         val  = val.replace  /Infinity/g, '∞'
         
-        post.emit 'sheet', text:text, val:val
+        expr = expr.replace /sqrt/g, '√'
+        expr = expr.replace /pi/g, 'π'
+        expr = expr.replace /E/g, 'ℇ'
+        expr = expr.replace /Infinity/g, '∞'
+        expr = expr.replace /\ deg/g, '°'
+        
+        post.emit 'sheet', text:expr, val:val
         
         val  = val.replace  /NaN/g, ''
         
+    @closeParens: (text) ->
+        
+        o = 0
+        for c in text
+            switch c
+                when '(' then o += 1
+                when ')' then o -= 1
+        while o > 0
+            o -= 1
+            text += ')'
+        text
+        
     @textKey: (text, key) ->
-        # log 'textKey', text, 'key', key
+        log 'textKey', text, 'key', key
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
+<<<<<<< HEAD
                 if not empty(text) and text[text.length-1] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ℇ', 'π', '∞']
                     text = @calc key + ' ' + text
+=======
+                if not empty(text) and text[text.length-1] not in ['+', '-', '/', '*']
+                    text = @calc key + '(' + text + ')'
+>>>>>>> ae0d531c8555eb554367460415780ceca15d4a14
                 else
-                    text += key + ' '
+                    text += key + '('
+            when '°'
+                text += key
             when '=' 
                 text = @calc text
             when '1/x'

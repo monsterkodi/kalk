@@ -14,16 +14,18 @@ class Color
         
         @config = matchr.config 
             '=': 'equals'
-            '[e][-+]': 'exponent'
+            'e[-+]': 'exponent'
             '[\\.]': 'dot'
             '[\\(\\)]': 'bracket'
             '\\d+': 'digit' 
+            '°': 'digit' 
+            '(?:\d)(i)': 'complex'
             '(sin|cos|tan|exp|log|deg|rad|hex)': 'function'
             'NaN': 'nan'
             '[πℇ∞]': 'constant'
             '[√^]': 'op0'
             '[*/]': 'op1'
-            '(?:[^e])([+-])': 'op2'
+            '[+-]': 'dot'
     
     colorize: (text) => 
     
