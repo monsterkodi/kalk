@@ -8,7 +8,8 @@
 
 { empty, post, str, log } = require 'kxk'
 
-math = require 'mathjs'
+math   = require 'mathjs'
+parens = require './parens'
 
 class Calc
 
@@ -18,7 +19,7 @@ class Calc
         
         expr = text
         
-        expr = @closeParens expr
+        expr = parens.close expr
         
         expr = expr.replace /√/g, 'sqrt'
         expr = expr.replace /π/g, 'pi'
@@ -48,19 +49,7 @@ class Calc
         post.emit 'sheet', text:expr, val:val
         
         val  = val.replace  /NaN/g, ''
-        
-    @closeParens: (text) ->
-        
-        o = 0
-        for c in text
-            switch c
-                when '(' then o += 1
-                when ')' then o -= 1
-        while o > 0
-            o -= 1
-            text += ')'
-        text
-        
+                
     @textKey: (text, key) ->
         log 'textKey', text, 'key', key
         switch key
@@ -81,6 +70,8 @@ class Calc
                 if not empty(text) 
                     if text[text.length-1] not in ['.', 'x', '+', '-', '/', '*', '^']
                         text += key
+                else if key in ['+', '-']
+                    text = key
             else
                 if text != '0'
                     text += key

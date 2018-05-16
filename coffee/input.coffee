@@ -8,8 +8,9 @@
 
 { post, elem, empty, log, $ } = require 'kxk'
 
-calc  = require './calc'
-color = require './color'
+calc   = require './calc'
+color  = require './color'
+parens = require './parens'
 
 class Input
 
@@ -28,7 +29,7 @@ class Input
     clear:              -> @setText ''
     
     text:               -> @plain
-    setText:     (text) -> @plain = text; @input.innerHTML = color @plain
+    setText:     (text) -> @plain = text; @input.innerHTML = color parens.clean @plain
         
     onButton: (key) => 
         

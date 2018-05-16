@@ -25,7 +25,8 @@ class Color
             '[πℇ∞]': 'constant'
             '[√^]': 'op0'
             '[*/]': 'op1'
-            '(?:[^e])([+-])': 'dot'
+            # '(?:[^e])([+-])': 'dot'
+            '[+-]': 'dot'
     
     colorize: (text) => 
     
@@ -36,6 +37,8 @@ class Color
             while index < rng.start
                 index += 1
                 colorized += "&nbsp;"
+            if index > rng.start
+                continue
             colorized += "<span class=\"#{rng.value}\">#{rng.match}</span>"
             index = rng.start + rng.match.length
         return colorized

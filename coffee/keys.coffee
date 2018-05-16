@@ -65,14 +65,14 @@ class Keys
                     @key "+", 'key dot'
                 ]
             @row [
-                    @key "ƒ", 'key tall bottom'
+                    @key "ƒ", 'key tall bottom function'
                     @key "1", 'key digit'
                     @key "2", 'key digit'
                     @key "3", 'key digit'
                     @key "=", 'key tall bottom'
                 ]
             @row [
-                    @key "0", 'key wide digit'
+                    @key "0", 'key wide digit right'
                     @key ".", 'key dot'
                 ]
             ]
@@ -88,20 +88,18 @@ class Keys
                     @key "π", 'key constant'    
                 ]
             @row [
+                    @key "hex", 'key'
                     @key "log", 'key function'
                     @key "exp", 'key function'
-                    @key "_"
                     @key "ℇ", 'key constant'
                 ]
             @row [
                     @key "⌫"
-                    @key "°"
-                    @key "rad", 'key function'
                 ]
             @row [
-                    @key "ℵ", 'key tall bottom'
-                    @key "1/x"
-                    @key "hex", 'key function'
+                    @key "ℵ", 'key tall bottom digit'
+                    @key "1/x", 'key op1'
+                    @key "°", 'key digit'
                     @key "=", 'key tall bottom wide equals'
                 ]
             @row [
