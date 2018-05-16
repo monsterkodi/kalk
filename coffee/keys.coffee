@@ -45,7 +45,7 @@ class Keys
                 
         @setKeys 'numbers', [
             @row [
-                    @key "ƒ", 'key tall'
+                    @key "C", 'key tall'
                     @key "√"
                     @key "^"
                     @key "/"
@@ -65,7 +65,7 @@ class Keys
                     @key "+"
                 ]
             @row [
-                    @key "C", 'key tall bottom'
+                    @key "ƒ", 'key tall bottom'
                     @key "1"
                     @key "2"
                     @key "3"
@@ -81,7 +81,7 @@ class Keys
         
         @setKeys 'functions', [
             @row [
-                    @key "ℵ", 'key tall'
+                    @key "C", 'key tall'
                     @key "sin"
                     @key "cos"
                     @key "tan"
@@ -99,7 +99,7 @@ class Keys
                     @key "rad"
                 ]
             @row [
-                    @key "C", 'key tall bottom'
+                    @key "ℵ", 'key tall bottom'
                     @key "1/x"
                     @key "hex"
                     @key "=", 'key tall bottom wide'

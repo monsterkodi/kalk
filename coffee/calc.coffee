@@ -26,20 +26,7 @@ class Calc
         expr = expr.replace /∞/g, 'Infinity'
         expr = expr.replace /°/g, ' deg'
         
-<<<<<<< HEAD
-        coffee = """
-            deg = (r) -> 180 * r / Math.PI
-            rad = (d) -> Math.PI * d / 180
-            for f in ['sin', 'cos', 'tan', 'exp', 'sqrt', 'pow']
-                global[f] = Math[f]
-            """ + '\n' + coffee
-            
-        # log 'script', CoffeeScript.compile coffee, bare:true
-        evl  = eval CoffeeScript.compile coffee, bare:true
-        val  = str evl
-        log 'evl', evl, 'val', val
-=======
-        math.config number: 'BigNumber', precision: 24
+        math.config number: 'BigNumber', precision: 19
         
         evl  = math.eval expr
         if evl.value?
@@ -49,7 +36,6 @@ class Calc
         else
             val  = str evl
         log 'expr:', expr, 'val:', val
->>>>>>> ae0d531c8555eb554367460415780ceca15d4a14
         
         val  = val.replace  /Infinity/g, '∞'
         
@@ -79,13 +65,10 @@ class Calc
         log 'textKey', text, 'key', key
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
-<<<<<<< HEAD
+
                 if not empty(text) and text[text.length-1] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ℇ', 'π', '∞']
                     text = @calc key + ' ' + text
-=======
-                if not empty(text) and text[text.length-1] not in ['+', '-', '/', '*']
-                    text = @calc key + '(' + text + ')'
->>>>>>> ae0d531c8555eb554367460415780ceca15d4a14
+
                 else
                     text += key + '('
             when '°'
