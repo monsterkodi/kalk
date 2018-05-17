@@ -19,7 +19,7 @@ class Color
             '[\\(\\)]': 'bracket'
             '\\d+': 'digit' 
             '°': 'digit' 
-            '(?:\d)(i)': 'complex'
+            'i': 'complex'
             '(sin|cos|tan|exp|log|deg|rad|hex)': 'function'
             'NaN': 'nan'
             '[πℇ∞]': 'constant'

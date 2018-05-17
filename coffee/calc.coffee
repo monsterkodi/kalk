@@ -37,7 +37,7 @@ class Calc
         else
             val  = str evl
             
-        # log 'expr:', expr, 'val:', val
+        log 'expr:', expr, 'val:', val
         
         val  = val.replace  /Infinity/g, '∞'
         
@@ -58,9 +58,9 @@ class Calc
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
 
-                if not empty(txt) and text.endsWithValue txt 
+                if not empty(txt) and text.endsWithValue(txt) 
                     txt = @calc key + '(' + txt
-                else 
+                else if not text.endsWith(txt, ['.'])
                     txt += key + '('
             when '°'
                 if text.endsWithNumber(txt)
