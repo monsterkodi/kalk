@@ -79,10 +79,8 @@ class Calc
                     if not empty txt
                         if not text.endsWithUnfinished txt
                             txt += key
-                else if txt != '0'
-                    txt += key
-                else
-                    txt = key
+                else 
+                    txt = text.removeTrailingZero(txt) + key
         txt
 
 module.exports = Calc

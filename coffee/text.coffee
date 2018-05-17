@@ -43,5 +43,12 @@ class Text
     @endsWithNumber:     (txt) -> @endsWith txt, @numbers
     @endsWithConstant:   (txt) -> @endsWith txt, @constants
     @endsWithUnfinished: (txt) -> @endsWith txt, @unfinished
+    @removeTrailingZero: (txt) -> 
+        shortened = txt.substr 0,txt.length-1 
+        if @endsWith(txt, ['0']) and not (@endsWith(shortened, ['.']) or @endsWithNumber(shortened))
+            shortened 
+        else
+            txt
+            
 
 module.exports = Text
