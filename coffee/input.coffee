@@ -26,11 +26,16 @@ class Input
     backspace:         -> @setText text.popChar @text()
     appendText: (text) -> @setText @text() + text
     textLength:        -> @text().length
-    clear:             -> @setText ''
+    clear:             -> @setText(''); delete @forceBracket
     
     text:  -> @plain
     setText: (@plain) -> 
-        @input.innerHTML = color text.clean @plain
+        # @input.innerHTML = color text.clean @plain
+        if (text.balance(@plain) == 1) and not @forceBracket
+            @input.innerHTML = color text.clean @plain
+            log "'#{@input.innerHTML}' '#{color text.clean @plain}'"
+        else
+            @input.innerHTML = color @plain
         fs = 80 / Math.ceil(@plain.length/9)
         @input.style.fontSize = "#{fs}px"
         
@@ -41,6 +46,9 @@ class Input
             when 'ℵ' then post.emit 'keys', 'numbers'
             when '⌫' then @backspace()
             when 'C' then @clear()
-            else @setText calc.textKey @text(), key
+            else
+                switch key
+                    when '(', ')' then @forceBracket = true
+                @setText calc.textKey @text(), key
 
 module.exports = Input

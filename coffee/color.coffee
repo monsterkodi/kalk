@@ -40,6 +40,9 @@ class Color
                 continue
             colorized += "<span class=\"#{rng.value}\">#{rng.match}</span>"
             index = rng.start + rng.match.length
+        while index < text.length
+            index += 1
+            colorized += "&nbsp;"
         return colorized
 
 module.exports = (new Color()).colorize

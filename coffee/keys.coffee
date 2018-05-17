@@ -125,7 +125,7 @@ class Keys
     globalModKeyComboEvent: (mod, key, combo, event) ->
 
         switch combo
-            when 'tab'                          then @toggleKeys(); return stopEvent event
+            when 'tab'                          then return stopEvent event, @toggleKeys()
             when '/', '*', '+', '-', '=', '.'   then return post.emit 'button', combo
             when 'enter'                        then return post.emit 'button', '='
             when 'backspace'                    then return post.emit 'button', '⌫'
@@ -146,7 +146,7 @@ class Keys
             when 'x'                            then return post.emit 'button', 'exp'
             when 'h'                            then return post.emit 'button', 'hex'
             when 'i'                            then return post.emit 'button', '1/x'
-            when 'num lock'                     then post.emit 'button', 'C'; return stopEvent event
+            when 'num lock'                     then return stopEvent event, post.emit 'button', 'C'
             
         if combo.startsWith 'numpad'
             return post.emit 'button', combo.split(' ')[1]
