@@ -34,7 +34,7 @@ class Text
         txt
       
     @numbers    = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    @constants  = ['ℇ', 'π', '∞']
+    @constants  = ['ℇ', 'π', '∞', '°']
     @unfinished = ['.', 'x', '+', '-', '/', '*', '^']
     
     @endsWith: (txt, chars) -> txt.length and txt[txt.length-1] in chars

@@ -25,7 +25,7 @@ class Menu
             ,
                 text:   ''
             ,
-                text:   'Clear Sheet',                  accel:  'ctrl+k'
+                text:   'Clear Sheet',                  accel:  'k' #'ctrl+k'
             ,
                 text:   ''
             ,
@@ -44,7 +44,7 @@ class Menu
             ,
                 text:   ''
             ,
-                text:   'Toggle Menu',                  accel:  'alt+m'
+                text:   'Toggle Menu',                  accel:  'm' #'alt+m'
             ,
                 text:   'Toggle Scheme',                accel:  'alt+i'
             ,

@@ -38,11 +38,11 @@ $("#main").addEventListener "contextmenu", (event) ->
         
     opt = items: [
         text:   'Clear Sheet'
-        combo:  'ctrl+k'
+        combo:  'k' # 'ctrl+k'
         cb:     -> post.emit 'menuAction', 'Clear Sheet'
     ,
         text:   'Toggle Menu'
-        combo:  'alt+m'
+        combo:  'm' #'alt+m'
         cb:     -> post.emit 'menuAction', 'Toggle Menu'
     ,
         text:   'About'

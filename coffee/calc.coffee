@@ -63,7 +63,8 @@ class Calc
                 else 
                     txt += key + '('
             when '°'
-                txt += key
+                if text.endsWithNumber(txt)
+                    txt += key
             when '=' 
                 txt = @calc txt
             when '1/x'
