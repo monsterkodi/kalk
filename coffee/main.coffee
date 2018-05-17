@@ -6,7 +6,7 @@
 000   000  000   000  000  000   000
 ###
 
-{ prefs, empty, slash, about, karg, post, log, fs, _ } = require 'kxk'
+{ prefs, empty, slash, about, karg, post, watch, childp, fs, log, error, _ } = require 'kxk'
 
 electron = require 'electron'
 pkg      = require '../package.json'
@@ -30,12 +30,13 @@ args  = karg """
 
 #{pkg.name}
 
-    noprefs   . ? don't load preferences  . = false
-    DevTools  . ? open developer tools    . = false
+    noprefs   . ? don't load preferences     . = false
+    DevTools  . ? open developer tools       . = false
+    watch     . ? watch sources for changes  . = false
 
 version  #{pkg.version}
 
-""" #, dontExit: true
+"""
 
 app.exit 0 if not args?
 
@@ -58,6 +59,7 @@ post.on 'quitApp',              -> quitApp()
 #00     00  000  000   000  0000000     0000000   00     00
 
 toggleWindow = ->
+    
     if win?.isVisible()
         win.hide()
         app.dock?.hide()
@@ -65,6 +67,7 @@ toggleWindow = ->
         showWindow()
 
 showWindow = ->
+    
     if win?
         win.show()
     else
@@ -96,8 +99,7 @@ createWindow = ->
     win.on 'closed', -> win = null
     win.on 'resize', saveBounds
     win.on 'move', saveBounds
-    win.on 'close',  ->
-        app.dock?.hide()
+    win.on 'close',  -> app.dock?.hide()
     app.dock?.show()
     win
 
@@ -115,12 +117,47 @@ showAbout = ->
 
 quitApp = ->
     
+    stopWatcher()
     saveBounds()
     app.exit 0
     process.exit 0
         
 app.on 'window-all-closed', (event) -> event.preventDefault()
 
+# 000   000   0000000   000000000   0000000  000   000  00000000  00000000     
+# 000 0 000  000   000     000     000       000   000  000       000   000    
+# 000000000  000000000     000     000       000000000  0000000   0000000      
+# 000   000  000   000     000     000       000   000  000       000   000    
+# 00     00  000   000     000      0000000  000   000  00000000  000   000    
+
+watcher = null
+
+startWatcher = ->
+    
+    watcher = watch.watch __dirname
+    watcher.on 'change', onSrcChange
+    watcher.on 'error', (err) -> error err
+
+stopWatcher = -> 
+    
+    if watcher?
+        watcher.close()
+        watcher = null
+
+onSrcChange = (path) ->
+    # log "changed #{path}"
+    if path == __filename
+        stopWatcher()
+        app.exit 0
+        childp.execSync "#{__dirname}/../node_modules/.bin/electron . -w",
+            cwd:      "#{__dirname}/.."
+            encoding: 'utf8'
+            stdio:    'inherit'
+            shell:    true
+        process.exit 0
+    else
+        post.toWins 'reload'
+        
 #00000000   00000000   0000000   0000000    000   000
 #000   000  000       000   000  000   000   000 000
 #0000000    0000000   000000000  000   000    00000
@@ -151,9 +188,12 @@ app.on 'ready', ->
     electron.globalShortcut.register prefs.get('shortcut'), showWindow
 
     showWindow()
+    
+    if args.watch
+        startWatcher()
 
 onMenuAction = (action, arg) ->
-    # log 'onMenuAction', action, arg
+
     switch action
         when 'Quit'       then quitApp()
         when 'About kalk' then showAbout()

@@ -61,7 +61,7 @@ class Menu
         @menu = new menu items:Menu.template()
         @elem = @menu.elem
         window.titlebar.elem.insertBefore @elem, window.titlebar.elem.firstChild.nextSibling
-        @show()
+        @hide()
         
     visible: => @elem.style.display != 'none'
     show:    => @elem.style.display = 'inline-block'; @menu?.focus?(); post.emit 'titlebar', 'hideTitle'

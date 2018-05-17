@@ -25,7 +25,6 @@ class Color
             '[πℇ∞]': 'constant'
             '[√^]': 'op0'
             '[*/]': 'op1'
-            # '(?:[^e])([+-])': 'dot'
             '[+-]': 'dot'
     
     colorize: (text) => 
@@ -42,6 +41,5 @@ class Color
             colorized += "<span class=\"#{rng.value}\">#{rng.match}</span>"
             index = rng.start + rng.match.length
         return colorized
-
 
 module.exports = (new Color()).colorize

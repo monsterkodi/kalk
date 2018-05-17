@@ -25,6 +25,7 @@ win       = window.win = remote.getCurrentWindow()
 # 000      000   000  000   000  000   000
 # 0000000   0000000   000   000  0000000
 
+post.on 'reload', -> win.webContents.reloadIgnoringCache()
 post.on 'schemeChanged', -> 
 post.on 'menuAction', (action, args) -> menuAction action, args
 
@@ -58,8 +59,6 @@ $("#main").addEventListener "contextmenu", (event) ->
     popup.menu opt
     
 window.onunload = -> document.onkeydown = null
-
-# window.eval = global.eval = -> throw new Error "no eval"
 
 # 00     00  00000000  000   000  000   000      0000000    0000000  000000000  000   0000000   000   000
 # 000   000  000       0000  000  000   000     000   000  000          000     000  000   000  0000  000

@@ -23,13 +23,17 @@ class Input
         @input = elem class:'input-text'
         @view.appendChild @input
                 
-    backspace:          -> @setText @text().substr 0, @textLength()-1
-    appendText:  (text) -> @setText @text() + text
-    textLength:         -> @text().length
-    clear:              -> @setText ''
+    backspace:         -> @setText @text().substr 0, @textLength()-1
+    appendText: (text) -> @setText @text() + text
+    textLength:        -> @text().length
+    clear:             -> @setText ''
     
-    text:               -> @plain
-    setText:     (text) -> @plain = text; @input.innerHTML = color parens.clean @plain
+    text: -> @plain
+    setText: (text) -> 
+        @plain = text
+        @input.innerHTML = color parens.clean @plain
+        fs = 80 / Math.ceil(@plain.length/9)
+        @input.style.fontSize = "#{fs}px"
         
     onButton: (key) => 
         

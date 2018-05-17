@@ -127,7 +127,7 @@ class Keys
         # log 'mod', mod, combo
         
         switch combo
-            when 'ctrl'                         then @toggleKeys(); return stopEvent event
+            when 'tab'                          then @toggleKeys(); return stopEvent event
             when '/', '*', '+', '-', '=', '.'   then return post.emit 'button', combo
             when 'enter'                        then return post.emit 'button', '='
             when 'backspace'                    then return post.emit 'button', '⌫'

@@ -27,7 +27,9 @@ class Calc
         expr = expr.replace /∞/g, 'Infinity'
         expr = expr.replace /°/g, ' deg'
         
-        math.config number: 'BigNumber', precision: 19
+        # math.config number: 'BigNumberp', precision: 19
+        
+        log 'expr:', expr
         
         evl  = math.eval expr
         if evl.value?
@@ -36,6 +38,7 @@ class Calc
             val = evl.toString()
         else
             val  = str evl
+            
         log 'expr:', expr, 'val:', val
         
         val  = val.replace  /Infinity/g, '∞'
@@ -56,8 +59,7 @@ class Calc
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
 
                 if not empty(text) and text[text.length-1] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ℇ', 'π', '∞']
-                    text = @calc key + ' ' + text
-
+                    text = @calc key + '(' + text
                 else
                     text += key + '('
             when '°'
