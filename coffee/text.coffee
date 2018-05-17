@@ -34,18 +34,19 @@ class Text
         txt
       
     @numbers    = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    @constants  = ['ℇ', 'π', '∞', '°']
+    @constants  = ['ℇ', 'π', '°']
     @unfinished = ['.', '+', '-', '/', '*', '^', '(']
     
     @popChar: (txt) -> txt.substr 0, txt.length-1
     @endsWith: (txt, chars) -> txt.length and txt[txt.length-1] in chars
     @endsWithFloat:      (txt) -> /\.\d+$/.test txt
-    @endsWithValue:      (txt) -> @endsWithNumber(txt) or @endsWithConstant(txt)
+    @endsWithValue:      (txt) -> @endsWithNumber(txt) or @endsWithConstant(txt) or txt == '∞'
     @endsWithNumber:     (txt) -> @endsWith txt, @numbers
     @endsWithConstant:   (txt) -> @endsWith txt, @constants
     @endsWithUnfinished: (txt) -> @endsWith txt, @unfinished
-    @removeTrailingZero: (txt) -> 
+    @removeZeroInfinity: (txt) -> 
         popped = @popChar txt
+        if txt == '∞' then return popped
         if @endsWith(txt, ['0']) and not (@endsWith(popped, ['.']) or @endsWithNumber(popped))
             popped 
         else

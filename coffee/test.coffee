@@ -28,6 +28,7 @@ describe 'calc', ->
             ['sin(π/2', '1']
             ['1/0',     '∞']
             ['1/(∞',    '0']
+            ['0/0',     '']
         ]
         for l in list 
             expect(calc.calc l[0]).to.eql l[1]
@@ -42,6 +43,15 @@ describe 'calc', ->
         for l in list 
             expect(calc.textKey l[0], l[1]).to.eql l[2]
     
+    it 'replace', ->
+        list = [
+            ['2^0',   '1']
+            ['2^0',   '2']
+            ['∞',     '3']
+        ]
+        for l in list 
+            expect(calc.textKey l[0], l[1]).to.eql l[0].substr(0,l[0].length-1)+l[1]
+                
     it 'block', ->
         
         list = [

@@ -37,7 +37,7 @@ class Calc
         else
             val  = str evl
             
-        log 'expr:', expr, 'val:', val
+        # log 'expr:', expr, 'val:', val
         
         val  = val.replace  /Infinity/g, '∞'
         
@@ -90,7 +90,7 @@ class Calc
                         if not text.endsWithUnfinished(txt)
                             txt += key
                 else if not text.endsWithConstant(txt)
-                    txt = text.removeTrailingZero(txt) + key
+                    txt = text.removeZeroInfinity(txt) + key
         txt
 
 module.exports = Calc
