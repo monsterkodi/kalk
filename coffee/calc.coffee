@@ -25,7 +25,7 @@ class Calc
         expr = expr.replace /∞/g, 'Infinity'
         expr = expr.replace /°/g, ' deg'
         
-        # math.config number: 'BigNumberp', precision: 19
+        # math.config number: 'BigNumber', precision: 19
         
         # log 'expr:', expr
         

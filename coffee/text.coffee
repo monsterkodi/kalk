@@ -37,6 +37,7 @@ class Text
     @constants  = ['ℇ', 'π', '∞', '°']
     @unfinished = ['.', 'x', '+', '-', '/', '*', '^']
     
+    @popChar: (txt) -> txt.substr 0, txt.length-1
     @endsWith: (txt, chars) -> txt.length and txt[txt.length-1] in chars
     @endsWithFloat:      (txt) -> /\.\d+$/.test txt
     @endsWithValue:      (txt) -> @endsWithNumber(txt) or @endsWithConstant(txt)
@@ -44,11 +45,10 @@ class Text
     @endsWithConstant:   (txt) -> @endsWith txt, @constants
     @endsWithUnfinished: (txt) -> @endsWith txt, @unfinished
     @removeTrailingZero: (txt) -> 
-        shortened = txt.substr 0,txt.length-1 
-        if @endsWith(txt, ['0']) and not (@endsWith(shortened, ['.']) or @endsWithNumber(shortened))
-            shortened 
+        popped = @popChar txt
+        if @endsWith(txt, ['0']) and not (@endsWith(popped, ['.']) or @endsWithNumber(popped))
+            popped 
         else
             txt
-            
 
 module.exports = Text

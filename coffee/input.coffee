@@ -23,7 +23,7 @@ class Input
         @input = elem class:'input-text'
         @view.appendChild @input
                 
-    backspace:         -> @setText @text().substr 0, @textLength()-1
+    backspace:         -> @setText text.popChar @text()
     appendText: (text) -> @setText @text() + text
     textLength:        -> @text().length
     clear:             -> @setText ''

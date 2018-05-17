@@ -30,11 +30,11 @@ class Keys
             @table.appendChild row
         
     row: (children) => elem 'tr', class:'key-row', children:children
-    key: (text, clss='key') => 
+    key: (text, clss='') => 
         if text == '_' 
             elem 'td', class:'key hidden'
         else
-            cfg = class:clss, text:text, click: @onButton
+            cfg = class:'key '+ clss, text:text, click: @onButton
             if clss.indexOf('wide') >= 0
                 cfg.colSpan = 2
             if clss.indexOf('tall') >= 0
@@ -45,35 +45,35 @@ class Keys
                 
         @setKeys 'numbers', [
             @row [
-                    @key "C", 'key tall'
-                    @key "√", 'key op0'
-                    @key "^", 'key op0'
-                    @key "/", 'key op1'
-                    @key "*", 'key op1'
+                    @key "C", 'tall'
+                    @key "√", 'op0'
+                    @key "^", 'op0'
+                    @key "/", 'op1'
+                    @key "*", 'op1'
                 ]
             @row [
-                    @key "7", 'key digit'
-                    @key "8", 'key digit'
-                    @key "9", 'key digit'
-                    @key "-", 'key dot'
+                    @key "7", 'digit'
+                    @key "8", 'digit'
+                    @key "9", 'digit'
+                    @key "-", 'dot'
                 ]
             @row [
                     @key "⌫"
-                    @key "4", 'key digit'
-                    @key "5", 'key digit'
-                    @key "6", 'key digit'
-                    @key "+", 'key dot'
+                    @key "4", 'digit'
+                    @key "5", 'digit'
+                    @key "6", 'digit'
+                    @key "+", 'dot'
                 ]
             @row [
-                    @key "ƒ", 'key tall bottom function'
-                    @key "1", 'key digit'
-                    @key "2", 'key digit'
-                    @key "3", 'key digit'
-                    @key "=", 'key tall bottom'
+                    @key "ƒ", 'tall bottom function'
+                    @key "1", 'digit'
+                    @key "2", 'digit'
+                    @key "3", 'digit'
+                    @key "=", 'tall bottom'
                 ]
             @row [
-                    @key "0", 'key wide digit right'
-                    @key ".", 'key dot'
+                    @key "0", 'wide digit right'
+                    @key ".", 'dot'
                 ]
             ]
     
@@ -81,30 +81,30 @@ class Keys
         
         @setKeys 'functions', [
             @row [
-                    @key "C", 'key tall'
-                    @key "sin", 'key function'
-                    @key "cos", 'key function'
-                    @key "tan", 'key function'
-                    @key "π", 'key constant'    
+                    @key "C",   'tall'
+                    @key "sin", 'function'
+                    @key "cos", 'function'
+                    @key "tan", 'function'
+                    @key "π",   'constant'    
                 ]
             @row [
-                    @key "hex", 'key'
-                    @key "log", 'key function'
-                    @key "exp", 'key function'
-                    @key "ℇ", 'key constant'
+                    @key "hex"
+                    @key "log", 'function'
+                    @key "exp", 'function'
+                    @key "ℇ",   'constant'
                 ]
             @row [
                     @key "⌫"
                 ]
             @row [
-                    @key "ℵ", 'key tall bottom digit'
-                    @key "1/x", 'key op1'
-                    @key "°", 'key digit'
-                    @key "=", 'key tall bottom wide equals'
+                    @key "ℵ",   'tall bottom digit'
+                    @key "1/x", 'op1'
+                    @key "°",   'digit'
+                    @key "=",   'tall bottom wide equals'
                 ]
             @row [
-                    @key "(", 'key bracket'
-                    @key ")", 'key bracket'
+                    @key "(",   'bracket'
+                    @key ")",   'bracket'
                 ]
             ]
 
