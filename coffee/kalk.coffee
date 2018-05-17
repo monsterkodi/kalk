@@ -16,6 +16,7 @@ Titlebar  = require './titlebar'
 electron  = require 'electron'
 pkg       = require '../package.json'
 
+clipboard = electron.clipboard
 remote    = electron.remote
 win       = window.win = remote.getCurrentWindow()
 
@@ -80,9 +81,25 @@ menuAction = (name, args) ->
         when 'Clear Sheet'      then return post.emit 'sheet', 'clear'
         when 'Minimize'         then return win.minimize()
         
-    log "unhandled menu action! ------------ posting to main '#{name}' args: #{args}"
+    # log "unhandled menu action! ------------ posting to main '#{name}' args: #{args}"
     
     post.toMain 'menuAction', name, args
+    
+#  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
+# 000       000   000  000   000   000 000         000   000  000   000  000          000     000         
+# 000       000   000  00000000     00000          00000000   000000000  0000000      000     0000000     
+# 000       000   000  000           000           000        000   000       000     000     000         
+#  0000000   0000000   000           000           000        000   000  0000000      000     00000000    
+    
+copy = ->
+    clipboard?.writeText window.input.text()
+
+paste = ->
+    window.input.setText clipboard?.readText()
+    
+cut = ->
+    copy()
+    window.input.clear()
     
 # 000   000  00000000  000   000
 # 000  000   000        000 000
@@ -99,11 +116,11 @@ document.onkeydown = (event) ->
     return stopEvent(event) if 'unhandled' != window.menu.globalModKeyComboEvent mod, key, combo, event
     return stopEvent(event) if 'unhandled' != window.keys.globalModKeyComboEvent mod, key, combo, event
     
-    # log mod, key, combo
-    
     switch combo
-        when 'i', 'command+i', 'ctrl+i', 'alt+i'    then return scheme.toggle()
-        # when 'esc'                                  then return post.toMain 'closeWin'
+        when 'i', 'command+i', 'ctrl+i', 'alt+i' then return scheme.toggle()
+        when 'ctrl+v'                            then return paste()
+        when 'ctrl+c'                            then return copy()
+        when 'ctrl+x'                            then return cut()
 
 prefs.init()
 scheme.set prefs.get 'scheme', 'dark'

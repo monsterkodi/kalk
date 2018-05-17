@@ -8,9 +8,9 @@
 
 { post, elem, empty, log, $ } = require 'kxk'
 
-calc   = require './calc'
-color  = require './color'
-parens = require './parens'
+calc  = require './calc'
+color = require './color'
+text  = require './text'
 
 class Input
 
@@ -28,16 +28,13 @@ class Input
     textLength:        -> @text().length
     clear:             -> @setText ''
     
-    text: -> @plain
-    setText: (text) -> 
-        @plain = text
-        @input.innerHTML = color parens.clean @plain
+    text:  -> @plain
+    setText: (@plain) -> 
+        @input.innerHTML = color text.clean @plain
         fs = 80 / Math.ceil(@plain.length/9)
         @input.style.fontSize = "#{fs}px"
         
     onButton: (key) => 
-        
-        # log "Input.onButton '#{key}'"
         
         switch key
             when 'ƒ' then post.emit 'keys', 'functions'

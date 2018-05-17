@@ -1,6 +1,6 @@
 name            kalk
 productName     kalk
-version         0.5.0
+version         0.7.0
 description     kalkulator
 main            js/main.js
 repository

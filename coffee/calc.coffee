@@ -8,18 +8,16 @@
 
 { empty, post, str, log } = require 'kxk'
 
-math   = require 'mathjs'
-parens = require './parens'
+math = require 'mathjs'
+text = require './text'
 
 class Calc
 
-    @calc: (text) ->
+    @calc: (expr) ->
         
-        return '' if empty text
+        return '' if empty expr
         
-        expr = text
-        
-        expr = parens.close expr
+        expr = text.close expr
         
         expr = expr.replace /√/g, 'sqrt'
         expr = expr.replace /π/g, 'pi'
@@ -29,7 +27,7 @@ class Calc
         
         # math.config number: 'BigNumberp', precision: 19
         
-        log 'expr:', expr
+        # log 'expr:', expr
         
         evl  = math.eval expr
         if evl.value?
@@ -39,7 +37,7 @@ class Calc
         else
             val  = str evl
             
-        log 'expr:', expr, 'val:', val
+        # log 'expr:', expr, 'val:', val
         
         val  = val.replace  /Infinity/g, '∞'
         
@@ -53,32 +51,38 @@ class Calc
         
         val  = val.replace  /NaN/g, ''
                 
-    @textKey: (text, key) ->
-        log 'textKey', text, 'key', key
+    @textKey: (txt, key) ->
+        
+        # log 'textKey', txt, 'key', key
+        
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
 
-                if not empty(text) and text[text.length-1] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ℇ', 'π', '∞']
-                    text = @calc key + '(' + text
-                else
-                    text += key + '('
+                if not empty(txt) and text.endsWithValue txt 
+                    txt = @calc key + '(' + txt
+                else 
+                    txt += key + '('
             when '°'
-                text += key
+                txt += key
             when '=' 
-                text = @calc text
+                txt = @calc txt
             when '1/x'
-                text =  @calc '1/(' + text + ')'
-            when '.', 'x', '+', '-', '/', '*', '^'
-                if not empty(text) 
-                    if text[text.length-1] not in ['.', 'x', '+', '-', '/', '*', '^']
-                        text += key
-                else if key in ['+', '-']
-                    text = key
+                txt =  @calc '1/(' + txt + ')'
+            when '+', '-'
+                if not text.endsWith txt, ['+', '-', '.']
+                    txt += key
+            when '.'
+                if text.endsWithNumber(txt) and not text.endsWithFloat(txt)
+                    txt += key
             else
-                if text != '0'
-                    text += key
+                if key in text.unfinished
+                    if not empty txt
+                        if not text.endsWithUnfinished txt
+                            txt += key
+                else if txt != '0'
+                    txt += key
                 else
-                    text = key
-        text
+                    txt = key
+        txt
 
 module.exports = Calc
