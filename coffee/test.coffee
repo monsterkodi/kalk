@@ -8,30 +8,45 @@
 
 { expect } = require 'chai'
 
-calc   = require './calc'
+calc = require './calc'
 
 describe 'calc', ->
 
-    it 'parse', ->
-        
-        expect calc.parse 'sin 2'
-        .to.eql calc.parse 'sin(2)'
-    
     it 'calc', ->
-        expect calc.calc '2^2^2'
-        .to.eql '16'
-        expect calc.calc '2^(3^4)'
-        .to.eql '2.4178516392292583e+24'
-        expect calc.calc '2^3^4'
-        .to.eql '2.4178516392292583e+24'
-        expect calc.calc '(2^3)^4'
-        .to.eql '4096'
-    
+        
+        list = [
+            ['2^2^2',   '16']
+            ['2^(3^4)', '2.4178516392292583e+24']
+            ['2^3^4',   '2.4178516392292583e+24']
+            ['(2^3)^4', '4096']
+        ]
+        for l in list 
+            expect(calc.calc l[0]).to.eql l[1]
+        
     it 'equals', ->
-        expect calc.textKey '2^2', '='
-        .to.eql '4'
-        expect calc.textKey '2^4', '='
-        .to.eql '16'
-        expect calc.textKey '2^2^2', '='
-        .to.eql '16'
+        
+        list = [
+            ['2^2',   '=', '4']
+            ['2^4',   '=', '16']
+            ['2^2^2', '=', '16']
+        ]
+        for l in list 
+            expect(calc.textKey l[0], l[1]).to.eql l[2]
     
+    it 'block', ->
+        
+        list = [
+            ['(', ')']
+            ['0', '0']
+            ['ℇ', '2']
+            ['π', '5']
+            ['', '^']
+            ['', '/']
+            ['', '*']
+            ['', '.']
+            ['1°', '5']
+            ['2°', 'π']
+            ['3°', 'ℇ']            
+        ]
+        for l in list
+            expect(calc.textKey l[0], l[1]).to.eql l[0]

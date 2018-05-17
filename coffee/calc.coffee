@@ -53,7 +53,7 @@ class Calc
                 
     @textKey: (txt, key) ->
         
-        log 'textKey', txt, 'key', key
+        # log 'textKey', txt, 'key', key
         
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
@@ -76,7 +76,7 @@ class Calc
                 if text.endsWithNumber(txt) and not text.endsWithFloat(txt)
                     txt += key
             when 'π', 'ℇ'
-                if not text.endsWith(txt, ['ℇ', 'π'])
+                if not text.endsWithConstant(txt)
                     txt += key
             when '('
                 if not text.endsWithUnfinished(txt) and not text.endsWithConstant(txt)

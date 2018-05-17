@@ -44,14 +44,10 @@ $("#main").addEventListener "contextmenu", (event) ->
         text:   'Toggle Menu'
         combo:  'm' #'alt+m'
         cb:     -> post.emit 'menuAction', 'Toggle Menu'
-    ,
-        text:   'About'
-        combo:  'ctrl+.'
-        cb:      -> post.emit 'menuAction', 'About kalk'
-    ,
-        text:   'Quit'
-        combo:  'ctrl+q' 
-        cb:     -> post.emit 'menuAction', 'Quit'
+    # ,
+        # text:   'Quit'
+        # combo:  'ctrl+q' 
+        # cb:     -> post.emit 'menuAction', 'Quit'
     ]
     
     opt.x = absPos.x
