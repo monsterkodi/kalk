@@ -7,8 +7,8 @@ repository
                 type  git
                 url   git+https://github.com/monsterkodi/kalk.git
 scripts
-                build   ./bin/build.sh
-                win     bash ./bin/buildwin.sh
+                mac   ./bin/buildmac.sh
+                win   bash ./bin/buildwin.sh
 keywords
                 calculator
                 electron
@@ -22,6 +22,6 @@ dependencies
                 mathjs        ^4.2.2
 devDependencies
                 chai            ^4.1.2
-                electron        ^2.0.0
+                electron        ^2.0.1
                 electron-packager  ^12.0.2
                 electron-rebuild  ^1.7.3

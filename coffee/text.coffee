@@ -37,7 +37,8 @@ class Text
     @constants  = ['ℇ', 'π', '°']
     @unfinished = ['.', '+', '-', '/', '*', '^', '(']
     
-    @popChar: (txt) -> txt.substr 0, txt.length-1
+    @popChar:   (txt) -> txt.substr 0, txt.length-1
+    @isInteger: (txt) -> /\d+/.test txt
     @endsWith: (txt, chars) -> txt.length and txt[txt.length-1] in chars
     @endsWithFloat:      (txt) -> /\.\d+$/.test txt
     @endsWithValue:      (txt) -> @endsWithNumber(txt) or @endsWithConstant(txt) or txt == '∞'

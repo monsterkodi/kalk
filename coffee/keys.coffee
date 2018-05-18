@@ -88,23 +88,29 @@ class Keys
                     @key "π",   'constant'    
                 ]
             @row [
-                    @key "hex"
+                    @key "°",   'digit'
                     @key "log", 'function'
                     @key "exp", 'function'
                     @key "ℇ",   'constant'
                 ]
             @row [
                     @key "⌫"
+                    @key "_"
+                    @key "_"
+                    @key "_"
+                    @key "x",  'constant'
                 ]
             @row [
                     @key "ℵ",   'tall bottom digit'
                     @key "1/x", 'op1'
-                    @key "°",   'digit'
-                    @key "=",   'tall bottom wide equals'
+                    @key "_"
+                    @key "_"
+                    @key "=",   'tall bottom equals'
                 ]
             @row [
                     @key "(",   'bracket'
                     @key ")",   'bracket'
+                    @key "_"
                 ]
             ]
 
@@ -144,7 +150,6 @@ class Keys
             when 'r'                            then return post.emit 'button', '√'
             when 'l'                            then return post.emit 'button', 'log'
             when 'x'                            then return post.emit 'button', 'exp'
-            when 'h'                            then return post.emit 'button', 'hex'
             when 'i'                            then return post.emit 'button', '1/x'
             when 'num lock'                     then return stopEvent event, post.emit 'button', 'C'
             
