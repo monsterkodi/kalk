@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cd `dirname $0`/..
 
-NAME=`sds productName`
+NAME=`sds name`
 USER=`sds author`
 VERSION=`sds version`
 VVERSION=v$VERSION

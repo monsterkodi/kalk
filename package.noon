@@ -1,5 +1,4 @@
 name            kalk
-productName     kalk
 version         0.9.0
 description     kalkulator
 main            js/main.js

@@ -179,7 +179,7 @@ app.on 'ready', ->
     
     app.dock?.hide()
     
-    app.setName pkg.productName
+    app.setName pkg.name
 
     if not args.noprefs
         prefs.init

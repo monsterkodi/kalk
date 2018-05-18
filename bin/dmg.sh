@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cd `dirname $0`/..
 
-NAME=`sds productName`
+NAME=`sds name`
 VERSION=`sds version`
 
 npm rebuild
