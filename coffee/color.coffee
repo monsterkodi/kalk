@@ -22,8 +22,8 @@ class Color
             'i': 'complex'
             '(sin|cos|tan|exp|log)': 'function'
             'NaN': 'nan'
-            '[πℇx∞]': 'constant'
-            '[√^]': 'op0'
+            '[πℇx∞ϕ]': 'constant'
+            '[∡√^]': 'op0'
             '[*/]': 'op1'
             '[+-]': 'dot'
     

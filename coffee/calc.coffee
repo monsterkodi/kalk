@@ -19,8 +19,10 @@ class Calc
         
         expr = text.close expr
         
+        expr = expr.replace /∡/,  '(180/pi)*'
         expr = expr.replace /√/g, 'sqrt'
         expr = expr.replace /π/g, 'pi'
+        expr = expr.replace /ϕ/g, 'phi'
         expr = expr.replace /ℇ/g, 'E'
         expr = expr.replace /∞/g, 'Infinity'
         expr = expr.replace /°/g, ' deg'
@@ -41,11 +43,15 @@ class Calc
         
         val  = val.replace  /Infinity/g, '∞'
         
+        expr = expr.replace /\(180\/pi\)\*/, '∡'
         expr = expr.replace /sqrt/g, '√'
         expr = expr.replace /pi/g, 'π'
         expr = expr.replace /E/g, 'ℇ'
+        expr = expr.replace /phi/g, 'ϕ'
         expr = expr.replace /Infinity/g, '∞'
         expr = expr.replace /\ deg/g, '°'
+        
+        val += '°' if expr.startsWith '∡'
         
         post.emit 'sheet', text:expr, val:val
         
@@ -68,7 +74,9 @@ class Calc
             when '=' 
                 txt = @calc txt
             when '1/x'
-                txt =  @calc '1/(' + txt + ')'
+                txt = @calc '1/(' + txt + ')'
+            when '∡'
+                txt = @calc '∡(' + txt + ')'
             when '+', '-'
                 if not text.endsWith txt, ['+', '-', '.']
                     txt += key

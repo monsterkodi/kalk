@@ -81,36 +81,36 @@ class Keys
         
         @setKeys 'functions', [
             @row [
-                    @key "C",   'tall'
-                    @key "sin", 'function'
-                    @key "cos", 'function'
-                    @key "tan", 'function'
-                    @key "π",   'constant'    
+                    @key "C", 'tall'
+                    @key "√", 'op0'
+                    @key "^", 'op0'
+                    @key "/", 'op1'
+                    @key "*", 'op1'
                 ]
             @row [
-                    @key "°",   'digit'
-                    @key "log", 'function'
-                    @key "exp", 'function'
-                    @key "ℇ",   'constant'
+                    @key "sin", 'function'
+                    @key "cos", 'function'
+                    @key "π",   'constant'    
+                    @key "-",   'dot'
                 ]
             @row [
                     @key "⌫"
-                    @key "_"
-                    @key "_"
-                    @key "_"
-                    @key "x",  'constant'
+                    @key "tan", 'function'
+                    @key "log", 'function'
+                    @key "ℇ",   'constant'
+                    @key "+",   'dot'
                 ]
             @row [
                     @key "ℵ",   'tall bottom digit'
                     @key "1/x", 'op1'
-                    @key "_"
-                    @key "_"
+                    @key '∡',   'op1'
+                    @key 'ϕ',   'constant'
                     @key "=",   'tall bottom equals'
                 ]
             @row [
                     @key "(",   'bracket'
+                    @key "°",   'digit'
                     @key ")",   'bracket'
-                    @key "_"
                 ]
             ]
 
