@@ -71,8 +71,8 @@ menuAction = (name, args) ->
         when 'Toggle Menu'      then return window.menu.toggle()
         when 'Show Menu'        then return window.menu.show()
         when 'Hide Menu'        then return window.menu.hide()
-        when 'Open DevTools'    then return win.webContents.openDevTools()
-        when 'Reload Window'    then return win.webContents.reloadIgnoringCache()
+        when 'DevTools'         then return win.webContents.toggleDevTools()
+        when 'Reload'           then return win.webContents.reloadIgnoringCache()
         when 'Close Window'     then return win.close()
         when 'Clear Sheet'      then return post.emit 'sheet', 'clear'
         when 'Minimize'         then return win.minimize()
