@@ -82,12 +82,12 @@ createWindow = ->
         backgroundColor: '#181818'
         maximizable:     false
         resizable:       false
-        minimizable:     true
         fullscreen:      false
         show:            false
-        titleBarStyle:   'hidden'
-        autoHideMenuBar: true
         frame:           false
+        minimizable:     true
+        transparent:     true
+        autoHideMenuBar: true
         icon:            slash.path __dirname + '/../img/kalk.ico'
 
     bounds = prefs.get 'bounds'
@@ -145,7 +145,7 @@ stopWatcher = ->
         watcher = null
 
 onSrcChange = (path) ->
-    # log "changed #{path}"
+
     if path == __filename
         stopWatcher()
         app.exit 0

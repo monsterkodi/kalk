@@ -5,33 +5,15 @@
 // 000   000  000   000  000   000  000  000   
 // 0000000    000   000  000   000  000   000  
 
-frameWidth  = 6px
-frameColor  = #222
-frameBorder = frameWidth solid frameColor
-
-body
-    background          #222
-    color               #fff
-
-.titlebar
-    background          #333
-    color               #aaa
-
-.titlebar-dot
-    color               #444
-
-.titlebar-version
-    color               #555
-
-#main
-    border-left         frameBorder
-    border-right        frameBorder
-    border-bottom       frameBorder
-    background          #181818
-    color               #aaa
-
-pre
-    background          #000
+bgColor             = #181818
+frameColor          = #222
+scrollHoverColor    = #b00
+titleRedColor       = #f00
+titleColor          = #333
+scrollColor         = #444
+textBlurColor       = #666
+textActiveColor     = #999
+textFocusColor      = #fff
 
 // 000  000   000  00000000   000   000  000000000  
 // 000  0000  000  000   000  000   000     000     
@@ -40,10 +22,16 @@ pre
 // 000  000   000  000         0000000      000     
 
 .input-text 
-    color               #fff
-    border              1px solid #222
+    color               textFocusColor
+    border              1px solid frameColor
     border-radius       10px
   
+// 000   000  00000000  000   000  
+// 000  000   000        000 000   
+// 0000000    0000000     00000    
+// 000  000   000          000     
+// 000   000  00000000     000     
+
 .key
 span
     border              none
@@ -71,81 +59,14 @@ span
     &.complex
         color           #44a
     
-// 0000000    000   000  000000000  000000000   0000000   000   000  
-// 000   000  000   000     000        000     000   000  0000  000  
-// 0000000    000   000     000        000     000   000  000 0 000  
-// 000   000  000   000     000        000     000   000  000  0000  
-// 0000000     0000000      000        000      0000000   000   000  
-
 .key
     z-index             1000
-    color               #444
-    border              1px solid #222
+    color               scrollColor
+    border              1px solid frameColor
     &:hover
-        background      #222
-        color           #fff
+        background      frameColor
+        color           textFocusColor
     &:active
-        background      #800
-
-// 00     00  00000000  000   000  000   000  
-// 000   000  000       0000  000  000   000  
-// 000000000  0000000   000 0 000  000   000  
-// 000 0 000  000       000  0000  000   000  
-// 000   000  00000000  000   000   0000000   
-            
-.menuItem
-    color               #444
-    background-color    titleColor // #222
-    
-.menuItem.selected
-    color               #666
-    
-.menu:focus .menuItem
-    color               #888
-.menu:focus .menuItem.selected
-    color               #fff
-        
-// 00000000    0000000   00000000   000   000  00000000
-// 000   000  000   000  000   000  000   000  000   000
-// 00000000   000   000  00000000   000   000  00000000
-// 000        000   000  000        000   000  000
-// 000         0000000   000         0000000   000
-
-.popup
-    background-color    #222
-
-.popupItem
-    color               #888
-    &:not(:last-child)
-        border-bottom       1px solid #222
-    &.selected
-        color           #fff
-        & .popupCombo
-            color       #888
-
-.menuItem:active
-.popupItem:active
-    color               #ff0
-
-.popupCombo
-    color               #333
-    
-.popupItem.separator
-    border-top          1px solid #333
-
-//  0000000   0000000  00000000    0000000   000      000     
-// 000       000       000   000  000   000  000      000     
-// 0000000   000       0000000    000   000  000      000     
-//      000  000       000   000  000   000  000      000     
-// 0000000    0000000  000   000   0000000   0000000  0000000 
-
-::-webkit-scrollbar-corner
-    background-color        #222
-
-::-webkit-scrollbar-thumb
-    background-color        #2d2d2d
-    
-::-webkit-scrollbar-thumb:hover
-    background-color        #b00
+        background      scrollHoverColor
 
     

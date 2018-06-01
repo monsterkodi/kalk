@@ -6,13 +6,12 @@
 000   000  000   000  0000000  000   000  
 ###
 
-{ keyinfo, scheme, stopEvent, prefs, slash, post, elem, popup, pos, str, log, $ } = require 'kxk'
+{ keyinfo, title, scheme, stopEvent, prefs, slash, post, elem, popup, pos, str, log, $, _ } = require 'kxk'
 
 Keys      = require './keys'
 Input     = require './input'
 Sheet     = require './sheet'
 Menu      = require './menu'
-Titlebar  = require './titlebar'
 electron  = require 'electron'
 pkg       = require '../package.json'
 
@@ -20,67 +19,9 @@ clipboard = electron.clipboard
 remote    = electron.remote
 win       = window.win = remote.getCurrentWindow()
 
-# 000       0000000    0000000   0000000
-# 000      000   000  000   000  000   000
-# 000      000   000  000000000  000   000
-# 000      000   000  000   000  000   000
-# 0000000   0000000   000   000  0000000
-
 post.on 'reload', -> win.webContents.reloadIgnoringCache()
 post.on 'schemeChanged', -> 
-post.on 'menuAction', (action, args) -> menuAction action, args
-
-$("#main").addEventListener "contextmenu", (event) ->
-    
-    absPos = pos event
-    if not absPos?
-        absPos = pos $("#main").getBoundingClientRect().left, $("#main").getBoundingClientRect().top
         
-    opt = items: [
-        text:   'Clear Sheet'
-        combo:  'k' # 'ctrl+k'
-        cb:     -> post.emit 'menuAction', 'Clear Sheet'
-    ,
-        text:   'Toggle Menu'
-        combo:  'm' #'alt+m'
-        cb:     -> post.emit 'menuAction', 'Toggle Menu'
-    # ,
-        # text:   'Quit'
-        # combo:  'ctrl+q' 
-        # cb:     -> post.emit 'menuAction', 'Quit'
-    ]
-    
-    opt.x = absPos.x
-    opt.y = absPos.y
-
-    popup.menu opt
-    
-window.onunload = -> document.onkeydown = null
-
-# 00     00  00000000  000   000  000   000      0000000    0000000  000000000  000   0000000   000   000
-# 000   000  000       0000  000  000   000     000   000  000          000     000  000   000  0000  000
-# 000000000  0000000   000 0 000  000   000     000000000  000          000     000  000   000  000 0 000
-# 000 0 000  000       000  0000  000   000     000   000  000          000     000  000   000  000  0000
-# 000   000  00000000  000   000   0000000      000   000   0000000     000     000   0000000   000   000
-
-menuAction = (name, args) ->
-
-    switch name
-
-        when 'Toggle Scheme'    then return scheme.toggle()
-        when 'Toggle Menu'      then return window.menu.toggle()
-        when 'Show Menu'        then return window.menu.show()
-        when 'Hide Menu'        then return window.menu.hide()
-        when 'DevTools'         then return win.webContents.toggleDevTools()
-        when 'Reload'           then return win.webContents.reloadIgnoringCache()
-        when 'Close Window'     then return win.close()
-        when 'Clear Sheet'      then return post.emit 'sheet', 'clear'
-        when 'Minimize'         then return win.minimize()
-        
-    # log "unhandled menu action! ------------ posting to main '#{name}' args: #{args}"
-    
-    post.toMain 'menuAction', name, args
-    
 #  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
 # 000       000   000  000   000   000 000         000   000  000   000  000          000     000         
 # 000       000   000  00000000     00000          00000000   000000000  0000000      000     0000000     
@@ -97,31 +38,79 @@ cut = ->
     copy()
     window.input.clear()
     
+prefs.init()
+
+# 000000000  000  000000000  000      00000000  
+#    000     000     000     000      000       
+#    000     000     000     000      0000000   
+#    000     000     000     000      000       
+#    000     000     000     0000000  00000000  
+
+window.titlebar = new title 
+    pkg:    pkg 
+    menu:   __dirname + '/../coffee/menu.noon' 
+    icon:   __dirname + '/../img/menu@2x.png'
+
+#  0000000   0000000   000   000  000000000  00000000  000   000  000000000  
+# 000       000   000  0000  000     000     000        000 000      000     
+# 000       000   000  000 0 000     000     0000000     00000       000     
+# 000       000   000  000  0000     000     000        000 000      000     
+#  0000000   0000000   000   000     000     00000000  000   000     000     
+
+$("#main").addEventListener "contextmenu", (event) ->
+    
+    absPos = pos event
+    if not absPos?
+        absPos = pos $("#main").getBoundingClientRect().left, $("#main").getBoundingClientRect().top
+       
+    items = _.clone window.titlebar.menuTemplate()
+    items.unshift text:'Clear', accel:'ctrl+k'
+        
+    popup.menu
+        items:  items
+        x:      absPos.x
+        y:      absPos.y
+    
 # 000   000  00000000  000   000
 # 000  000   000        000 000
 # 0000000    0000000     00000
 # 000  000   000          000
 # 000   000  00000000     000
 
+window.onunload = -> document.onkeydown = null
 document.onkeydown = (event) ->
 
+    return stopEvent(event) if 'unhandled' != window.titlebar.handleKey event, true
+    
     { mod, key, combo, char } = keyinfo.forEvent event
 
     return if not combo
 
-    return stopEvent(event) if 'unhandled' != window.menu.globalModKeyComboEvent mod, key, combo, event
     return stopEvent(event) if 'unhandled' != window.keys.globalModKeyComboEvent mod, key, combo, event
     
     switch combo
-        when 'i', 'command+i', 'ctrl+i', 'alt+i' then return scheme.toggle()
-        when 'ctrl+v'                            then return paste()
-        when 'ctrl+c'                            then return copy()
-        when 'ctrl+x'                            then return cut()
+        when 'i', 'command+i', 'ctrl+i' then return scheme.toggle()
+        when 'ctrl+v'                   then return paste()
+        when 'ctrl+c'                   then return copy()
+        when 'ctrl+x'                   then return cut()
+    
+# 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
+# 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
+# 000000000  0000000   000 0 000  000   000  000000000  000          000     000  000   000  000 0 000  
+# 000 0 000  000       000  0000  000   000  000   000  000          000     000  000   000  000  0000  
+# 000   000  00000000  000   000   0000000   000   000   0000000     000     000   0000000   000   000  
 
-prefs.init()
-scheme.set prefs.get 'scheme', 'dark'
-window.titlebar = new Titlebar 
+post.on 'menuAction', (action, args) ->
+
+    switch action
+        when 'Clear'            then post.emit 'sheet', 'clear'
+        when 'About'            then post.toMain 'showAbout'
+        when 'Save'             then post.toMain 'saveBuffer'
+        when 'Quit'             then post.toMain 'quitApp'
+
 window.sheet    = new Sheet
 window.input    = new Input
 window.keys     = new Keys
 window.menu     = new Menu
+
+scheme.set prefs.get 'scheme', 'dark'

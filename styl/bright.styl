@@ -5,82 +5,64 @@
 // 000   000  000   000  000  000   000  000   000     000     
 // 0000000    000   000  000   0000000   000   000     000     
 
-frameWidth  = 6px
-frameColor  = #fff
-bgColor     = #eee
-frameBorder = frameWidth solid frameColor
+frameColor      = #fff
+bgColor         = #eee
+titleColor      = #ddd
+titleRedColor   = #f00
+textFocusColor  = #000
+textBlurColor   = #888
 
-.titlebar
-    background          frameColor
-    color               #888
+// 000  000   000  00000000   000   000  000000000  
+// 000  0000  000  000   000  000   000     000     
+// 000  000 0 000  00000000   000   000     000     
+// 000  000  0000  000        000   000     000     
+// 000  000   000  000         0000000      000     
 
-.titlebarDot
-    color               #eee
+.input-text 
+    color               textFocusColor
+    border              1px solid frameColor
+    border-radius       10px
+  
+// 000   000  00000000  000   000  
+// 000  000   000        000 000   
+// 0000000    0000000     00000    
+// 000  000   000          000     
+// 000   000  00000000     000     
 
-.titlebarVersion
-    color               #ddd
-
-#main
-    border-left         frameBorder
-    border-right        frameBorder
-    border-bottom       frameBorder
-    background          bgColor
-    color               #333
-
-pre
-    background          #fff
-    color               #666
-
-// 0000000    000   000  000000000  000000000   0000000   000   000  
-// 000   000  000   000     000        000     000   000  0000  000  
-// 0000000    000   000     000        000     000   000  000 0 000  
-// 000   000  000   000     000        000     000   000  000  0000  
-// 0000000     0000000      000        000      0000000   000   000  
-
-.button
-    color               #888
-    border              1px solid #ddd
+.key
+span
+    border              none
+    white-space         pre
+    &.nan
+        color           #f00
+    &.digit
+        color           #88f
+    &.function
+        color           #c20
+    &.constant
+        color           #d40
+    &.op0
+        color           #22f
+    &.op1
+        color           #44f
+    &.op2
+        color           #66f
+    &.bracket
+        color           #aaa
+    &.equals
+        color           #888
+    &.dot
+    &.exponent
+    &.complex
+        color           #44a
+    
+.key
+    z-index             1000
+    color               textBlurColor
+    border              1px solid frameColor
     &:hover
-        background  #ddd
-        color       #000
+        background      frameColor
+        color           textFocusColor
     &:active
-        background  #aaf
-        
-// 00000000    0000000   00000000   000   000  00000000
-// 000   000  000   000  000   000  000   000  000   000
-// 00000000   000   000  00000000   000   000  00000000
-// 000        000   000  000        000   000  000
-// 000         0000000   000         0000000   000
-
-.popup
-    background-color    frameColor
-
-.popupItem
-    color               #888
-    &:not(:last-child)
-        border-bottom       1px solid frameColor
-    &.selected
-        color           #000
-
-.popupItem:active
-    color               #000
-
-.popupCombo
-    color               #888
-    
-//  0000000   0000000  00000000    0000000   000      000      
-// 000       000       000   000  000   000  000      000      
-// 0000000   000       0000000    000   000  000      000      
-//      000  000       000   000  000   000  000      000      
-// 0000000    0000000  000   000   0000000   0000000  0000000  
-
-::-webkit-scrollbar-corner
-    background-color        bgCoor
-
-::-webkit-scrollbar-thumb
-    background-color        #ddd
-        
-::-webkit-scrollbar-thumb:hover
-    background-color        #000
-
-    
+        background      titleColor
+            

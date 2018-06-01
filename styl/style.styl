@@ -8,14 +8,8 @@
 frameWidth          = 6px
 titlebarHeight      = 30px
 titlebarFontSize    = 15px
+titlebarFont        = Bahnschrift Light, Ebrima, Varela Round, Arial Rounded MT Bold, Helvetica, Arial
 fontMono            = "Meslo LG S", "Liberation Mono", "Menlo", "Cousine", "Andale Mono", monospace
-
-fill-abs()
-    position            absolute
-    bottom              0
-    right               0
-    left                0
-    top                 0
 
 // 0000000     0000000   0000000    000   000
 // 000   000  000   000  000   000   000 000 
@@ -23,27 +17,9 @@ fill-abs()
 // 000   000  000   000  000   000     000   
 // 0000000     0000000   0000000       000   
 
-*
-    outline-width       0
-    
 body
-    fill-abs()
-    margin              0
-    overflow            hidden
     font-family         fontMono
     font-size           14px
-    -webkit-app-region  no-drag
-    -webkit-user-select none
-    
-#main
-    position            absolute
-    bottom              0
-    right               0
-    left                0
-    top                 titlebarHeight
-    scroll              none
-    overflow            hidden
-    pointer-events      auto
     
 //  0000000  000   000  00000000  00000000  000000000  
 // 000       000   000  000       000          000     
@@ -63,10 +39,8 @@ body
     
 .sheet-calc  
     flex      1 1 0  
-    // border    1px solid red
 
 .sheet-result
-    // border    1px solid blue
     flex      1 1 0               
 
 .sheet-line
@@ -105,18 +79,18 @@ body
     padding-right       10px
     white-space         pre
 
+// 000   000  00000000  000   000  
+// 000  000   000        000 000   
+// 0000000    0000000     00000    
+// 000  000   000          000     
+// 000   000  00000000     000     
+
 .key
 span
     &.function
     &.complex
         font-style      italic
     
-// 000   000  00000000  000   000   0000000  
-// 000  000   000        000 000   000       
-// 0000000    0000000     00000    0000000   
-// 000  000   000          000          000  
-// 000   000  00000000     000     0000000   
-
 #keys
     position            absolute
     bottom              10px
@@ -125,12 +99,6 @@ span
 .key-row
     font-size           60px
     overflow            visible
-
-// 0000000    000   000  000000000  000000000   0000000   000   000    
-// 000   000  000   000     000        000     000   000  0000  000    
-// 0000000    000   000     000        000     000   000  000 0 000    
-// 000   000  000   000     000        000     000   000  000  0000    
-// 0000000     0000000      000        000      0000000   000   000    
 
 .key
     vertical-align      top
@@ -148,144 +116,5 @@ span
     &.right
         text-align   right
         padding-right 31px
-        
-// 000000000  000  000000000  000      00000000  0000000     0000000   00000000 
-//    000     000     000     000      000       000   000  000   000  000   000
-//    000     000     000     000      0000000   0000000    000000000  0000000  
-//    000     000     000     000      000       000   000  000   000  000   000
-//    000     000     000     0000000  00000000  0000000    000   000  000   000
-
-#titlebar
-    display             flex
-    flex-direction      row
-    height              titlebarHeight
-    box-sizing          border-box
-    font-size           titlebarFontSize
-    white-space         nowrap
-    pointer-events      auto
-    cursor              pointer
-    -webkit-app-region  no-drag
-
-.titlebar-title
-    flex                1 1 0
-    display             flex
-    flex-direction      row
-    overflow-x          auto
-    overflow-y          hidden
-    padding-top         6px
-    padding-left        10px
-    -webkit-app-region  drag
-    font-weight         bold
-    
-.titlebar-dot
-    display             inline-block
-    vertical-align      top
-    padding-left        6px
-    padding-right       9px
-    margin-top          -1px
-
-#titlebar .winicon img
-    padding-left        6px
-    padding-right       2px
-    width               titlebarHeight
-    height              titlebarHeight
-    
-#titlebar .winclose
-    flex                0 0 45px
-    float               right
-    display             inline-block
-    vertical-align      top
-    padding-top         frameWidth
-    
-    & img
-        padding-left    18px
-        width           11px
-        height          11px
-        opacity         0.2
-
-    &:hover
-        & img
-            opacity     1
-    &:active
-        background-color #f00
-        & img
-            opacity     1
-
-// 00     00  00000000  000   000  000   000  
-// 000   000  000       0000  000  000   000  
-// 000000000  0000000   000 0 000  000   000  
-// 000 0 000  000       000  0000  000   000  
-// 000   000  00000000  000   000   0000000   
-
-.menu
-    height              titlebarHeight
-    pointer-events      auto
-    -webkit-app-region  no-drag
-    flex                1 1 0
-    display             flex
-    flex-direction      row
-    
-.menuItem
-    -webkit-app-region  no-drag
-    cursor              pointer
-    padding-left        10px
-    padding-right       10px
-    padding-top         6px
-    font-weight         bold
-    display             inline-block
-    height              titlebarHeight
-    overflow            visible
-            
-// 00000000    0000000   00000000   000   000  00000000
-// 000   000  000   000  000   000  000   000  000   000
-// 00000000   000   000  00000000   000   000  00000000
-// 000        000   000  000        000   000  000
-// 000         0000000   000         0000000   000
-
-.popup
-    position            absolute
-    border-radius       3px
-
-.popupItem
-    padding             2px
-    padding-left        2 * frameWidth
-    padding-right       2 * frameWidth + 70px
-    cursor              pointer
-    &:last-child
-        padding-bottom  frameWidth
-    &:first-child
-        padding-top     frameWidth
-
-.popupCombo
-    position            absolute
-    right               2 * frameWidth
-
-.popupItem.separator
-    padding             0
-    cursor              default
-    border              0
-    height              0
-    margin-top          2px
-    margin-bottom       2px
-
-.popupCombo
-    pointer-events      none
-    position            absolute
-    right               2 * frameWidth
-    
-//  0000000   0000000  00000000    0000000   000      000      
-// 000       000       000   000  000   000  000      000      
-// 0000000   000       0000000    000   000  000      000      
-//      000  000       000   000  000   000  000      000      
-// 0000000    0000000  000   000   0000000   0000000  0000000  
-
-::-webkit-scrollbar
-    width                   frameWidth
-::-webkit-scrollbar
-    height                  frameWidth  
-    background-color        transparent
-
-::-webkit-scrollbar-track
-    background-color        transparent
     
     
