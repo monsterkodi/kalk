@@ -19,10 +19,9 @@ clipboard = electron.clipboard
 remote    = electron.remote
 win       = window.win = remote.getCurrentWindow()
 
-post.on 'reload', -> win.webContents.reloadIgnoringCache()
-post.on 'calc', (calc) -> 
-    window.input.setText calc
-    post.emit 'button', '='
+post.on 'menuAction',  (action, args) -> onMenuAction action, args
+post.on 'reload',      -> win.webContents.reloadIgnoringCache()
+post.on 'calc', (calc) -> window.input.setText(calc); post.emit 'button', '='
         
 #  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
 # 000       000   000  000   000   000 000         000   000  000   000  000          000     000         
@@ -59,7 +58,7 @@ window.titlebar = new title
 # 000       000   000  000  0000     000     000        000 000      000     
 #  0000000   0000000   000   000     000     00000000  000   000     000     
 
-$("#main").addEventListener "contextmenu", (event) ->
+onContextMenu = (event) ->
     
     absPos = pos event
     if not absPos?
@@ -79,8 +78,7 @@ $("#main").addEventListener "contextmenu", (event) ->
 # 000  000   000          000
 # 000   000  00000000     000
 
-window.onunload = -> document.onkeydown = null
-document.onkeydown = (event) ->
+onKeyDown = (event) ->
 
     return stopEvent(event) if 'unhandled' != window.titlebar.handleKey event, true
     
@@ -91,28 +89,30 @@ document.onkeydown = (event) ->
     return stopEvent(event) if 'unhandled' != window.keys.globalModKeyComboEvent mod, key, combo, event
     
     switch combo
-        when 'i', 'command+i', 'ctrl+i' then return scheme.toggle()
         when 'ctrl+v'                   then return paste()
         when 'ctrl+c'                   then return copy()
         when 'ctrl+x'                   then return cut()
-    
+        
 # 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
 # 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
 # 000000000  0000000   000 0 000  000   000  000000000  000          000     000  000   000  000 0 000  
 # 000 0 000  000       000  0000  000   000  000   000  000          000     000  000   000  000  0000  
 # 000   000  00000000  000   000   0000000   000   000   0000000     000     000   0000000   000   000  
 
-post.on 'menuAction', (action, args) ->
-
+onMenuAction = (action, args) ->
+    
     switch action
         when 'Clear'            then post.emit 'sheet', 'clear'
         when 'About'            then post.toMain 'showAbout'
         when 'Save'             then post.toMain 'saveBuffer'
         when 'Quit'             then post.toMain 'quitApp'
 
-window.sheet    = new Sheet
-window.input    = new Input
-window.keys     = new Keys
-window.menu     = new Menu
+window.sheet = new Sheet
+window.input = new Input
+window.keys  = new Keys
+window.menu  = new Menu
+
+document.addEventListener 'keydown', onKeyDown
+$("#main").addEventListener 'contextmenu', onContextMenu
 
 scheme.set prefs.get 'scheme', 'dark'

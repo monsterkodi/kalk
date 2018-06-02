@@ -28,10 +28,10 @@ debug         = false
 
 args  = args.init """
 
-    calculations  to perform    **
-    noprefs   don't load preferences     false
-    DevTools  open developer tools       false
-    watch     watch sources for changes  false
+    calculations    to perform                  **
+    noprefs         don't load preferences      false
+    DevTools        open developer tools        false
+    watch           watch sources for changes   false
 
 """
 
@@ -43,9 +43,6 @@ app.exit 0 if not args?
 # 000        000   000       000     000     
 # 000         0000000   0000000      000     
 
-post.on 'menuAction', (action, arg) -> onMenuAction action, arg
-post.on 'toggleMaximize',       -> if win?.isMaximized() then win?.unmaximize() else win?.maximize()
-post.on 'closeWin',             -> win?.close()
 post.on 'showAbout',            -> showAbout()
 post.on 'quitApp',              -> quitApp()
 
@@ -74,14 +71,16 @@ showWindow = ->
 createWindow = ->
 
     win = new BrowserWindow
-        width:           480
+        width:           474
         height:          900
+        minWidth:        474
+        minHeight:       600
         backgroundColor: '#181818'
-        maximizable:     false
-        resizable:       false
         fullscreen:      false
         show:            false
         frame:           false
+        resizable:       true # false
+        maximizable:     true
         minimizable:     true
         transparent:     true
         autoHideMenuBar: true
@@ -192,12 +191,6 @@ app.on 'ready', ->
     if args.watch
         startWatcher()
 
-onMenuAction = (action, arg) ->
-
-    switch action
-        when 'Quit'       then quitApp()
-        when 'About kalk' then showAbout()
-        
 app.setName pkg.name        
         
 if app.makeSingleInstance showWindow
