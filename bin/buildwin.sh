@@ -9,5 +9,7 @@ node_modules/.bin/electron-rebuild
 
 IGNORE="/(.*\.dmg$|Icon$|watch$|coffee$|icons$|.*md$|pug$|styl$|.*\.noon$|.*\.lock$|img/banner\.png)"
 
-node_modules/electron-packager/cli.js . --overwrite --icon=img/kalk.ico --no-prune --ignore=$IGNORE--win32metadata.FileDescription=kalk
+node_modules/electron-packager/cli.js . --overwrite --icon=img/app.ico --ignore=$IGNORE--win32metadata.FileDescription=kalk
 
+mkdir kalk-win32-x64/resources/app/coffee
+cp -f ./coffee/menu.noon kalk-win32-x64/resources/app/coffee
