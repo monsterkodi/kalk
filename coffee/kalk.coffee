@@ -20,7 +20,9 @@ remote    = electron.remote
 win       = window.win = remote.getCurrentWindow()
 
 post.on 'reload', -> win.webContents.reloadIgnoringCache()
-post.on 'schemeChanged', -> 
+post.on 'calc', (calc) -> 
+    window.input.setText calc
+    post.emit 'button', '='
         
 #  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
 # 000       000   000  000   000   000 000         000   000  000   000  000          000     000         

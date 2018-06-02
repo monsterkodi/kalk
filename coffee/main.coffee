@@ -6,7 +6,7 @@
 000   000  000   000  000  000   000
 ###
 
-{ prefs, empty, slash, about, karg, post, watch, childp, fs, log, error, _ } = require 'kxk'
+{ args, prefs, empty, slash, about, karg, post, watch, childp, fs, log, error, _ } = require 'kxk'
 
 electron = require 'electron'
 pkg      = require '../package.json'
@@ -26,15 +26,12 @@ debug         = false
 # 000   000  000   000  000   000       000
 # 000   000  000   000   0000000   0000000
 
-args  = karg """
+args  = args.init """
 
-#{pkg.name}
-
-    noprefs   . ? don't load preferences     . = false
-    DevTools  . ? open developer tools       . = false
-    watch     . ? watch sources for changes  . = false
-
-version  #{pkg.version}
+    calculations  to perform    **
+    noprefs   don't load preferences     false
+    DevTools  open developer tools       false
+    watch     watch sources for changes  false
 
 """
 
@@ -95,11 +92,14 @@ createWindow = ->
 
     win.loadURL "file://#{__dirname}/index.html"
     win.webContents.openDevTools() if args.DevTools
-    win.on 'ready-to-show', -> win.show()
     win.on 'closed', -> win = null
     win.on 'resize', saveBounds
     win.on 'move', saveBounds
     win.on 'close',  -> app.dock?.hide()
+    win.on 'ready-to-show', -> 
+        win.show()
+        for calc in args.calculations
+            post.toWins 'calc', calc
     app.dock?.show()
     win
 
