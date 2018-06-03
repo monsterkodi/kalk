@@ -8,6 +8,18 @@
 
 { win, keyinfo, title, scheme, stopEvent, prefs, slash, post, elem, popup, pos, str, log, $, _ } = require 'kxk'
 
+# 000   000  000  000   000  
+# 000 0 000  000  0000  000  
+# 000000000  000  000 0 000  
+# 000   000  000  000  0000  
+# 00     00  000  000   000  
+
+w = new win 
+    dir:    __dirname
+    pkg:    require '../package.json'
+    menu:   '../coffee/menu.noon'
+    icon:   '../img/menu@2x.png'
+
 Keys      = require './keys'
 Input     = require './input'
 Sheet     = require './sheet'
@@ -55,18 +67,6 @@ onMenuAction = (action, args) ->
         when 'Save'     then post.toMain 'saveBuffer'
         
 post.on 'menuAction', onMenuAction
-
-# 000   000  000  000   000  
-# 000 0 000  000  0000  000  
-# 000000000  000  000 0 000  
-# 000   000  000  000  0000  
-# 00     00  000  000   000  
-
-w = new win 
-    dir:    __dirname
-    pkg:    require '../package.json'
-    menu:   '../coffee/menu.noon'
-    icon:   '../img/menu@2x.png'
         
 window.sheet = new Sheet
 window.input = new Input
