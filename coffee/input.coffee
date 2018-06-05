@@ -30,10 +30,8 @@ class Input
     
     text:  -> @plain
     setText: (@plain) -> 
-        # @input.innerHTML = color text.clean @plain
         if (text.balance(@plain) == 1) and not @forceBracket
             @input.innerHTML = color text.clean @plain
-            log "'#{@input.innerHTML}' '#{color text.clean @plain}'"
         else
             @input.innerHTML = color @plain
         fs = 80 / Math.ceil(@plain.length/9)
