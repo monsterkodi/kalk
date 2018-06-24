@@ -1,13 +1,13 @@
 name            kalk
 productName     kalk
-version         0.13.0
+version         0.14.0
 description     kalkulator
 main            js/main.js
 repository
                 type  git
                 url   git+https://github.com/monsterkodi/kalk.git
 scripts
-                mac   ./bin/buildmac.sh
+                mac   bash ./bin/buildmac.sh
                 win   bash ./bin/buildwin.sh
 keywords
                 calculator
