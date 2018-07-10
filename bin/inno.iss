@@ -1,11 +1,11 @@
 #define MyAppName "kalk"
-#define MyAppVersion "0.14.0"
+#define MyAppVersion "0.15.0"
 #define MyAppPublisher "monsterkodi"
 #define MyAppURL "https://github.com/monsterkodi/kalk"
 #define MyAppExeName "kalk.exe"
 
 [Setup]
-AppId={{08229C08-D169-4B97-A6D0-CC63BAEA3297}
+AppId={{D49AE18E-E416-4CB2-8DB2-4A26B19F012A}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
