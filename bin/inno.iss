@@ -1,5 +1,5 @@
 #define MyAppName "kalk"
-#define MyAppVersion "0.15.0"
+#define MyAppVersion "0.16.0"
 #define MyAppPublisher "monsterkodi"
 #define MyAppURL "https://github.com/monsterkodi/kalk"
 #define MyAppExeName "kalk.exe"
