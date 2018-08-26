@@ -20,7 +20,7 @@ class Input
         @plain = ''
         
         post.on 'button', @onButton
-        @input = elem class:'input-text'
+        @input = elem class:'input-text', 'tab-index': 1
         @view.appendChild @input
                 
     backspace:         -> @setText text.popChar @text()
