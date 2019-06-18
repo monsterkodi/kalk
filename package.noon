@@ -1,14 +1,15 @@
 name            kalk
 productName     kalk
-version         0.17.0
+version         0.18.0
 description     kalkulator
 main            js/main.js
 repository
                 type  git
-                url   git+https://github.com/monsterkodi/kalk.git
+                url   https://github.com/monsterkodi/kalk.git
 scripts
                 mac   bash ./bin/buildmac.sh
                 win   bash ./bin/buildwin.sh
+                test  node_modules/.bin/mocha -c --require koffee/js/register ./coffee/test.coffee
 keywords
                 calculator
                 electron
@@ -17,11 +18,12 @@ license         Unlicense
 bugs
                 url  https://github.com/monsterkodi/kalk/issues
 dependencies
-                coffeescript  ^2.3.1
-                kxk           ../kxk
-                mathjs        ^4.4.2
+                kxk     ^0.316.0
+                mathjs  ^6.0.2
 devDependencies
-                chai            ^4.1.2
-                electron        ^2.0.2
-                electron-packager  ^12.1.0
-                electron-rebuild  ^1.7.3
+                chai            ^4.2.0
+                electron        ^5.0.4
+                electron-packager  ^13.1.1
+                electron-rebuild  ^1.8.5
+                koffee          ^1.3.0
+                mocha           ^6.1.4

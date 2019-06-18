@@ -6,7 +6,7 @@
  0000000  000   000  0000000   0000000
 ###
 
-{ empty, post, str, log } = require 'kxk'
+{ empty, post, kstr, klog } = require 'kxk'
 
 math = require 'mathjs'
 text = require './text'
@@ -27,20 +27,14 @@ class Calc
         expr = expr.replace /∞/g, 'Infinity'
         expr = expr.replace /°/g, ' deg'
         
-        # math.config number: 'BigNumber', precision: 19
-        
-        # log 'expr:', expr
-        
-        evl  = math.eval expr
+        evl  = math.evaluate expr
         if evl.value?
-            val = str evl.value
+            val = kstr evl.value
         else if evl.toString?
             val = evl.toString()
         else
-            val  = str evl
+            val = kstr evl
             
-        # log 'expr:', expr, 'val:', val
-        
         val  = val.replace  /Infinity/g, '∞'
         
         expr = expr.replace /\(180\/pi\)\*/, '∡'
@@ -58,8 +52,6 @@ class Calc
         val  = val.replace  /NaN/g, ''
                 
     @textKey: (txt, key) ->
-        
-        # log 'textKey', txt, 'key', key
         
         switch key
             when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
