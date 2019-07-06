@@ -6,7 +6,7 @@
  0000000  000   000  0000000   0000000
 ###
 
-{ empty, post, kstr, klog } = require 'kxk'
+{ empty, post, kstr } = require 'kxk'
 
 math = require 'mathjs'
 text = require './text'

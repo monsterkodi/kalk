@@ -6,7 +6,7 @@
 0000000   000   000  00000000  00000000     000   
 ###
 
-{ post, elem, log, str, $ } = require 'kxk'
+{ post, elem, kstr, $ } = require 'kxk'
 
 color = require './color'
 
@@ -28,7 +28,7 @@ class Sheet
                 @calc.innerHTML = ''
                 @result.innerHTML = ''
             else
-                if action.text != str action.val
+                if action.text != kstr action.val
                     @calc.appendChild elem class:'sheet-line calc', html:color action.text + ' ='
                     @result.appendChild elem class:'sheet-line result', html:color action.val
                 else

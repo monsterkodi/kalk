@@ -6,7 +6,7 @@
 000   000  000   000  0000000  000   000  
 ###
 
-{ win, keyinfo, title, scheme, stopEvent, prefs, slash, post, elem, popup, pos, str, log, $, _ } = require 'kxk'
+{ win, keyinfo, title, scheme, stopEvent, prefs, slash, post, elem, popup, $, _ } = require 'kxk'
 
 # 000   000  000  000   000  
 # 000 0 000  000  0000  000  

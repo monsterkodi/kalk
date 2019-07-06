@@ -6,7 +6,7 @@
  0000000   0000000   0000000   0000000   000   000
 ###
 
-{ matchr, log } = require 'kxk'
+{ matchr } = require 'kxk'
 
 class Color
 
