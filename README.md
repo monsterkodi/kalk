@@ -1,4 +1,4 @@
 
 ![kalk](img/banner.png)
 
-![shot](img/shot.png)
+![shot](img/shot2.png)
