@@ -155,7 +155,7 @@ class Keys
             
         if combo.startsWith 'numpad'
             return post.emit 'button', combo.split(' ')[1]
-        else if combo in [0..9].map (i) -> "#{i}"
+        else if combo in [0..9].map((i) -> "#{i}")
             return post.emit 'button', combo
             
         'unhandled'
