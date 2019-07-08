@@ -6,9 +6,9 @@
 000   000  000   000  000  000   000
 ###
 
-{ app, args, post } = require 'kxk'
+{ app, args, post, klog } = require 'kxk'
 
-new app
+kapp = new app
     dir:        __dirname
     pkg:        require '../package.json'
     shortcut:   'CmdOrCtrl+Alt+C'
@@ -25,8 +25,8 @@ new app
         calculations    to perform  **
         """
     
-post.on 'winDidShow', ->
+post.on 'winDidShow' ->
     
     for calc in args.calculations
-        post.toWins 'calc', calc
-        
+        post.toWins 'calc' calc
+       

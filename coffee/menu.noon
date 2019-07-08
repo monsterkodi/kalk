@@ -30,13 +30,14 @@ Edit
 # 00     00  000  000   000  0000000     0000000   00     00
 
 Window
-    Close                   ctrl+w w
+    Close                   cmdctrl+w w
     -
     Toggle Menu             alt+m m
     Toggle Scheme           alt+i ctrl+i
     --
     Minimize                alt+ctrl+shift+m
     Maximize                alt+ctrl+m
+    Hide                    command+h h
     ---
     Reload                  alt+cmdctrl+l
     DevTools                alt+cmdctrl+i

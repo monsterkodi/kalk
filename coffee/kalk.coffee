@@ -6,7 +6,7 @@
 000   000  000   000  0000000  000   000  
 ###
 
-{ win, keyinfo, title, scheme, stopEvent, prefs, slash, post, elem, popup, $, _ } = require 'kxk'
+{ win, keyinfo, title, scheme, stopEvent, prefs, slash, post, klog, elem, popup, $, _ } = require 'kxk'
 
 # 000   000  000  000   000  
 # 000 0 000  000  0000  000  
@@ -81,7 +81,7 @@ post.on 'combo', onCombo
 # 000   000  00000000  000   000   0000000   000   000   0000000     000     000   0000000   000   000  
 
 onMenuAction = (action, args) ->
-    
+
     switch action
         when 'Cut'      then return cut()
         when 'Copy'     then return copy()
