@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-cd `dirname $0`/..
+DIR=`dirname $0`
+BIN=$DIR/../node_modules/.bin
+cd $DIR/..
 
 if rm -rf kalk-win32-x64; then
 
-    konrad
+    if $BIN/konrad; then
 
-    node_modules/.bin/electron-rebuild
+        $BIN/electron-rebuild
 
-    IGNORE="/(.*\.dmg$|Icon$|watch$|icons$|.*md$|pug$|styl$|.*\.lock$|img/banner\.png)"
+        IGNORE="/(.*\.dmg$|Icon$|watch$|icons$|.*md$|pug$|styl$|.*\.lock$|img/banner\.png)"
 
-    node_modules/electron-packager/cli.js . --overwrite --icon=img/app.ico --ignore=$IGNORE
+        $BIN/electron-packager . --overwrite --icon=img/app.ico --ignore=$IGNORE
 
-    rm -rf kalk-win32-x64/resources/app/inno
+        rm -rf kalk-win32-x64/resources/app/inno
+    fi
 fi
