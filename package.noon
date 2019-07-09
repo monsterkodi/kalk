@@ -18,7 +18,7 @@ license         Unlicense
 bugs
                 url  https://github.com/monsterkodi/kalk/issues
 dependencies
-                kxk     ^0.322.0
+                kxk     ^0.323.0
                 mathjs  ^6.0.3
 devDependencies
                 chai            ^4.2.0
