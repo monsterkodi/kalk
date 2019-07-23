@@ -12,7 +12,7 @@ if rm -rf kalk-win32-x64; then
         IGNORE="/(.*\.dmg$|Icon$|watch$|icons$|.*md$|pug$|styl$|.*\.lock$|img/banner\.png)"
 
         $BIN/electron-packager . --overwrite --icon=img/app.ico --ignore=$IGNORE
-
-        rm -rf kalk-win32-x64/resources/app/inno
+        
+        start kalk-win32-x64/kalk.exe
     fi
 fi
