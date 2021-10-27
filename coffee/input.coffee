@@ -6,7 +6,7 @@
 000  000   000  000         0000000      000   
 ###
 
-{ post, elem, empty, log, $ } = require 'kxk'
+{ $, elem, fs, post } = require 'kxk'
 
 calc  = require './calc'
 color = require './color'
@@ -14,19 +14,22 @@ text  = require './text'
 
 class Input
 
-    constructor: ->
+    @: ->
         
         @view = $ "#input"
         @plain = ''
         
-        post.on 'button', @onButton
-        @input = elem class:'input-text', 'tab-index': 1
+        post.on 'resize' @onResize
+        post.on 'button' @onButton
+        post.on 'menuAction' (action) => if action == 'Clear' then @clear()
+        @input = elem class:'input-text' 'tab-index': 1
         @view.appendChild @input
                 
     backspace:         -> @setText text.popChar @text()
     appendText: (text) -> @setText @text() + text
     textLength:        -> @text().length
-    clear:             -> @setText(''); delete @forceBracket
+    clear:             => @setText(''); delete @forceBracket
+    onResize:          => @setText @plain
     
     text:  -> @plain
     setText: (@plain) -> 
@@ -34,7 +37,14 @@ class Input
             @input.innerHTML = color text.clean @plain
         else
             @input.innerHTML = color @plain
-        fs = 80 / Math.ceil(@plain.length/9)
+            
+        # width: 452+ max font size: 90
+        br = @input.getBoundingClientRect()
+        cw = 55
+        if @plain.length > br.width/cw
+            fs = 90*br.width / (cw*@plain.length)
+        else
+            fs = 90
         @input.style.fontSize = "#{fs}px"
         
     onButton: (key) => 

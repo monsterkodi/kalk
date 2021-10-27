@@ -6,17 +6,17 @@
 000   000  00000000     000     0000000 
 ###
 
-{ stopEvent, post, elem, $ } = require 'kxk'
+{ $, elem, post, stopEvent } = require 'kxk'
 
 class Keys
 
-    constructor: ->
+    @: ->
         
         @view = $ '#keys'
-        @table = elem 'table', class:'key-table', cellSpacing: '7px'
+        @table = elem 'table' class:'key-table' cellSpacing: '7px'
         @view.appendChild @table
         @numberKeys()
-        post.on 'keys', @onKeys
+        post.on 'keys' @onKeys
         
     onKeys: (action) =>
         switch action
@@ -132,26 +132,26 @@ class Keys
 
         switch combo
             when 'tab'                          then return stopEvent event, @toggleKeys()
-            when '/', '*', '+', '-', '=', '.'   then return post.emit 'button', combo
-            when 'enter'                        then return post.emit 'button', '='
-            when 'backspace'                    then return post.emit 'button', '⌫'
-            when 'delete', 'esc'                then return post.emit 'button', 'C'
-            when 'shift+8'                      then return post.emit 'button', '*'
-            when 'shift+6'                      then return post.emit 'button', '^'
-            when 'shift+='                      then return post.emit 'button', '+'
-            when 'shift+9'                      then return post.emit 'button', '('
-            when 'shift+0'                      then return post.emit 'button', ')'
-            when 'e'                            then return post.emit 'button', 'ℇ'
-            when 'p'                            then return post.emit 'button', 'π'
-            when 's'                            then return post.emit 'button', 'sin'
-            when 'c'                            then return post.emit 'button', 'cos'
-            when 't'                            then return post.emit 'button', 'tan'
-            when 'd'                            then return post.emit 'button', '°'
-            when 'r'                            then return post.emit 'button', '√'
-            when 'l'                            then return post.emit 'button', 'log'
-            when 'x'                            then return post.emit 'button', 'exp'
-            when 'i'                            then return post.emit 'button', '1/x'
-            when 'num lock'                     then return stopEvent event, post.emit 'button', 'C'
+            when '/', '*', '+', '-', '=', '.'   then return post.emit 'button' combo
+            when 'enter'                        then return post.emit 'button' '='
+            when 'backspace'                    then return post.emit 'button' '⌫'
+            when 'delete', 'esc'                then return post.emit 'button' 'C'
+            when 'shift+8'                      then return post.emit 'button' '*'
+            when 'shift+6'                      then return post.emit 'button' '^'
+            when 'shift+='                      then return post.emit 'button' '+'
+            when 'shift+9'                      then return post.emit 'button' '('
+            when 'shift+0'                      then return post.emit 'button' ')'
+            when 'e'                            then return post.emit 'button' 'ℇ'
+            when 'p'                            then return post.emit 'button' 'π'
+            when 's'                            then return post.emit 'button' 'sin'
+            when 'c'                            then return post.emit 'button' 'cos'
+            when 't'                            then return post.emit 'button' 'tan'
+            when 'd'                            then return post.emit 'button' '°'
+            when 'r'                            then return post.emit 'button' '√'
+            when 'l'                            then return post.emit 'button' 'log'
+            when 'x'                            then return post.emit 'button' 'exp'
+            when 'i'                            then return post.emit 'button' '1/x'
+            when 'num lock'                     then return stopEvent event, post.emit 'button' 'C'
             
         if combo.startsWith 'numpad'
             return post.emit 'button', combo.split(' ')[1]
