@@ -6,7 +6,7 @@
 000   000  000   000  0000000  000   000  
 ###
 
-{ win, keyinfo, title, scheme, stopEvent, prefs, slash, post, klog, elem, popup, $, _ } = require 'kxk'
+{ post, stopEvent, win } = require 'kxk'
 
 # 000   000  000  000   000  
 # 000 0 000  000  0000  000  
@@ -25,7 +25,7 @@ Input     = require './input'
 Sheet     = require './sheet'
 electron  = require 'electron'
 
-post.on 'calc', (calc) -> window.input.setText(calc); post.emit 'button', '='
+post.on 'calc' (calc) -> window.input.setText(calc); post.emit 'button', '='
         
 #  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
 # 000       000   000  000   000   000 000         000   000  000   000  000          000     000         
@@ -72,7 +72,7 @@ onCombo = (combo, info) ->
         when 'ctrl+c'   then return copy()
         when 'ctrl+x'   then return cut()
         
-post.on 'combo', onCombo
+post.on 'combo' onCombo
         
 # 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
 # 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
@@ -89,7 +89,7 @@ onMenuAction = (action, args) ->
         when 'Clear'    then post.emit 'sheet', 'clear'
         when 'Save'     then post.toMain 'saveBuffer'
         
-post.on 'menuAction', onMenuAction
+post.on 'menuAction' onMenuAction
         
 window.sheet = new Sheet
 window.input = new Input
