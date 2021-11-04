@@ -47,16 +47,16 @@ class Input
             fs = 90
         @input.style.fontSize = "#{fs}px"
         
-    onButton: (key) => 
+    onButton: (key) =>
         
         switch key
-            when 'ƒ' then post.emit 'keys', 'functions'
-            when 'ℵ' then post.emit 'keys', 'numbers'
+            when 'ƒ' then post.emit 'keys' 'functions'
+            when 'ℵ' then post.emit 'keys' 'numbers'
             when '⌫' then @backspace()
-            when 'C' then @clear()
+            when 'c' then @clear()
             else
                 switch key
-                    when '(', ')' then @forceBracket = true
+                    when '(' ')' then @forceBracket = true
                 @setText calc.textKey @text(), key
 
 module.exports = Input

@@ -6,7 +6,7 @@
 0000000   000   000  00000000  00000000     000   
 ###
 
-{ post, elem, kstr, $ } = require 'kxk'
+{ $, elem, kstr, post } = require 'kxk'
 
 color = require './color'
 

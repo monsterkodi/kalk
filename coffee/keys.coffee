@@ -29,92 +29,92 @@ class Keys
         for row in keys
             @table.appendChild row
         
-    row: (children) => elem 'tr', class:'key-row', children:children
+    row: (children) => elem 'tr' class:'key-row' children:children
     key: (text, clss='') => 
         if text == '_' 
-            elem 'td', class:'key hidden'
+            elem 'td' class:'key hidden'
         else
             cfg = class:'key '+ clss, text:text, click: @onButton
             if clss.indexOf('wide') >= 0
                 cfg.colSpan = 2
             if clss.indexOf('tall') >= 0
                 cfg.rowSpan = 2
-            elem 'td', cfg
+            elem 'td' cfg
         
     numberKeys: ->
                 
-        @setKeys 'numbers', [
+        @setKeys 'numbers' [
             @row [
-                    @key "C", 'tall'
-                    @key "√", 'op0'
-                    @key "^", 'op0'
-                    @key "/", 'op1'
-                    @key "*", 'op1'
+                    @key 'c' 'tall'
+                    @key '√' 'op0'
+                    @key '^' 'op0'
+                    @key '/' 'op1'
+                    @key '*' 'op1'
                 ]
             @row [
-                    @key "7", 'digit'
-                    @key "8", 'digit'
-                    @key "9", 'digit'
-                    @key "-", 'dot'
+                    @key '7' 'digit'
+                    @key '8' 'digit'
+                    @key '9' 'digit'
+                    @key '-' 'dot'
                 ]
             @row [
-                    @key "⌫"
-                    @key "4", 'digit'
-                    @key "5", 'digit'
-                    @key "6", 'digit'
-                    @key "+", 'dot'
+                    @key '⌫'
+                    @key '4' 'digit'
+                    @key '5' 'digit'
+                    @key '6' 'digit'
+                    @key '+' 'dot'
                 ]
             @row [
-                    @key "ƒ", 'tall bottom function'
-                    @key "1", 'digit'
-                    @key "2", 'digit'
-                    @key "3", 'digit'
-                    @key "=", 'tall bottom'
+                    @key 'ƒ' 'tall bottom function'
+                    @key '1' 'digit'
+                    @key '2' 'digit'
+                    @key '3' 'digit'
+                    @key '=' 'tall bottom'
                 ]
             @row [
-                    @key "0", 'wide digit right'
-                    @key ".", 'dot'
+                    @key '0' 'wide digit right'
+                    @key '.' 'dot'
                 ]
             ]
     
     functionKeys: ->
         
-        @setKeys 'functions', [
+        @setKeys 'functions' [
             @row [
-                    @key "C", 'tall'
-                    @key "√", 'op0'
-                    @key "^", 'op0'
-                    @key "/", 'op1'
-                    @key "*", 'op1'
+                    @key 'c' 'tall'
+                    @key '√' 'op0'
+                    @key '^' 'op0'
+                    @key '/' 'op1'
+                    @key '*' 'op1'
                 ]
             @row [
-                    @key "sin", 'function'
-                    @key "cos", 'function'
-                    @key "π",   'constant'    
-                    @key "-",   'dot'
+                    @key 'sin' 'function'
+                    @key 'cos' 'function'
+                    @key 'π'   'constant'    
+                    @key '-'   'dot'
                 ]
             @row [
-                    @key "⌫"
-                    @key "tan", 'function'
-                    @key "log", 'function'
-                    @key "ℇ",   'constant'
-                    @key "+",   'dot'
+                    @key '⌫'
+                    @key 'tan' 'function'
+                    @key 'log' 'function'
+                    @key 'ℇ'   'constant'
+                    @key '+'   'dot'
                 ]
             @row [
-                    @key "ℵ",   'tall bottom digit'
-                    @key "1/x", 'op1'
-                    @key '∡',   'op1'
-                    @key 'ϕ',   'constant'
-                    @key "=",   'tall bottom equals'
+                    @key 'ℵ'   'tall bottom digit'
+                    @key '1/x' 'op1'
+                    @key '∡'   'op1'
+                    @key 'ϕ'   'constant'
+                    @key '='   'tall bottom equals'
                 ]
             @row [
-                    @key "(",   'bracket'
-                    @key "°",   'digit'
-                    @key ")",   'bracket'
+                    @key '('   'bracket'
+                    @key '°'   'digit'
+                    @key ')'   'bracket'
                 ]
             ]
 
-    onButton: (event) => post.emit 'button', event.target.innerHTML.trim()
+    onButton: (event) => post.emit 'button' event.target.innerHTML.trim()
     
     toggleKeys: ->
         
@@ -131,32 +131,33 @@ class Keys
     globalModKeyComboEvent: (mod, key, combo, event) ->
 
         switch combo
-            when 'tab'                          then return stopEvent event, @toggleKeys()
-            when '/', '*', '+', '-', '=', '.'   then return post.emit 'button' combo
-            when 'enter'                        then return post.emit 'button' '='
-            when 'backspace'                    then return post.emit 'button' '⌫'
-            when 'delete', 'esc'                then return post.emit 'button' 'C'
-            when 'shift+8'                      then return post.emit 'button' '*'
-            when 'shift+6'                      then return post.emit 'button' '^'
-            when 'shift+='                      then return post.emit 'button' '+'
-            when 'shift+9'                      then return post.emit 'button' '('
-            when 'shift+0'                      then return post.emit 'button' ')'
-            when 'e'                            then return post.emit 'button' 'ℇ'
-            when 'p'                            then return post.emit 'button' 'π'
-            when 's'                            then return post.emit 'button' 'sin'
-            when 'c'                            then return post.emit 'button' 'cos'
-            when 't'                            then return post.emit 'button' 'tan'
-            when 'd'                            then return post.emit 'button' '°'
-            when 'r'                            then return post.emit 'button' '√'
-            when 'l'                            then return post.emit 'button' 'log'
-            when 'x'                            then return post.emit 'button' 'exp'
-            when 'i'                            then return post.emit 'button' '1/x'
-            when 'num lock'                     then return stopEvent event, post.emit 'button' 'C'
+            when 'tab'                     then return stopEvent event, @toggleKeys()
+            when '/' '*' '+' '-' '=' '.'   then return post.emit 'button' combo
+            when 'enter'                   then return post.emit 'button' '='
+            when 'backspace'               then return post.emit 'button' '⌫'
+            when 'delete' 'esc'            then return post.emit 'button' 'c'
+            when 'shift+8'                 then return post.emit 'button' '*'
+            when 'shift+6'                 then return post.emit 'button' '^'
+            when 'shift+='                 then return post.emit 'button' '+'
+            when 'shift+9'                 then return post.emit 'button' '('
+            when 'shift+0'                 then return post.emit 'button' ')'
+            when 'e'                       then return post.emit 'button' 'ℇ'
+            when 'c'                       then return post.emit 'button' 'c'
+            when 'p'                       then return post.emit 'button' 'π'
+            when 's'                       then return post.emit 'button' 'sin'
+            when 'shift+c'                 then return post.emit 'button' 'cos'
+            when 't'                       then return post.emit 'button' 'tan'
+            when 'd'                       then return post.emit 'button' '°'
+            when 'r'                       then return post.emit 'button' '√'
+            when 'l'                       then return post.emit 'button' 'log'
+            when 'x'                       then return post.emit 'button' 'exp'
+            when 'i'                       then return post.emit 'button' '1/x'
+            when 'num lock'                then return stopEvent event, post.emit 'button' 'c'
             
         if combo.startsWith 'numpad'
-            return post.emit 'button', combo.split(' ')[1]
+            return post.emit 'button' combo.split(' ')[1]
         else if combo in [0..9].map((i) -> "#{i}")
-            return post.emit 'button', combo
+            return post.emit 'button' combo
             
         'unhandled'
             

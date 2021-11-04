@@ -8,7 +8,8 @@
 kalk
     About                   cmdctrl+alt+/
     -
-    Clear                   cmdctrl+k k
+    Clear                   c
+    Clear All               cmdctrl+k k 
     --
     Quit                    cmdctrl+q
 
@@ -30,7 +31,7 @@ Edit
 # 00     00  000  000   000  0000000     0000000   00     00
 
 Window
-    Close                   cmdctrl+w w
+    Close                   cmdctrl+w
     -
     Toggle Menu             alt+m m
     Toggle Scheme           alt+i ctrl+i

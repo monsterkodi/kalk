@@ -83,11 +83,11 @@ post.on 'combo' onCombo
 onMenuAction = (action, args) ->
 
     switch action
-        when 'Cut'      then return cut()
-        when 'Copy'     then return copy()
-        when 'Paste'    then return paste()
-        when 'Clear'    then post.emit 'sheet' 'clear'
-        when 'Save'     then post.toMain 'saveBuffer'
+        when 'Cut'          then return cut()
+        when 'Copy'         then return copy()
+        when 'Paste'        then return paste()
+        when 'Clear All'    then post.emit('sheet' 'clear'); post.emit('menuAction' 'Clear')
+        when 'Save'         then post.toMain 'saveBuffer'
         
 post.on 'menuAction' onMenuAction
         
