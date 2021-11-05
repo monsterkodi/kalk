@@ -22,12 +22,12 @@ license         Unlicense
 bugs
                 url  https://github.com/monsterkodi/kalk/issues
 dependencies
-                kxk     ^0.418.0
+                kxk     ^0.419.0
                 mathjs  ^10.0.0
 devDependencies
                 chai            ^4.3.4
                 electron        ^15.3.0
                 electron-builder  ^22.13.1
                 koffee          ^1.14.0
-                konrad          ^0.189.0
+                konrad          ^0.191.0
                 mocha           ^9.1.3

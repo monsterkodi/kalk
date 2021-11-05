@@ -6,7 +6,7 @@
  0000000  000   000  0000000   0000000
 ###
 
-{ empty, post, kstr } = require 'kxk'
+{ empty, kstr } = require 'kxk'
 
 math = require 'mathjs'
 text = require './text'
@@ -47,14 +47,14 @@ class Calc
         
         val += '°' if expr.startsWith '∡'
         
-        post.emit 'sheet', text:expr, val:val
+        post?.emit 'sheet' text:expr, val:val
         
         val  = val.replace  /NaN/g, ''
                 
     @textKey: (txt, key) ->
         
         switch key
-            when 'sin', 'cos', 'tan', '√', 'deg', 'rad', 'exp', 'log'
+            when 'sin' 'cos' 'tan' '√' 'deg' 'rad' 'exp' 'log'
 
                 if not empty(txt) and text.endsWithValue(txt) 
                     txt = @calc key + '(' + txt
@@ -69,13 +69,13 @@ class Calc
                 txt = @calc '1/(' + txt + ')'
             when '∡'
                 txt = @calc '∡(' + txt + ')'
-            when '+', '-'
-                if not text.endsWith txt, ['+', '-', '.']
+            when '+' '-'
+                if not text.endsWith txt, ['+' '-' '.']
                     txt += key
             when '.'
                 if text.endsWithNumber(txt) and not text.endsWithFloat(txt)
                     txt += key
-            when 'π', 'ℇ'
+            when 'π' 'ℇ'
                 if not text.endsWithConstant(txt)
                     txt += key
             when '('
