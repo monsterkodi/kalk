@@ -1,0 +1,77 @@
+
+# 00     00  00000000  000   000  000   000
+# 000   000  000       0000  000  000   000
+# 000000000  0000000   000 0 000  000   000
+# 000 0 000  000       000  0000  000   000
+# 000   000  00000000  000   000   0000000
+
+kalk
+    About                   cmdctrl+alt+/
+    -
+    Clear                   c
+    Clear Log               k
+    Clear All               cmdctrl+k
+    --
+    Quit                    cmdctrl+q
+
+# 00000000  0000000    000  000000000  
+# 000       000   000  000     000     
+# 0000000   000   000  000     000     
+# 000       000   000  000     000     
+# 00000000  0000000    000     000     
+
+Edit
+    Cut                     cmdctrl+x
+    Copy                    cmdctrl+c
+    Paste                   cmdctrl+v
+    -
+    Op
+
+        Plus                     a p shift+=
+        Minus                   - s m shift+-
+        Multiply                * t shift+8
+        Divide                  / d
+        Sqrt                    r shift+r
+        Pow                     ^ shift+6
+    Func
+        Sin                     shift+s
+        Cos                     shift+c
+        Tan                     shift+t
+        aTan                    shift+a
+        Log                     shift+l
+        Exp                     shift+x
+        Deg2Rad                 shift+d
+    Const
+        E                       shift+e
+        PI                      shift+p
+        PHI                     shift+f
+    --
+    Del                     backspace shift+backspace
+    Begin                   ( [ shift+9
+    End                     ) ] shift+0
+    Equals                  = return
+
+# 000   000  000  000   000  0000000     0000000   000   000
+# 000 0 000  000  0000  000  000   000  000   000  000 0 000
+# 000000000  000  000 0 000  000   000  000   000  000000000
+# 000   000  000  000  0000  000   000  000   000  000   000
+# 00     00  000  000   000  0000000     0000000   00     00
+
+Window
+    Close                   cmdctrl+w
+    -
+    Toggle Menu             alt+m
+    Toggle Scheme           alt+i ctrl+i
+    --
+    Minimize                alt+ctrl+shift+m
+    Maximize                alt+ctrl+m
+    Hide                    command+h h
+    ---
+    Focus Next              cmdctrl+`
+    Focus Previous          cmdctrl+shift+`
+    ----
+    Screenshot              f3
+    Reload                  alt+cmdctrl+l
+    DevTools                alt+cmdctrl+i
+
+    

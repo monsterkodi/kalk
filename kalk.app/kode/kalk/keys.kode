@@ -1,0 +1,202 @@
+###
+000   000  00000000  000   000   0000000
+000  000   000        000 000   000     
+0000000    0000000     00000    0000000 
+000  000   000          000          000
+000   000  00000000     000     0000000 
+###
+
+use ../kxk ▪ $ elem post stopEvent
+use ◆ calc
+
+class Keys
+
+    @: ->
+        
+        @view = $ '#keys'
+        @table = elem 'table' class:'key-table' cellSpacing: '7px'
+        @view.appendChild @table
+        @numberKeys()
+        post.on 'keys'      @onKeys
+        post.on 'inputText' @onInputText
+        @update()
+        
+    onKeys: action =>
+        
+        switch action
+            'functions' ➜ @functionKeys()
+            'numbers'   ➜ @numberKeys()
+            
+        @update()
+        
+    update: -> @onInputText window.input.plain
+            
+    onInputText: text =>
+        
+        log 'onInputText' text
+        
+        wraps = document.querySelectorAll('.key-wrap')
+        for wrap in wraps
+            active = calc.activeKey text, wrap.innerHTML
+            # log 'wrap' wrap.innerHTML, active
+            wrap.parentElement.classList.toggle 'inactive' not active
+            wrap.classList.toggle 'inactive' not active
+        
+    setKeys: @keys keys =>
+        
+        @table.innerHTML = ''
+        
+        row = elem 'tr' class:'spacing-row' 
+        for i in 0...5
+            row.appendChild elem 'td' class:'spacing-cell' width:'84px'
+        @table.appendChild row
+        
+        for row in keys
+            @table.appendChild row
+        
+    row: children => elem 'tr' class:'key-row' children:children
+    
+    key: text clss='' => 
+        
+        if text == '_' 
+            elem 'td' class:'key hidden'
+        else
+            cfg = class:'key '+ clss, click:@onButton, child: elem class:'key-wrap' text:text
+            if clss.indexOf('wide') >= 0
+                cfg.colSpan = 2
+            if clss.indexOf('tall') >= 0
+                cfg.rowSpan = 2
+            elem 'td' cfg
+        
+    numberKeys: ->
+                
+        @setKeys 'numbers' [ # ▾ style
+            @row [
+                    @key 'c'                'tall clear'
+                    @key symbol.sqrt,       'op0 sqrt'
+                    @key '^'                'op0 pow'
+                    @key '/'                'op1 dot divide'
+                    @key '*'                'op1 dot multiply'
+                ]
+            @row [
+                    @key '7'                'digit'
+                    @key '8'                'digit'
+                    @key '9'                'digit'
+                    @key '-'                'op2'
+                ]
+            @row [
+                    @key symbol.backspace,  'backspace'
+                    @key '4'                'digit'
+                    @key '5'                'digit'
+                    @key '6'                'digit'
+                    @key '+'                'op2'
+                ]
+            @row [
+                    @key symbol.func,       'tall bottom func'
+                    @key '1'                'digit'
+                    @key '2'                'digit'
+                    @key '3'                'digit'
+                    @key '='                'tall bottom equals'
+                ]
+            @row [
+                    @key '0'                'wide digit right'
+                    @key '.'                'dot'
+                ]
+            ]
+    
+    functionKeys: ->
+        
+        @setKeys 'functions' [ # ▾ style
+            @row [
+                    @key 'c'                'tall clear'
+                    @key symbol.sqrt,       'op1 sqrt'
+                    @key symbol.exp,        'op1 exp'
+                    @key symbol.oneoverx,   'op1 oneoverx'
+                    @key '*'                'dot multiply'
+                ]
+            @row [
+                    @key 'sin'              'function sin'
+                    @key 'cos'              'function cos'
+                    @key 'π'                'constant pi'    
+                    @key '-'                'dot'
+                ]
+            @row [
+                    @key symbol.backspace,  'backspace'
+                    @key 'tan'              'function tan'
+                    @key 'log'              'function log'
+                    @key symbol.euler,      'constant euler'
+                    @key '+'                'dot'
+                ]
+            @row [
+                    @key symbol.numbers,    'tall bottom numbers'
+                    @key 'atan'             'function atan'
+                    @key '∡'                'op1 rad2deg'
+                    @key 'ϕ'                'constant phi'
+                    @key '='                'tall bottom equals'
+                ]
+            @row [
+                    @key '('                'bracket'
+                    @key '°'                'digit deg2rad'
+                    @key ')'                'bracket'
+                ]
+            ]
+
+    onButton: event => post.emit 'button' event.target.firstChild.innerHTML.trim()
+    
+    toggleKeys: -> @keys == 'numbers' ? @functionKeys() : @numberKeys()        
+    
+    # 000   000  00000000  000   000
+    # 000  000   000        000 000 
+    # 0000000    0000000     00000  
+    # 000  000   000          000   
+    # 000   000  00000000     000   
+    
+    keyDown: info ->
+        
+        if info.key == 'shift'
+            post.emit 'keys' 'functions'
+            @shiftFunctions = true
+
+        combo = info.combo
+        switch combo
+            'tab'                     ➜ ⮐ @toggleKeys()
+            '/' '*' '+' '-' '=' '.'   ➜ ⮐ post.emit 'button' combo
+            'enter'                   ➜ ⮐ post.emit 'button' '='
+            'backspace'               ➜ ⮐ post.emit 'button' symbol.backspace
+            'delete' 'esc'            ➜ ⮐ post.emit 'button' 'c'
+            'shift+8'                 ➜ ⮐ post.emit 'button' '*'
+            'shift+6'                 ➜ ⮐ post.emit 'button' '^'
+            'shift+='                 ➜ ⮐ post.emit 'button' '+'
+            'shift+9'                 ➜ ⮐ post.emit 'button' symbol.open
+            'shift+0'                 ➜ ⮐ post.emit 'button' symbol.close
+            'e'                       ➜ ⮐ post.emit 'button' symbol.euler
+            'c'                       ➜ ⮐ post.emit 'button' 'c'
+            'p'                       ➜ ⮐ post.emit 'button' symbol.pi
+            's'                       ➜ ⮐ post.emit 'button' 'sin'
+            'shift+s'
+            'shift+c'                 ➜ ⮐ post.emit 'button' 'cos'
+            't'                       ➜ ⮐ post.emit 'button' 'tan'
+            'l'                       ➜ ⮐ post.emit 'button' 'log'
+            'd'                       ➜ ⮐ post.emit 'button' symbol.deg2rad
+            'r'                       ➜ ⮐ post.emit 'button' symbol.sqrt
+            'x'                       ➜ ⮐ post.emit 'button' symbol.exp # eˣ
+            'i'                       ➜ ⮐ post.emit 'button' symbol.oneoverx
+            'num lock'                ➜ ⮐ post.emit 'button' 'c'
+            
+        if combo.startsWith 'numpad'
+            ⮐ post.emit 'button' combo.split(' ')[1]
+        else if combo in [0..9].map((i) -> "#{i}")
+            ⮐ post.emit 'button' combo
+            
+        'unhandled'
+        
+    keyUp: info ->
+        
+        log 'up' info
+        
+        if info.key == 'shift'
+            if @shiftFunctions
+                post.emit 'keys' 'numbers'
+                delete @shiftFunctions
+                
+export Keys

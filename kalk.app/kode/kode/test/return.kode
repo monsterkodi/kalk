@@ -1,0 +1,106 @@
+###
+    00000000   00000000  000000000  000   000  00000000   000   000  
+    000   000  000          000     000   000  000   000  0000  000  
+    0000000    0000000      000     000   000  0000000    000 0 000  
+    000   000  000          000     000   000  000   000  000  0000  
+    000   000  00000000     000      0000000   000   000  000   000  
+###
+
+use ./utils ▪ kc ke
+
+▸ return
+
+    kc  '-> return 1'    ▸ """
+        (function ()
+        {
+            return 1
+        })
+        """
+
+    kc  'f = -> 1'       ▸ """
+        
+        f = function ()
+        {
+            return 1
+        }
+        """
+
+    kc  'f = -> ⮐ 2'       ▸ """
+        
+        f = function ()
+        {
+            return 2
+        }
+        """
+
+    kc  'f = -> if true ➜ 4 else 5'       ▸ """
+        
+        f = function ()
+        {
+            if (true)
+            {
+                return 4
+            }
+            else
+            {
+                return 5
+            }
+        }
+        """
+
+    kc  'f = -> if true ➜ 4 else ⮐ 5'       ▸ """
+        
+        f = function ()
+        {
+            if (true)
+            {
+                return 4
+            }
+            else
+            {
+                return 5
+            }
+        }
+        """
+
+    kc  """
+        f = -> 
+            if true 
+                ⮐ 4 
+            else ⮐ 5"""  ▸ """
+        
+        f = function ()
+        {
+            if (true)
+            {
+                return 4
+            }
+            else
+            {
+                return 5
+            }
+        }
+        """
+
+    kc  """
+        f = -> 
+            switch a
+                '1' ➜ ⮐ 4 
+                '2' ➜ ⮐ 5 
+        """ ▸ """
+        
+        f = function ()
+        {
+            switch (a)
+            {
+                case '1':
+                    return 4
+        
+                case '2':
+                    return 5
+        
+            }
+        
+        }
+        """
+        

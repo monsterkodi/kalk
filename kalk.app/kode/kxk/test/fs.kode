@@ -1,0 +1,133 @@
+###
+000000000  00000000   0000000  000000000          00000000   0000000
+   000     000       000          000             000       000     
+   000     0000000   0000000      000             000000    0000000 
+   000     000            000     000             000            000
+   000     00000000  0000000      000     000000  000       0000000 
+###
+
+use .. ◆ fs slash
+
+▸ fs
+    
+    # 00000000  000   000  000   0000000  000000000   0000000  
+    # 000        000 000   000  000          000     000       
+    # 0000000     00000    000  0000000      000     0000000   
+    # 000        000 000   000       000     000          000  
+    # 00000000  000   000  000  0000000      000     0000000   
+    
+    ▸ exists
+
+        (fs.exists(◆dir)?)          ▸ true
+        (fs.exists(◆file)?)         ▸ true
+        (fs.exists(slash.path(◆file, 'foo'))?) ▸ false
+        
+        fs.exists ◆file, (stat) -> (stat?) ▸ true
+        fs.exists slash.path(◆file, 'foo'), (stat) -> (stat?) ▸ false
+            
+    ▸ fileExists
+
+        (fs.fileExists(◆file)?) ▸ true
+        (fs.fileExists(◆dir)?)  ▸ false
+        
+    ▸ dirExists
+        
+        (fs.dirExists(◆dir)?)  ▸ true
+        (fs.dirExists(◆file)?) ▸ false
+
+    # 00000000   000   000   0000000   
+    # 000   000  000  000   000        
+    # 00000000   0000000    000  0000  
+    # 000        000  000   000   000  
+    # 000        000   000   0000000   
+    
+    ▸ pkg
+        
+        (fs.pkg(◆dir)?)  ▸ true
+        (fs.pkg(◆file)?) ▸ true
+
+        if slash.win()
+            
+            (fs.pkg('C:\\')?) ▸ false
+            (fs.pkg('C:')?) ▸ false
+        
+    # 00000000   00000000   0000000   0000000  
+    # 000   000  000       000   000  000   000
+    # 0000000    0000000   000000000  000   000
+    # 000   000  000       000   000  000   000
+    # 000   000  00000000  000   000  0000000  
+    
+    ▸ read
+         
+        fs.read ◆dir + '/../../package.noon' (text) ->
+             
+            text ▸ (a) -> a.startsWith 'name'
+     
+        fs.read ◆dir + '/dir/filedoesntexist' (text) ->
+              
+            text ▸ ''
+
+    # 000   000  00000000   000  000000000  00000000  000000000  00000000  000   000  000000000  
+    # 000 0 000  000   000  000     000     000          000     000        000 000      000     
+    # 000000000  0000000    000     000     0000000      000     0000000     00000       000     
+    # 000   000  000   000  000     000     000          000     000        000 000      000     
+    # 00     00  000   000  000     000     00000000     000     00000000  000   000     000     
+    
+    # ▸ write
+#          
+        # f2 = slash.path ◆dir, 'test.txt'
+#          
+        # fs.write(f2, "hello world").then (p) ->
+#              
+            # p ▸ f2
+#              
+            # fs.read(p).then (r) -> 
+#                  
+                # r ▸ 'hello world'
+                # fs.remove p
+#              
+        # fs.write(slash.path(◆dir, 'some.dir.that.doesn/t.exist'), 'blurk').then (p) ->
+#              
+            # p ▸ slash.path ◆dir, 'some.dir.that.doesn/t.exist'
+#             
+            # fs.read(p).then (r) -> 
+#                  
+                # r ▸ 'blurk'
+                # fs.remove slash.path ◆dir, 'some.dir.that.doesn'
+
+    # 0000000    000  00000000   000      000   0000000  000000000  
+    # 000   000  000  000   000  000      000  000          000     
+    # 000   000  000  0000000    000      000  0000000      000     
+    # 000   000  000  000   000  000      000       000     000     
+    # 0000000    000  000   000  0000000  000  0000000      000     
+
+    ▸ dirlist
+         
+        process.chdir ◆dir
+        fs.list(◆dir).then (items) ->
+            items.map((i) -> i.path) ▸ (a) -> slash.path(◆file) in a
+        
+    # 000000000  00     00  00000000   00000000  000  000      00000000  
+    #    000     000   000  000   000  000       000  000      000       
+    #    000     000000000  00000000   000000    000  000      0000000   
+    #    000     000 0 000  000        000       000  000      000       
+    #    000     000   000  000        000       000  0000000  00000000  
+    
+    ▸ tmpfile
+        
+        slash.tmpfile('txt')        ▸   (a) -> /\.txt$/.test a
+        slash.tmpfile()             ▸   (a) -> /[a-f\d]+$/.test a
+
+    # 00000000   00000000  00     00   0000000   000   000  00000000  
+    # 000   000  000       000   000  000   000  000   000  000       
+    # 0000000    0000000   000000000  000   000   000 000   0000000   
+    # 000   000  000       000 0 000  000   000     000     000       
+    # 000   000  00000000  000   000   0000000       0      00000000  
+    
+    ▸ remove
+        
+        t = fs.touch slash.tmpfile()
+        (fs.isFile(t)?)    ▸ true
+        (fs.remove(t)?)    ▸ false
+        (fs.isFile(t)?)    ▸ false
+    

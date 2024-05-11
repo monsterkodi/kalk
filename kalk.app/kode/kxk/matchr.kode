@@ -1,0 +1,276 @@
+###
+00     00   0000000   000000000   0000000  000   000  00000000 
+000   000  000   000     000     000       000   000  000   000
+000000000  000000000     000     000       000000000  0000000  
+000 0 000  000   000     000     000       000   000  000   000
+000   000  000   000     000      0000000  000   000  000   000
+###
+
+#  0000000   0000000   000   000  00000000  000   0000000 
+# 000       000   000  0000  000  000       000  000      
+# 000       000   000  000 0 000  000000    000  000  0000
+# 000       000   000  000  0000  000       000  000   000
+#  0000000   0000000   000   000  000       000   0000000 
+
+# convert the patterns object to a list of [RegExp(key), value] pairs
+
+config = (patterns, flags) -> ( [new RegExp(p, flags), a] for p,a of patterns )
+
+sortRanges = (rgs) ->
+    
+    rgs.sort (a,b) ->
+        if a.start == b.start
+            a.index - b.index
+        else
+            a.start - b.start
+
+###
+    00000000    0000000   000   000   0000000   00000000   0000000
+    000   000  000   000  0000  000  000        000       000     
+    0000000    000000000  000 0 000  000  0000  0000000   0000000 
+    000   000  000   000  000  0000  000   000  000            000
+    000   000  000   000  000   000   0000000   00000000  0000000 
+
+    accepts a list of [regexp, value(s)] pairs and a string
+    
+    returns a list of objects with information about the matches:
+        
+        match: the matched substring
+        start: position of match in str
+        clss:  the value for the match
+        index: index of the regexp
+      
+        the objects are sorted by start and index
+        
+        if the regexp has capture groups then 
+            the value for the match of the nth group is
+                the nth item of values(s) if value(s) is an array
+                the nth [key, value] pair if value(s) is an object
+###
+
+ranges = (regexes, text, flags) ->
+    
+    if not regexes is Array
+        if regexes is str
+            regexes = [[new RegExp(regexes, flags), 'found']]
+        else
+            regexes = [[regexes, 'found']]
+    else if valid(regexes) and not regexes[0] is Array
+        regexes = [regexes]
+
+    rgs = []
+    return rgs if not text? or empty regexes
+    
+    for r in [0...regexes.length]
+        
+        reg = regexes[r][0]
+        
+        if not reg? or not reg.exec?
+            error 'no reg?', regexes, text, flags
+            return rgs
+        
+        arg = regexes[r][1]
+        i = 0
+        s = text
+
+        while s.length
+            
+            match = reg.exec s
+            
+            break if not match?
+            
+            if match.length == 1
+                
+                if match[0].length > 0
+                    rgs.push
+                        start: match.index + i
+                        match: match[0]
+                        clss:  arg
+                        index: r
+                    
+                i += match.index + Math.max 1, match[0].length
+                s = text.slice i
+                
+            else
+                
+                gs = 0
+                
+                for j in [0..match.length-2]
+                    value = arg
+                    if value is Array and j < value.length then value = value[j]
+                    else if value is obj and j < Object.keys(value).length 
+                        value = [Object.keys(value)[j], value[Object.keys(value)[j]]]
+                    break if not match[j+1]?
+                    gi = match[0].slice(gs).indexOf match[j+1]
+                    
+                    rgs.push
+                        start: match.index + i + gs + gi
+                        match: match[j+1]
+                        clss:  value
+                        index: r
+                        
+                    gs += match[j+1].length
+                i += match.index + match[0].length
+                s = text.slice i
+
+    sortRanges rgs        
+
+###
+    0000000    000   0000000   0000000  00000000   0000000  000000000
+    000   000  000  000       000       000       000          000   
+    000   000  000  0000000   0000000   0000000   000          000   
+    000   000  000       000       000  000       000          000   
+    0000000    000  0000000   0000000   00000000   0000000     000   
+ 
+    accepts a list of ranges
+    returns a list of objects:
+    
+        match: the matched substring
+        start: position of match in str
+        clss:  string of classnames joined with a space
+       
+        with none of the [start, start+match.length] ranges overlapping
+###
+
+dissect = (ranges, opt = join:false) -> 
+    
+    return [] if not ranges.length
+    
+    di = [] # collect a list of positions where a match starts or ends
+    for rg in ranges
+        di.push [rg.start, rg.index]
+        di.push [rg.start + rg.match.length, rg.index]
+        
+    di.sort (a,b) -> # sort the start/end positions by x or index
+        if a[0]==b[0] 
+            a[1]-b[1]
+        else
+            a[0]-b[0]
+            
+    d = [] 
+    si = -1
+
+    for dps in di          # create a list of dummy ranges 
+        if dps[0] > si     # one range for each position
+            si = dps[0]
+            d.push
+                start: si
+                cls:   []
+
+    p = 0
+    for ri in [0...ranges.length]
+        rg = ranges[ri]
+        while d[p].start < rg.start 
+            p += 1 
+        pn = p
+        while d[pn].start < rg.start+rg.match.length
+            if rg.clss?
+                if not rg.clss.split?
+                    for r in rg.clss
+                        continue if not r?.split?
+                        for c in r.split '.' 
+                            d[pn].cls.push c if d[pn].cls.indexOf(c) < 0
+                else 
+                    for c in rg.clss.split '.' 
+                        d[pn].cls.push c if d[pn].cls.indexOf(c) < 0
+            if pn+1 < d.length
+                if not d[pn].match
+                    d[pn].match = rg.match.substr d[pn].start-rg.start, d[pn+1].start-d[pn].start
+                pn += 1
+            else
+                if not d[pn].match
+                    d[pn].match = rg.match.substr d[pn].start-rg.start
+                break
+                
+    d = d.filter (i) -> i.match?.trim().length
+    
+    for i in d
+        i.clss = i.cls.join ' '
+        delete i.cls
+        
+    if d.length > 1
+        for i in [d.length-2..0]
+            if d[i].start + d[i].match.length == d[i+1].start
+                if d[i].clss == d[i+1].clss
+                    d[i].match += d[i+1].match
+                    d.splice i+1, 1
+    d
+
+###
+    00     00  00000000  00000000    0000000   00000000  
+    000   000  000       000   000  000        000       
+    000000000  0000000   0000000    000  0000  0000000   
+    000 0 000  000       000   000  000   000  000       
+    000   000  00000000  000   000   0000000   00000000  
+ 
+    merges two sorted lists of dissections
+###
+    
+merge = (dssA, dssB) ->
+    
+    result = []
+    A = dssA.shift()
+    B = dssB.shift()
+    
+    while A and B
+
+        if A.start+A.match.length < B.start
+            result.push A
+            A = dssA.shift()
+            continue
+            
+        if B.start+B.match.length < A.start
+            result.push B
+            B = dssB.shift()
+            continue
+            
+        if A.start < B.start
+            d = B.start-A.start
+            result.push
+                start: A.start
+                clss:  A.clss
+                match: A.match.slice 0, d
+            A.start += d
+            A.match = A.match.slice d
+            continue
+            
+        if B.start < A.start
+            d = A.start-B.start
+            result.push
+                start: B.start
+                clss:  B.clss
+                match: B.match.slice 0, d
+            B.start += d
+            B.match = B.match.slice d
+            continue
+            
+        if A.start == B.start
+            d = A.match.length - B.match.length
+            result.push
+                start: A.start
+                clss:  A.clss + " " + B.clss
+                match: d >= 0 and B.match or A.match
+            if d > 0
+                A.match = A.match.slice B.match.length
+                A.start += B.match.length
+                B = dssB.shift()
+            else if d < 0
+                B.match = B.match.slice A.match.length
+                B.start += A.match.length
+                A = dssA.shift()
+            else
+                A = dssA.shift()
+                B = dssB.shift()
+        
+    if B and not A
+        result = result.concat [B], dssB 
+    if A and not B
+        result = result.concat [A], dssA 
+    result
+    
+export 
+    config:     config
+    ranges:     ranges
+    dissect:    dissect
+    sortRanges: sortRanges
+    merge:      merge

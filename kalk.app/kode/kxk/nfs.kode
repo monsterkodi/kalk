@@ -1,0 +1,210 @@
+###
+    000   000  00000000   0000000  
+    0000  000  000       000       
+    000 0 000  000000    0000000   
+    000  0000  000            000  
+    000   000  000       0000000   
+###
+
+use ◆ slash
+use fs
+import fsp from 'fs/promises'
+
+class NFS
+    
+    # 0000000    000  00000000   000      000   0000000  000000000  
+    # 000   000  000  000   000  000      000  000          000     
+    # 000   000  000  0000000    000      000  0000000      000     
+    # 000   000  000  000   000  000      000       000     000     
+    # 0000000    000  000   000  0000000  000  0000000      000     
+    
+    @listdir: dir found ○->
+            
+        dirents =○ fsp.readdir dir, { withFileTypes: true }
+        
+        for dirent in dirents
+    
+            file  = dirent.name
+            isDir = not dirent.isFile()
+            
+            if isDir and file in ['node_modules' '.git'] 
+                continue # is it a good idea to hardcode this here?
+            
+            absPath = slash.path dir, file
+            
+            found.push 
+                type: isDir ? 'dir' : 'file'
+                file: file
+                path: absPath
+            
+            if isDir
+    
+                ○ NFS.listdir absPath, found
+                
+        found
+    
+    @list:    p ○-> ○ NFS.listdir p, []
+    @dirlist: p ○-> ○ NFS.listdir p, []
+    
+    # 00000000   00000000   0000000   0000000    
+    # 000   000  000       000   000  000   000  
+    # 0000000    0000000   000000000  000   000  
+    # 000   000  000       000   000  000   000  
+    # 000   000  00000000  000   000  0000000    
+    
+    @read: p ○-> 
+        
+        try
+            ○ fsp.readFile p, 'utf8'
+        catch err
+            ''
+            
+    # 000   000  00000000   000  000000000  00000000  
+    # 000 0 000  000   000  000     000     000       
+    # 000000000  0000000    000     000     0000000   
+    # 000   000  000   000  000     000     000       
+    # 00     00  000   000  000     000     00000000  
+    
+    @write: p text ○->
+
+        try
+            tmpfile = slash.tmpfile()
+
+            try
+                stat =○ fsp.stat p
+                mode = stat.mode
+                ○ fsp.access p, (fs.R_OK | fs.F_OK)
+            catch err
+                mode = 0o666
+                ○ fsp.mkdir slash.dir(p), recursive: true
+                
+            ○ fsp.writeFile tmpfile, text, mode:mode
+            ○ fsp.rename tmpfile, p
+            p
+            
+        catch err
+            error "nfs.write -- " + String(err)
+            ''
+            
+    # 000  000   000  00000000   0000000   
+    # 000  0000  000  000       000   000  
+    # 000  000 0 000  000000    000   000  
+    # 000  000  0000  000       000   000  
+    # 000  000   000  000        0000000   
+    
+    @info: p ○->
+        
+        try
+            stat =○ fsp.stat p
+            return stat
+        catch err
+            error "nfs.info -- " + String(err)
+            
+    # 00     00  000   000  0000000    000  00000000   
+    # 000   000  000  000   000   000  000  000   000  
+    # 000000000  0000000    000   000  000  0000000    
+    # 000 0 000  000  000   000   000  000  000   000  
+    # 000   000  000   000  0000000    000  000   000  
+    
+    @mkdir: p ○->
+        
+        try
+            ○ fsp.mkdir p, recursive:true
+        catch err
+            if err.code != 'EEXIST'
+                error "nfs.mkdir -- " + String(err)
+        p
+        
+    # 00000000  000   000  000   0000000  000000000   0000000  
+    # 000        000 000   000  000          000     000       
+    # 0000000     00000    000  0000000      000     0000000   
+    # 000        000 000   000       000     000          000  
+    # 00000000  000   000  000  0000000      000     0000000   
+    
+    @exists: p ○->
+        
+        try
+            ⮐ if not p?
+                
+            p = slash.path slash.removeLinePos p
+            r =○ fsp.access p, fs.R_OK | fs.F_OK
+            s =○ fsp.stat p
+                            
+        catch err
+           # error "nfs.exists -- " + String(err)
+           null
+           
+    # 000000000  000   000  00000000   00000000  
+    #    000      000 000   000   000  000       
+    #    000       00000    00000000   0000000   
+    #    000        000     000        000       
+    #    000        000     000        00000000  
+    
+    @type: p ○->
+        
+        if stat =○ NFS.exists p
+            stat.isFile() ? 'file' : 'dir'
+                
+    # 00000000  000  000      00000000  00000000  000   000  000   0000000  000000000   0000000  
+    # 000       000  000      000       000        000 000   000  000          000     000       
+    # 000000    000  000      0000000   0000000     00000    000  0000000      000     0000000   
+    # 000       000  000      000       000        000 000   000       000     000          000  
+    # 000       000  0000000  00000000  00000000  000   000  000  0000000      000     0000000   
+    
+    @fileExists: p ○->
+        
+        stat =○ NFS.exists p
+        stat if stat?.isFile()
+        
+    @isFile: p ○-> NFS.fileExists p
+                
+    # 0000000    000  00000000   00000000  000   000  000   0000000  000000000   0000000  
+    # 000   000  000  000   000  000        000 000   000  000          000     000       
+    # 000   000  000  0000000    0000000     00000    000  0000000      000     0000000   
+    # 000   000  000  000   000  000        000 000   000       000     000          000  
+    # 0000000    000  000   000  00000000  000   000  000  0000000      000     0000000   
+    
+    @dirExists: p ○->
+
+        stat =○ NFS.exists p
+        stat if stat?.isDirectory()
+        
+    @isDir: p ○-> NFS.dirExists p
+        
+    # 00000000   00000000  00     00   0000000   000   000  00000000  
+    # 000   000  000       000   000  000   000  000   000  000       
+    # 0000000    0000000   000000000  000   000   000 000   0000000   
+    # 000   000  000       000 0 000  000   000     000     000       
+    # 000   000  00000000  000   000   0000000       0      00000000  
+    
+    @remove: p ○-> ○ fsp.rm p, force:true recursive:true
+    
+    #  0000000   0000000   00000000   000   000  
+    # 000       000   000  000   000   000 000   
+    # 000       000   000  00000000     00000    
+    # 000       000   000  000           000     
+    #  0000000   0000000   000           000     
+    
+    @copy: from to ○-> 
+        
+        if ○ NFS.isDir to
+            to = slash.path to, slash.file from
+          
+        # log 'nfs.copy' from, to
+        ○ fsp.cp from, to, recursive:true
+
+    # 000000000   0000000   0000000     0000000     
+    #    000     000   000  000   000  000   000    
+    #    000     000   000  000   000  000   000    
+    #    000     000   000  000   000  000   000    
+    #    000      0000000   0000000     0000000     
+        
+    @pkg:           (p) ○-> error 'todo'
+    @git:           (p) ○-> error 'todo'
+    @isWritable:    (p) ○-> error 'todo'
+    @isReadable:    (p) ○-> error 'todo'
+    @duplicate:     (p) ○-> error 'todo'
+    @trash:         (p) ○-> error 'todo'
+    @move:       (p, d) ○-> error 'todo'
+        
+export NFS

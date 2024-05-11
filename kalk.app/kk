@@ -1,0 +1,4 @@
+#!/usr/bin/env node --experimental-detect-module
+
+import kk from './js/konrad/kk.js'
+kk()

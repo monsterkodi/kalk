@@ -1,0 +1,113 @@
+###
+ 0000000  000000000  000   000  000    
+000          000      000 000   000    
+0000000      000       00000    000    
+     000     000        000     000    
+0000000      000        000     0000000
+###
+
+use ./util ▪ inc ranges dissect lang
+
+lang 'styl'
+
+▸ styl
+    
+    # 000   000  000   000  00     00  0000000    00000000  00000000   
+    # 0000  000  000   000  000   000  000   000  000       000   000  
+    # 000 0 000  000   000  000000000  0000000    0000000   0000000    
+    # 000  0000  000   000  000 0 000  000   000  000       000   000  
+    # 000   000   0000000   000   000  0000000    00000000  000   000  
+    
+    ▸ number
+        
+        rgs = ranges "1em" 
+        inc rgs, 0 "1em"    ▸ 'number'
+    
+        rgs = ranges "1ex" 
+        inc rgs, 0 "1ex"    ▸ 'number'
+    
+        rgs = ranges "1px" 
+        inc rgs, 0 "1px"    ▸ 'number'
+    
+        rgs = ranges "1s" 
+        inc rgs, 0 "1s"     ▸ 'number'
+    
+        rgs = ranges "1.0" 
+        inc rgs, 0 "1"      ▸ 'number float'
+        inc rgs, 1 "."      ▸ 'punct number float'
+        inc rgs, 2 "0"      ▸ 'number float'
+        
+    #  0000000  000       0000000    0000000   0000000  
+    # 000       000      000   000  000       000       
+    # 000       000      000000000  0000000   0000000   
+    # 000       000      000   000       000       000  
+    #  0000000  0000000  000   000  0000000   0000000   
+    
+    ▸ class
+        
+        rgs = ranges ".clss" 
+        inc rgs, 0 "."      ▸ 'punct class'
+        inc rgs, 1 "clss"   ▸ 'class'
+        
+        rgs = ranges ".clss-foo-bar" 
+        inc rgs, 0 "."      ▸ 'punct class'
+        inc rgs, 1 "clss"   ▸ 'class'
+        inc rgs, 5 "-"      ▸ 'punct class'
+        inc rgs, 6 "foo"    ▸ 'class'
+        inc rgs, 9 "-"      ▸ 'punct class'
+        inc rgs, 10 "bar"   ▸ 'class'
+
+    # 000  0000000    
+    # 000  000   000  
+    # 000  000   000  
+    # 000  000   000  
+    # 000  0000000    
+    
+    ▸ id
+    
+        rgs = ranges "#id" 
+        inc rgs, 0 "#"      ▸ 'punct function' # this looks wrong, needs fixing?
+        inc rgs, 1 "id"     ▸ 'function'
+    
+        rgs = ranges "#id-foo-bar" 
+        inc rgs, 0 "#"      ▸ 'punct function'
+        inc rgs, 1 "id"     ▸ 'function'
+        inc rgs, 3 "-"      ▸ 'punct function'
+        inc rgs, 4 "foo"    ▸ 'function'
+        inc rgs, 7 "-"      ▸ 'punct function'
+        inc rgs, 8 "bar"    ▸ 'function'
+            
+    # 000   000  00000000  000   000  
+    # 000   000  000        000 000   
+    # 000000000  0000000     00000    
+    # 000   000  000        000 000   
+    # 000   000  00000000  000   000  
+    
+    ▸ hex
+        
+        rgs = ranges "#666"
+        inc rgs, 0 "#"      ▸ 'punct number hex'
+        inc rgs, 1 "666"    ▸ 'number hex'
+        
+        rgs = ranges "#abc"
+        inc rgs, 0 "#"      ▸ 'punct number hex'
+        inc rgs, 1 "abc"    ▸ 'number hex'
+        
+        rgs = ranges "#f0f0f0"
+        inc rgs, 0 "#"      ▸ 'punct number hex'
+        inc rgs, 1 "f0f0f0" ▸ 'number hex'
+        
+    # 000   000  00000000   0000000   0000000    00000000  00000000   
+    # 000   000  000       000   000  000   000  000       000   000  
+    # 000000000  0000000   000000000  000   000  0000000   0000000    
+    # 000   000  000       000   000  000   000  000       000   000  
+    # 000   000  00000000  000   000  0000000    00000000  000   000  
+    
+    ▸ comment header
+        
+        rgs = ranges "// 000"
+        inc rgs, 3  "000"   ▸ 'comment header'
+    
+        dss = dissect "/*\n 0 0 0 \n*/"
+        inc dss[1], 1 "0"   ▸ 'comment triple header'
+        

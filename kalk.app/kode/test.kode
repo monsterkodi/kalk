@@ -1,0 +1,93 @@
+###
+000000000  00000000   0000000  000000000
+   000     000       000          000   
+   000     0000000   0000000      000   
+   000     000            000     000   
+   000     00000000  0000000      000   
+###
+
+use ./kxk ◆ fs slash
+use ./kode/tester
+
+mods = ['kxk' 'kode' 'kolor' 'ko' 'kalk']
+
+if process.argv[-1] == 'help'
+    
+    log """
+    
+        kakao test runner
+        
+        usage
+
+            kk -t                    run all tests
+            kk -t brief|silent       set verbosity
+            kk -t #{mods.join('|')}  test a single module
+            kk -t .../file.js        run a single test file
+    
+    """
+    process.exit 0
+
+tests = {}; for m in mods ➜ tests[m] = true
+
+hdr = (h) -> log G2 y8 ' ' + rpad(33 h) + ' '
+
+if process.argv[-1] == 'brief'
+    
+    tester.logSections = false
+
+else if process.argv[-1] == 'silent'
+    
+    tester.logSections = false
+    tester.logModules = false
+    
+else if process.argv[-1] in mods
+    
+    for m in mods ➜ tests[m] = m == process.argv[-1]
+    
+else if process.argv[-1] != ◆file
+    
+    for m in mods ➜ tests[m] = false
+        
+    hdr process.argv[-1]
+    
+    file = slash.path ◆dir, '..' process.argv[-1]
+    test =○ import(file)
+    tester.test test.default
+    
+for mod in mods
+    if tests[mod]
+        hdr mod
+        files =○ fs.list slash.path ◆dir, mod, 'test'
+        for file in files
+            test =○ import(file.path)
+            tester.test test.default
+        
+# if tests.kxk
+    # hdr 'kxk'
+    # files =○ fs.list slash.path ◆dir, 'kxk/test'
+    # for file in files
+        # test =○ import(file.path)
+        # tester.test test.default
+
+# if tests.kode
+    # hdr 'kode'
+    # files =○ fs.list slash.path ◆dir, 'kode/test'
+    # for file in files
+        # test =○ import(file.path)
+        # tester.test test.default
+#         
+# if tests.kolor
+    # hdr 'kolor'
+    # files =○ fs.list slash.path ◆dir, 'kolor/test'
+    # for file in files
+        # test =○ import(file)
+        # tester.test test.default
+
+# if tests.ko
+    # hdr 'ko'
+    # files =○ fs.list slash.path ◆dir, 'ko/test'
+    # for file in files
+        # test =○ import(file.path)
+        # tester.test test.default
+                
+tester.summarize()

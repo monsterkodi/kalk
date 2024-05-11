@@ -1,0 +1,237 @@
+// 0000000     0000000   00000000   000   000  
+// 000   000  000   000  000   000  000  000   
+// 000   000  000000000  0000000    0000000    
+// 000   000  000   000  000   000  000  000   
+// 0000000    000   000  000   000  000   000  
+
+bodyColor           = #000000
+bgColor             = #000000
+separatorColor      = #0e0e0e
+frameColor          = #131313
+scrollHoverColor    = #b00
+titleRedColor       = #f00
+bodyBorderColor     = #1a1a1a
+titleColor          = #222
+scrollColor         = #333
+textBlurColor       = #444
+textActiveColor     = #999
+textFocusColor      = #fff
+
+winbuttonBlurColor   = frameColor
+winbuttonFocusColor  = textBlurColor
+winbuttonHoverColor  = textActiveColor
+winbuttonActiveColor = textFocusColor
+
+frameWidth          = 6px
+frameRadius         = 10px
+contentRadius       = frameRadius - 2px
+frameBorder         = frameWidth solid frameColor
+
+fadeInAnim()          
+    animation           300ms ease-in-out fadeIn
+fadeOutAnim()         
+    animation           300ms ease-in-out fadeOut
+
+// 0000000     0000000   0000000    000   000  
+// 000   000  000   000  000   000   000 000   
+// 0000000    000   000  000   000    00000    
+// 000   000  000   000  000   000     000     
+// 0000000     0000000   0000000       000     
+
+body
+    overflow            hidden
+    background-color    black
+    border-radius       frameRadius
+    border              1.5px solid bodyBorderColor
+
+// 00     00   0000000   000  000   000  
+// 000   000  000   000  000  0000  000  
+// 000000000  000000000  000  000 0 000  
+// 000 0 000  000   000  000  000  0000  
+// 000   000  000   000  000  000   000  
+
+#main
+    border-left         frameBorder
+    border-right        frameBorder
+    border-bottom       frameBorder
+    border-bottom-left-radius  contentRadius
+    border-bottom-right-radius contentRadius
+    background-color    bgColor
+    color               textFocusColor
+    font-size           40px
+
+// 000000000  000  000000000  000      00000000  0000000     0000000   00000000   
+//    000     000     000     000      000       000   000  000   000  000   000  
+//    000     000     000     000      0000000   0000000    000000000  0000000    
+//    000     000     000     000      000       000   000  000   000  000   000  
+//    000     000     000     0000000  00000000  0000000    000   000  000   000  
+
+#titlebar
+    background                  frameColor
+    border-top-left-radius      contentRadius
+    border-top-right-radius     contentRadius
+    overflow hidden
+
+.titlebar-name
+    color               textActiveColor
+
+.titlebar-dot
+    color               titleColor
+
+#titlebar .noicon
+    color    textBlurColor
+    background-color    frameColor
+    border-radius       4px
+    border              1px solid winbuttonFocusColor
+    
+#titlebar.focus .noicon
+    fadeInAnim()
+    
+#titlebar.blur .noicon
+    fadeOutAnim()
+    border              1px solid frameColor
+    background-color    frameColor
+    
+#titlebar .winbutton
+    &:active
+        background-color titleRedColor
+        &.gray
+            background-color titleColor
+            
+#titlebar .winbutton svg
+    stroke-width        2px
+    stroke              winbuttonBlurColor
+
+#titlebar.focus .winbutton svg
+    fadeInAnim()
+    stroke              winbuttonFocusColor
+
+#titlebar.blur .winbutton svg
+    fadeOutAnim()
+    stroke              winbuttonBlurColor
+    
+#titlebar .winbutton:hover svg    
+    stroke              winbuttonHoverColor
+        
+#titlebar .winbutton:active svg    
+    stroke              winbuttonActiveColor
+
+// 00     00  00000000  000   000  000   000  
+// 000   000  000       0000  000  000   000  
+// 000000000  0000000   000 0 000  000   000  
+// 000 0 000  000       000  0000  000   000  
+// 000   000  00000000  000   000   0000000   
+            
+.menuItem
+    color               textBlurColor
+    background-color    frameColor
+    
+.menuItem.selected
+    color               textActiveColor
+    
+.menu:focus .menuItem.selected
+    color               textFocusColor
+    
+#titlebar.focus .menu
+    fadeInAnim()
+    opacity             1
+
+#titlebar.blur .menu
+    fadeOutAnim()
+    opacity             0
+    
+// 00000000    0000000   00000000   000   000  00000000
+// 000   000  000   000  000   000  000   000  000   000
+// 00000000   000   000  00000000   000   000  00000000
+// 000        000   000  000        000   000  000
+// 000         0000000   000         0000000   000
+
+.popup
+    background-color    frameColor
+
+.popupWindow
+    background-color    frameColor
+
+.popupItem
+    color               textBlurColor
+    &:not(:last-child)
+        border-bottom   1px solid frameColor
+    &.selected
+        color           textFocusColor
+        & .popupCombo
+            color       textBlurColor
+    &.separator
+        border-top      1px solid separatorColor
+    &:not(:last-child)
+        border-bottom   1px solid frameColor
+
+.popupCombo
+    color               titleColor
+    
+//  0000000   0000000  00000000    0000000   000      000     
+// 000       000       000   000  000   000  000      000     
+// 0000000   000       0000000    000   000  000      000     
+//      000  000       000   000  000   000  000      000     
+// 0000000    0000000  000   000   0000000   0000000  0000000 
+
+::-webkit-scrollbar-corner
+    background-color        frameColor
+
+::-webkit-scrollbar-thumb
+    background-color        scrollColor
+    
+::-webkit-scrollbar-thumb:hover
+    background-color        scrollHoverColor
+
+    
+#overlay
+    background          #0d0d0d
+    
+// 000000000   0000000    0000000  000   000  
+//    000     000   000  000       000  000   
+//    000     000000000  0000000   0000000    
+//    000     000   000       000  000  000   
+//    000     000   000  0000000   000   000  
+
+.task .time
+    color               #555
+
+.task .file
+    color               #ff0
+
+.task .message
+    color               #888
+    
+//    0000000   000   000  000  00     00   0000000   000000000  000   0000000   000   000
+//   000   000  0000  000  000  000   000  000   000     000     000  000   000  0000  000
+//   000000000  000 0 000  000  000000000  000000000     000     000  000   000  000 0 000
+//   000   000  000  0000  000  000 0 000  000   000     000     000  000   000  000  0000
+//   000   000  000   000  000  000   000  000   000     000     000   0000000   000   000
+
+
+@keyframes fadeIn
+    0%
+        opacity         0
+    100%  
+        opacity         1
+
+@keyframes fadeOut
+    0%  
+        opacity         1
+    100%
+        opacity         0
+        
+@keyframes winbuttonFadeStroke
+    0%
+        stroke          winbuttonBlurColor
+    100%  
+        stroke          winbuttonFocusColor
+
+@keyframes winbuttonFadeStrokeOut
+    0%
+        stroke          winbuttonFocusColor
+    100%  
+        stroke          winbuttonBlurColor
+        
+    
+    

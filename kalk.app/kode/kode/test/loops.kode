@@ -1,0 +1,342 @@
+###
+000       0000000    0000000   00000000    0000000
+000      000   000  000   000  000   000  000
+000      000   000  000   000  00000000   0000000
+000      000   000  000   000  000             000
+0000000   0000000    0000000   000        0000000
+###
+
+use ./utils ▪ kc ke
+
+▸ loops
+
+    # 00000000   0000000   00000000         000  000   000
+    # 000       000   000  000   000        000  0000  000
+    # 000000    000   000  0000000          000  000 0 000
+    # 000       000   000  000   000        000  000  0000
+    # 000        0000000   000   000        000  000   000
+
+    ▸ for 
+        ▸ in 
+            ▸ range
+        
+                kc  "for x in [3...4]" ▸
+                    """
+                    for (x = 3; x < 4; x++)
+                    {
+                    }
+                    """
+        
+                kc  "for x in [3..4]" ▸
+                    """
+                    for (x = 3; x <= 4; x++)
+                    {
+                    }
+                    """
+        
+                kc  "for x in 5..6" ▸
+                    """
+                    for (x = 5; x <= 6; x++)
+                    {
+                    }
+                    """
+        
+                kc  "for x in 5..6" ▸
+                    """
+                    for (x = 5; x <= 6; x++)
+                    {
+                    }
+                    """
+        
+                kc  "for x in 15..4" ▸
+                    """
+                    for (x = 15; x >= 4; x--)
+                    {
+                    }
+                    """
+    
+                kc  """
+                    for i in a..b
+                        log i
+                    """ ▸
+                    """
+                    for (var _1_9_ = i = a, _1_12_ = b; (_1_9_ <= _1_12_ ? i <= b : i >= b); (_1_9_ <= _1_12_ ? ++i : --i))
+                    {
+                        console.log(i)
+                    }
+                    """
+                    
+                kc  """
+                    for a in [1..2] then for b in [1..3] then c = 1; d = 1
+                    """ ▸ """
+                    for (a = 1; a <= 2; a++)
+                    {
+                        for (b = 1; b <= 3; b++)
+                        {
+                            c = 1
+                            d = 1
+                        }
+                    }
+                    """
+        
+                kc  """
+                    for a in [1..9] then for b in [1..9]
+                        c = 3
+                        d:
+                            e: 1
+                    """ ▸ """
+                    for (a = 1; a <= 9; a++)
+                    {
+                        for (b = 1; b <= 9; b++)
+                        {
+                            c = 3
+                            {d:{e:1}}
+                        }
+                    }
+                    """
+                
+        ▸ in 
+            ▸ list
+                
+                kc  """
+                    for t in l
+                        t
+                    """ ▸ """
+                    var list = _k_.list(l)
+                    for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+                    {
+                        t = list[_1_6_]
+                        t
+                    }
+                    """
+        
+                kc  """
+                    for a in [1,2,3] then log a
+                    """ ▸ """
+                    var list = [1,2,3]
+                    for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+                    {
+                        a = list[_1_6_]
+                        console.log(a)
+                    }
+                    """
+        
+                kc  """
+                    for a in [1,2,3] then log a
+                    log a
+                    """ ▸ """
+                    var list = [1,2,3]
+                    for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+                    {
+                        a = list[_1_6_]
+                        console.log(a)
+                    }
+                    console.log(a)
+                    """
+        
+                kc  """
+                    for a in [1,2,3]
+                        log '1' a
+                        log '2' a
+                    log '3' a
+                    """ ▸ """
+                    var list = [1,2,3]
+                    for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+                    {
+                        a = list[_1_6_]
+                        console.log('1',a)
+                        console.log('2',a)
+                    }
+                    console.log('3',a)
+                    """
+        
+                kc  """
+                    for v,i in @regs
+                        log i,v
+                    """ ▸ """
+                    var list = _k_.list(this.regs)
+                    for (i = 0; i < list.length; i++)
+                    {
+                        v = list[i]
+                        console.log(i,v)
+                    }
+                    """
+        
+                kc  """
+                    for [a,b] in @regs
+                        log a,b
+                    """ ▸ """
+                    var list = _k_.list(this.regs)
+                    for (var _1_10_ = 0; _1_10_ < list.length; _1_10_++)
+                    {
+                        a = list[_1_10_][0]
+                        b = list[_1_10_][1]
+                        console.log(a,b)
+                    }
+                    """
+                        
+                kc  """
+                    empty = (a) -> a in ['' null undefined] or b
+                    """ ▸ """
+                    
+                    empty = function (a)
+                    {
+                        return _k_.in(a,['',null,undefined]) || b
+                    }
+                    """
+                    
+                kc  """
+                    @exp body.exps,k,e for e,k in body.exps
+                    """ ▸ """
+                    var list = _k_.list(body.exps)
+                    for (k = 0; k < list.length; k++)
+                    {
+                        e = list[k]
+                        this.exp(body.exps,k,e)
+                    }
+                    """
+            
+        # 00000000   0000000   00000000          0000000   00000000
+        # 000       000   000  000   000        000   000  000
+        # 000000    000   000  0000000          000   000  000000
+        # 000       000   000  000   000        000   000  000
+        # 000        0000000   000   000         0000000   000
+
+        ▸ of
+            kc  """
+                for key,val of @patts
+                    log key, val
+                """ ▸ """
+                for (key in this.patts)
+                {
+                    val = this.patts[key]
+                    console.log(key,val)
+                }
+                """
+                
+            kc  """
+                matches = ([k, r.exec t] for k,r of rgs)
+                """ ▸ """
+                matches = (function () { var r_1_33_ = []; for (var k in rgs)  { var r = rgs[k];r_1_33_.push([k,r.exec(t)])  } return r_1_33_ }).bind(this)()
+                """
+            
+        # 00000000   0000000   00000000         000000000   0000000   000  000      
+        # 000       000   000  000   000           000     000   000  000  000      
+        # 000000    000   000  0000000             000     000000000  000  000      
+        # 000       000   000  000   000           000     000   000  000  000      
+        # 000        0000000   000   000           000     000   000  000  0000000  
+        
+        ▸ tail
+            
+            kc  """
+                f e for e in l ? []
+                """ ▸ """
+                var list = (l != null ? l : [])
+                for (var _1_10_ = 0; _1_10_ < list.length; _1_10_++)
+                {
+                    e = list[_1_10_]
+                    f(e)
+                }
+                """
+            
+    # 000       0000000   0000000   00     00  00000000   
+    # 000      000       000   000  000   000  000   000  
+    # 000      000       000   000  000000000  00000000   
+    # 000      000       000   000  000 0 000  000        
+    # 0000000   0000000   0000000   000   000  000        
+    
+    ▸ list comprehension
+        
+        kc  "m = ([k, r.exec t] for k,r of rgs)" ▸
+            """
+            m = (function () { var r_1_27_ = []; for (var k in rgs)  { var r = rgs[k];r_1_27_.push([k,r.exec(t)])  } return r_1_27_ }).bind(this)()
+            """
+
+        kc  "m = ([i, k] for k,i in rgs)" ▸
+            """
+            m = (function () { var r_1_20_ = []; var list = _k_.list(rgs); for (i = 0; i < list.length; i++)  { var k = list[i];r_1_20_.push([i,k])  } return r_1_20_ }).bind(this)()
+            """
+            
+        ke  "1"                                 ▸ 1
+        ke  "'abc'"                             ▸ 'abc'
+        ke  "[1,2,3]"                           ▸ [1,2,3]
+        ke  "[i for i in [1,2,3]]"              ▸ [ 1, 2, 3 ]
+        ke  "(i for i in [1,2,3])"              ▸ [ 1, 2, 3 ]
+        ke  "[i*2 for i in [1,2,3]]"            ▸ [ 2, 4, 6 ]
+        ke  "(i+3 for i in [1,2,3])"            ▸ [ 4, 5, 6 ]
+        ke  "(k for k of {a:1,b:2,c:3})"        ▸ [ 'a' 'b' 'c' ]
+        ke  "(v*v for k,v of {a:1,b:2,c:3})"    ▸ [ 1 4 9 ]
+        ke  "(''+i+' '+v for i,v of [5,4,3])"   ▸ [ '0 5' '1 4' '2 3' ]
+        ke  '((-> (a={})[v]=k; a)() for k,v of {a:1,b:2,c:3})'  ▸ [ {'1':'a'} {'2':'b'} {'3':'c'} ]
+
+    # 00000000   0000000    0000000  000   000  
+    # 000       000   000  000       000   000  
+    # 0000000   000000000  000       000000000  
+    # 000       000   000  000       000   000  
+    # 00000000  000   000   0000000  000   000  
+    
+    ▸ each
+        
+        ke  "a = {a:1,b:2}"                                 ▸   {a:1,b:2}
+        ke  "a = {a:1,b:2} each (k,v) -> [k, v*3]"          ▸   {a:3,b:6}
+        ke  "a = {a:1,b:2} each (k,v) -> ['▸'+k, v]"        ▸   {'▸a':1,'▸b':2}
+        
+        ke  "a = [1,2,3] each (i,v) -> [i, v]"              ▸   [1,2,3]
+        ke  "a = [1,2,3] each (i,v) -> [2-i, v]"            ▸   [3,2,1]
+        ke  "a = [1,3]   each (i,v) -> [1-i,v*v]"           ▸   [9,1]
+        ke  "a = ['3''2''1'] each (i,v) -> [i, v+'▸'+i]"    ▸   ['3▸0' '2▸1' '1▸2']
+        ke  "a = 'hello' each (i,c) -> [i,c+c]"             ▸   "hheelllloo"
+        ke  "a = 'hello world' each (i,c) -> [i,i%2 and c.toUpperCase() or c]"    ▸ "hElLo wOrLd"
+        ke  "a = 'hello again' each (i,c) -> [i,((i%2) ? c.toUpperCase() : c)]"   ▸ "hElLo aGaIn"
+        
+        ▸ single
+            
+            ke  "a = '' each ->"                                ▸   ''
+            ke  "a = {} each ->"                                ▸   {}
+            ke  "a = [] each ->"                                ▸   []
+            ke  "a = [1,2] each -> 'a'"                         ▸   ['a''a']
+            ke  "a = [1,2] each ->"                             ▸   []
+            ke  "a = [1,2,3] each (v) -> v"                     ▸   [1,2,3]
+            ke  "a = {a:1,b:2} each (v) -> v*3"                 ▸   {a:3,b:6}
+            
+            ke  "[0,1,2] each (v) -> v"                         ▸   [0,1,2]
+            ke  "f = (a) -> a\nr = f [0,1,2] each (v) -> 2*v"   ▸   [0,2,4]
+            
+    # 000   000  000   000  000  000      00000000
+    # 000 0 000  000   000  000  000      000
+    # 000000000  000000000  000  000      0000000
+    # 000   000  000   000  000  000      000
+    # 00     00  000   000  000  0000000  00000000
+
+    ▸ while
+
+        kc  """
+            while true
+                log 4
+            """ ▸ """
+            while (true)
+            {
+                console.log(4)
+            }
+            """
+
+        kc  """
+            while true then log 5
+            """ ▸ """
+            while (true)
+            {
+                console.log(5)
+            }
+            """
+
+        kc  """
+            while a == b then log c; log d
+            log e
+            """ ▸ """
+            while (a === b)
+            {
+                console.log(c)
+                console.log(d)
+            }
+            console.log(e)
+            """

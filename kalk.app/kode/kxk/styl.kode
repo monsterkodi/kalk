@@ -1,0 +1,188 @@
+###
+     0000000  000000000  000   000  000    
+    000          000      000 000   000    
+    0000000      000       00000    000    
+         000     000        000     000    
+    0000000      000        000     0000000
+    
+    poor man's stylus :)
+###
+
+use ./kstr ▪ unfillet blockFillets
+
+vars = {}
+funcs = {}
+funcVar = {}
+listAssign = []
+
+# 00000000   00000000  000   000  0000000    00000000  00000000   
+# 000   000  000       0000  000  000   000  000       000   000  
+# 0000000    0000000   000 0 000  000   000  0000000   0000000    
+# 000   000  000       000  0000  000   000  000       000   000  
+# 000   000  00000000  000   000  0000000    00000000  000   000  
+
+render = (block, text, amps=[]) ->
+    
+    if block.fillet[0]?.match == '//'
+        return text
+        
+    if block.fillet[1]?.match == '='
+        varName = block.fillet[0]?.match
+        varValue = unfillet calculus subvars block.fillet[2..]
+        vars[varName] = varValue
+        return text
+        
+    if block.fillet[1]?.match == '()'
+        funcName = block.fillet[0]?.match
+        
+        if funcs[funcName]
+            text += funcs[funcName]
+            return text
+        
+        funcValue = ''
+        for cb in block.blocks
+            funcValue = render cb, funcValue, amps
+        funcs[funcName] = funcValue
+        return text
+
+    if block.fillet[1]?.match[0] == '('
+        funcName = block.fillet[0]?.match
+        if funcVar[funcName]
+            varValue = kstr.strip unfillet(block.fillet[1..]), '()' 
+            vars[funcVar[funcName].var] = varValue
+            for cb in funcVar[funcName].blocks
+                text += render cb, ''
+            delete vars[funcVar[funcName].var]
+            return text
+        funcVar[funcName] = blocks:block.blocks, var:block.fillet[2].match
+        return text
+        
+    for f in block.fillet
+        if f.match == '{' and last(block.fillet).match == '}'
+            text += unfillet block.fillet
+            text += '\n'
+            return text
+        
+    idt = rpad block.indent
+        
+    if valid block.blocks
+        
+        joinFillets = (lhs, rhs) -> offset = last(lhs).index + last(lhs).length - 1; lhs.concat rhs.map (f) -> c = copy f; c.index += offset; c
+        resetFillet = (f) -> c = copy f; offset = f[0].index; c.map (i) -> i.index -= offset; i
+        
+        childBlocks = block.blocks.filter (cb) ->
+            if cb.fillet[0]?.match[0] == '&'
+                cb.fillet[0].match = cb.fillet[0].match[1..]
+                if valid listAssign 
+                    cb.assign = listAssign.map (la) -> unfillet(la) + unfillet cb.fillet
+                cb.fillet = joinFillets block.fillet, resetFillet cb.fillet
+                amps.push cb
+                false
+            else
+                true
+
+        if idt == ''
+            while assign = listAssign.shift()
+                text += '\n' + unfillet(assign) + ','
+                
+        text += '\n' + idt + unfillet block.fillet
+        text += '\n' + idt + '{'
+        for b in childBlocks
+            text += render b, ''
+        text += '\n' + idt + '}\n'
+        
+    else
+        text += '\n'
+        if idt == ''
+            listAssign.push block.fillet
+        else
+            text += idt + block.fillet[0].match + ': ' + unfillet calculus subvars block.fillet[1..]
+            text += ';'
+    
+    while amp = amps.shift()
+        
+        amp.indent = 0
+        
+        for block in amp.blocks
+            block.indent = 4
+
+        if amp.assign
+            while assign = amp.assign.shift()
+                text += '\n' + assign + ','
+            
+        text += render amp, ''
+
+    text
+    
+#  0000000  000   000  0000000    000   000   0000000   00000000    0000000  
+# 000       000   000  000   000  000   000  000   000  000   000  000       
+# 0000000   000   000  0000000     000 000   000000000  0000000    0000000   
+#      000  000   000  000   000     000     000   000  000   000       000  
+# 0000000    0000000   0000000        0      000   000  000   000  0000000   
+
+subvars = (fillets) ->
+    
+    fillets = clone fillets
+    
+    for fillet in fillets
+        if value = vars[fillet.match]
+            fillet.match = value
+        
+    fillets
+    
+#  0000000   0000000   000       0000000  000   000  000      000   000   0000000  
+# 000       000   000  000      000       000   000  000      000   000  000       
+# 000       000000000  000      000       000   000  000      000   000  0000000   
+# 000       000   000  000      000       000   000  000      000   000       000  
+#  0000000  000   000  0000000   0000000   0000000   0000000   0000000   0000000   
+
+calculus = (fillets) ->
+    
+    for fillet,index in fillets
+        if index == 0
+            if fillet.match in '+-'
+                rhs  = parseFloat fillets[index+1].match
+                rhu  = trim fillets[index+1].match[("#{rhs}").length..]
+                fillets.splice index, 2, match:fillet.match + rhs + rhu
+                return calculus fillets
+            if fillet.match[0] == '-'
+                if vars[fillet.match[1..]]
+                    fillets.splice index, 1, match:'-'+vars[fillet.match[1..]]
+                    return calculus fillets
+        if fillet.match in '*+-/'
+            lhs  = parseFloat fillets[index-1].match
+            rhs  = parseFloat fillets[index+1].match
+            if lhs is num and rhs is num
+                lhu  = trim fillets[index-1].match[("#{lhs}").length..]
+                rhu  = trim fillets[index+1].match[("#{rhs}").length..]
+                unit = valid lhu ? lhu : rhu
+                result = eval "#{lhs} #{fillet.match} #{rhs}"
+                result += unit
+                fillets.splice index-1, 3, match:result
+                return calculus fillets
+        
+    fillets
+    
+#  0000000  000000000  000   000  000      
+# 000          000      000 000   000      
+# 0000000      000       00000    000      
+#      000     000        000     000      
+# 0000000      000        000     0000000  
+
+styl = (srcText) ->
+    
+    vars = {}
+    funcs = {}
+    funcVar = {}
+    listAssign = []
+    
+    tgtText = ''
+    lines   = srcText.split '\n'
+    blocks  = blockFillets lines.map (line) -> kstr.fillet line, '-.'
+    
+    for block in blocks
+        tgtText = render block, tgtText
+
+    tgtText
+
+export styl

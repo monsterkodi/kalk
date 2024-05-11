@@ -1,0 +1,90 @@
+###
+000   000   0000000  00000000  
+000   000  000       000       
+000   000  0000000   0000000   
+000   000       000  000       
+ 0000000   0000000   00000000  
+###
+
+use ./utils ▪ kc ke
+
+▸ use
+
+    kc 'use blark'                              ▸ 'import blark from "blark"\n'
+    kc 'use flubb' ◆file                        ▸ 'import flubb from "flubb"\n'
+    kc 'use ./loops' ◆file                      ▸ 'import loops from "./loops.js"\n'
+    kc 'use ../returner' ◆file                  ▸ 'import returner from "../returner.js"\n'
+    kc 'use ./kode/kode' ◆file                  ▸ 'import kode from "./kode/kode.js"\n'
+
+    kc 'use ./loops'                            ▸ 'import loops from "./loops.js"\n'
+    kc 'use ../returner'                        ▸ 'import returner from "../returner.js"\n'
+    kc 'use ./kode/kode'                        ▸ 'import kode from "./kode/kode.js"\n'
+        
+    kc 'use ./noon'                             ▸ 'import noon from "./noon.js"\n'
+
+    kc 'use mod1 mod2'                          ▸ """
+        import mod1 from "mod1"
+        import mod2 from "mod2"\n
+        """
+    kc 'use mod3 mod4' ◆file                    ▸ """
+        import mod3 from "mod3"
+        import mod4 from "mod4"\n
+        """
+        
+    kc  """
+        use mod5
+        use ./mod6
+        use mod7
+        """ ▸
+        """
+        import mod5 from "mod5"\n
+        import mod6 from "./mod6.js"\n
+        import mod7 from "mod7"\n
+        """
+        
+    ▸ items
+        
+        kc 'use ./kxk ▪ slash noon'             ▸ """
+            import kxk from "./kxk.js"
+            let slash = kxk.slash
+            let noon = kxk.noon
+            
+            """
+        kc 'use ./lib_ko ▪ moment immutable fuzzy pbytes ' ▸ """
+            import lib_ko from "./lib_ko.js"
+            let moment = lib_ko.moment
+            let immutable = lib_ko.immutable
+            let fuzzy = lib_ko.fuzzy
+            let pbytes = lib_ko.pbytes
+            
+            """
+            
+    ▸ named
+    
+        kc 'use ./file ● File'             ▸ """
+            import File from "./file.js"
+            
+            """
+            
+    ▸ folder
+    
+        kc 'use ◆ A B c' ▸ """
+            import A from "./A.js"
+            import B from "./B.js"
+            import c from "./c.js"
+            
+            """
+
+        kc 'use ../sibling ◆ Sister Brother' ▸ """
+            import Sister from "../sibling/Sister.js"
+            import Brother from "../sibling/Brother.js"
+            
+            """
+
+        kc 'use ../../Parents ◆ mom dad' ▸ """
+            import mom from "../../Parents/mom.js"
+            import dad from "../../Parents/dad.js"
+            
+            """
+            
+        

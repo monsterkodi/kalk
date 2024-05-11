@@ -1,0 +1,262 @@
+###
+    000   000  000       0000000   00000000 
+    000  000   000      000   000  000   000
+    0000000    000      000   000  0000000  
+    000  000   000      000   000  000   000
+    000   000  0000000   0000000   000   000
+###
+
+f = (r, g, b) -> '\x1b[38;5;' + (16 + 36*r + 6*g + b) + 'm'
+F = (r, g, b) -> '\x1b[48;5;' + (16 + 36*r + 6*g + b) + 'm'
+
+r = (i=4) -> (i < 6) and f(i, 0, 0) or f(  5, i-5, i-5)
+R = (i=4) -> (i < 6) and F(i, 0, 0) or F(  5, i-5, i-5)
+g = (i=4) -> (i < 6) and f(0, i, 0) or f(i-5,   5, i-5)
+G = (i=4) -> (i < 6) and F(0, i, 0) or F(i-5,   5, i-5)
+b = (i=4) -> (i < 6) and f(0, 0, i) or f(i-5, i-5,   5)
+B = (i=4) -> (i < 6) and F(0, 0, i) or F(i-5, i-5,   5)
+y = (i=4) -> (i < 6) and f(i, i, 0) or f(  5,   5, i-5)
+Y = (i=4) -> (i < 6) and F(i, i, 0) or F(  5,   5, i-5)
+m = (i=4) -> (i < 6) and f(i, 0, i) or f(  5, i-5,   5)
+M = (i=4) -> (i < 6) and F(i, 0, i) or F(  5, i-5,   5)
+c = (i=4) -> (i < 6) and f(0, i, i) or f(i-5,  5,    5)
+C = (i=4) -> (i < 6) and F(0, i, i) or F(i-5,  5,    5)
+w = (i=4) -> '\x1b[38;5;' + (232+(i-1)*3) + 'm'
+W = (i=4) -> '\x1b[48;5;' + (232+(i-1)*3+2) + 'm'
+
+FG_COLORS = ['r' 'g' 'b' 'c' 'm' 'y' 'w']
+BG_COLORS = ['R' 'M' 'B' 'Y' 'G' 'C' 'W']
+
+noop = (s) -> s
+wrap = (open, close, searchRegex, replaceValue) ->
+    (s) -> open + (~(s += "").indexOf(close, 4) and s.replace(searchRegex, replaceValue) or s) + close
+
+init = (open, close) -> wrap "\x1b[#{open}m", "\x1b[#{close}m", new RegExp("\\x1b\\[#{close}m", "g"), "\x1b[#{open}m"
+
+F256 = (open) -> wrap open, "\x1b[39m", new RegExp("\\x1b\\[39m", "g"), open
+B256 = (open) -> wrap open, "\x1b[49m", new RegExp("\\x1b\\[49m", "g"), open
+
+exports = {}
+
+exports.bold      = wrap "\x1b[1m" "\x1b[22m", /\x1b\[22m/g, "\x1b[22m\x1b[1m"
+exports.dim       = wrap "\x1b[2m" "\x1b[22m", /\x1b\[22m/g, "\x1b[22m\x1b[2m"
+exports.reset     = init 0  0
+exports.italic    = init 3  23
+exports.underline = init 4  24
+exports.inverse   = init 7  27
+exports.hidden    = init 8  28
+exports.black     = init 30 39
+exports.red       = init 31 39
+exports.green     = init 32 39
+exports.yellow    = init 33 39
+exports.blue      = init 34 39
+exports.magenta   = init 35 39
+exports.cyan      = init 36 39
+exports.white     = init 37 39
+exports.gray      = init 90 39
+
+exports.BG_COLORS = BG_COLORS 
+exports.FG_COLORS = FG_COLORS 
+exports.BG_NAMES  = []
+exports.FG_NAMES  = []
+
+for bg in BG_COLORS
+    exports[bg] = eval bg
+    for i in [1..8]
+        exports[bg+i] = B256 exports[bg] i
+        exports.BG_NAMES.push bg+i
+
+for fg in FG_COLORS
+    exports[fg] = eval fg
+    for i in [1..8]
+        exports[fg+i] = F256 exports[fg] i
+        exports.FG_NAMES.push fg+i
+
+#  0000000   000       0000000   0000000     0000000   000      000  0000000  00000000  
+# 000        000      000   000  000   000  000   000  000      000     000   000       
+# 000  0000  000      000   000  0000000    000000000  000      000    000    0000000   
+# 000   000  000      000   000  000   000  000   000  000      000   000     000       
+#  0000000   0000000   0000000   0000000    000   000  0000000  000  0000000  00000000  
+
+exports.globalize = (enabled=true) ->
+    
+    if globalThis.global
+        glob = globalThis.global
+    else if globalThis.window
+        glob = globalThis.window
+    else
+        return
+    
+    if not enabled
+        exp = (n) -> noop
+    else
+        exp = (n) -> exports[n]
+    
+    for fg in FG_COLORS
+        
+        for i in [1..8]
+            bg = fg.toUpperCase()
+            glob[fg+i] = exp fg+i
+            glob[bg+i] = exp bg+i
+            
+        for n in ['underline''bold''dim''italic''inverse''reset''strip' 'black''red''green''yellow''blue''magenta''cyan''white''gray']
+            glob[n] = exp n
+        
+#  0000000  000000000  00000000   000  00000000   
+# 000          000     000   000  000  000   000  
+# 0000000      000     0000000    000  00000000   
+#      000     000     000   000  000  000        
+# 0000000      000     000   000  000  000        
+
+STRIPANSI = /\x1B[[(?);]{0,2}(;?\d)*./g
+exports.strip = (s) -> String(s).replace STRIPANSI, ''
+                
+# 00     00   0000000   000  000   000  
+# 000   000  000   000  000  0000  000  
+# 000000000  000000000  000  000 0 000  
+# 000 0 000  000   000  000  000  0000  
+# 000   000  000   000  000  000   000  
+
+◆main
+    
+    # print a color table to the console
+    # if file is executed directly: 
+    # node js/lib/kxk/kolor.js
+    
+    reset = '\x1b[0m'
+    bold  = '\x1b[1m'
+                
+    for bg in BG_COLORS
+        for i in [1..8]
+            s  = reset
+            fg = bg.toLowerCase()
+            s += exports[fg+i]("#{fg+i} #{bg+i} ")
+            for fg in FG_COLORS
+                s += exports[bg+i] exports[fg+(9-i)] ' ' + fg + ' '
+            log s + reset
+            
+    log " "
+    
+exports.map =
+        'punct':                            'w3'
+        'punct this':                       'b3'
+        'punct comment':                    'w1' 
+        'punct comment triple':             'w1' 
+        'punct semver':                     'r2' 
+        'punct regexp':                     'm2'
+        'punct regexp start':               'm8' 
+        'punct regexp end':                 'm8' 
+        'punct regexp triple':              'm2'
+        'punct escape regexp':              'm1'
+        'punct escape regexp triple':       'm1'
+        'punct string single':              'g1' 
+        'punct string single triple':       'g1' 
+        'punct string double':              'g1' 
+        'punct string double triple':       'g1' 
+        'punct string interpolation start': 'g1'
+        'punct string interpolation end':   'g1'
+        'punct number float':               'r3' 
+        'punct method':                     'r2'
+        'punct dictionary':                 'y1' 
+        'punct property':                   'y1' 
+        'punct range':                      'b4' 
+        'punct code':                       'b1' 
+        'punct code triple':                'b1' 
+        'punct meta':                       'g1'
+        'punct bold':                       'y1'
+        'punct italic':                     'm1'
+        'punct url':                        'b1'
+        'punct url tld':                    'b1'
+        'punct coffee':                     'y1'
+        'punct dir':                        'g1'
+        'punct obj':                        'y1'
+        'punct js':                         'm1'
+        'punct git':                        'w1'
+        'punct li1':                        'g1'
+        'punct li2':                        'g1'
+        'punct li3':                        'g1'
+        'punct li1 marker':                 'g4'
+        'punct li2 marker':                 'g3'
+        'punct li3 marker':                 'g2'
+        'punct class':                      'y2' 
+        'punct method class':               'y2' 
+        'punct keyword':                    'b6'
+        'punct function':                   'r1'
+        'punct function call':              'r2'     
+        'punct function tail':              ['b6' 'bold' 'B1']
+        'punct function head':              ['b6' 'bold' 'B1']
+        'punct function bound tail':        ['r5' 'bold' 'R1']
+        'punct function bound head':        ['r5' 'bold' 'R1']
+        'punct h1':                         'y1'
+        'punct h2':                         'r1'
+        'punct h3':                         'b3'
+        'punct h4':                         'b2'
+        'punct h5':                         'b1'
+        'punct template':                   'm1'
+        'text':                             'w8' 
+        'text h1':                          'y4'
+        'text h2':                          'r4'
+        'text h3':                          'b8'
+        'text h4':                          'b6'
+        'text h5':                          'b5'
+        'text li1':                         'g4'
+        'text li2':                         'g2'
+        'text li3':                         'g1'
+        'text dir':                         'g4'
+        'text file':                        'g6'
+        'text this':                        'b8' 
+        'text bold':                        'y7'
+        'text code':                        'b8'
+        'text italic':                      ['m7''italic']
+        'text regexp':                      'm6'
+        'text regexp triple':               'm6'
+        'string single':                    'g3' 
+        'string double':                    'g4' 
+        'string single triple':             'g3' 
+        'string double triple':             'g4' 
+        'nil':                              'm2'
+        'obj':                              'y5' 
+        'define':                           'w3' 
+        'require':                          'w3' 
+        'doctype':                          'b8' 
+        'number':                           'b7' 
+        'number hex':                       'c3' 
+        'number float':                     'r7' 
+        'semver':                           'r5' 
+        'module':                           'y6' 
+        'module this':                      'y2' 
+        'meta':                             'g4' 
+        'class':                            'y5' 
+        'method':                           'r6'
+        'method class':                     'y7' 
+        'function':                         'r4' 
+        'function call':                    'r5' 
+        'function call this':               'r2' 
+        'keyword':                          'b8' 
+        'keyword function':                 'w2' 
+        'keyword type':                     'm4' 
+        'keyword html':                     'b8' 
+        'keyword svg':                      'b8' 
+        'property':                         'y6' 
+        'property color':                   'm4'
+        'property special':                 'm4'
+        'dictionary key':                   'y8' 
+        'argument':                         'c3'
+        'url protocol':                     'b2'
+        'url domain':                       'b8'
+        'url tld':                          'b4'
+        'coffee file':                      'y4'
+        'coffee ext':                       'y1'
+        'js file':                          'm4'
+        'js ext':                           'm2'
+        'git file':                         'w8'
+        'git ext':                          'w2'
+        'important':                        'w4'
+        'template':                         'm3'
+        'struct':                           'c3'
+        'comment':                          'w3'
+        'comment triple':                   'w4'
+        'comment header':                   ['g1' 'G1']
+        'comment triple header':            ['g2' 'G2']
+
+export exports

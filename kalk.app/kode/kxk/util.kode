@@ -1,0 +1,175 @@
+###
+    000   000  000000000  000  000    
+    000   000     000     000  000    
+    000   000     000     000  000    
+    000   000     000     000  000    
+     0000000      000     000  0000000
+###
+    
+util =
+
+    # 000   0000000        00000000   0000000   000   000   0000000   000      
+    # 000  000             000       000   000  000   000  000   000  000      
+    # 000  0000000         0000000   000 00 00  000   000  000000000  000      
+    # 000       000        000       000 0000   000   000  000   000  000      
+    # 000  0000000         00000000   00000 00   0000000   000   000  0000000  
+    
+    isEqual: a b ->
+        
+        if a is arr and b is arr
+            
+            ⮐ false if a.length != b.length
+            
+            for index in 0...a.length
+                ⮐ false if not util.isEqual a[index], b[index]
+                
+            ⮐ true
+            
+        if a is obj and b is obj
+            
+            ⮐ util.isEqual(Object.keys(a), Object.keys(b)) and util.isEqual(Object.values(a), Object.values(b))
+            
+        a == b
+        
+    #  0000000   00000000   00000000    0000000   000   000  
+    # 000   000  000   000  000   000  000   000   000 000   
+    # 000000000  0000000    0000000    000000000    00000    
+    # 000   000  000   000  000   000  000   000     000     
+    # 000   000  000   000  000   000  000   000     000     
+    
+    zip: args... ->
+        
+        result = []
+        maxLen = max args.map (a) -> a.length
+        for i in 0...maxLen
+            result.push args.map (a) -> a[i]
+        result
+    
+    reversed: arr -> arr.slice(0).reverse()
+    
+    max:      arr -> Math.max.apply null, arr
+    min:      arr -> Math.min.apply null, arr
+    
+    pull:     arr item -> 
+        
+        if arr is arr
+            index = arr.indexOf(item)
+            if index >= 0
+                arr.splice index, 1
+        arr
+        
+    pullIf: arr pred ->
+        
+        for index in arr.length-1..0
+            if pred arr[index]
+                arr.splice index, 1
+        arr
+
+    keepIf: arr pred -> util.pullIf arr, (m) -> not pred m
+    
+    findIf: arr pred -> for v in arr ➜ ⮐ v if pred v
+        
+    pullAll: arr items cmp=util.isEqual ->
+        
+        if valid arr and arr is arr
+        
+            for item in items
+                for index in arr.length-1..0
+                    if cmp arr[index], item
+                        arr.splice index, 1
+        arr
+        
+    uniq: arr ->
+        
+        result = []
+        for item in arr
+            if item not in result
+                result.push item
+        result
+        
+    uniqEqual: arr ->
+        
+        result = []
+        for item in arr
+            add = true
+            for ritem in result
+                if util.isEqual item, ritem
+                    add = false
+                    break
+            result.push item if add
+        result
+        
+    uniqBy: arr prop ->
+        
+        if prop is str
+            key = prop
+            prop = (o) -> o[key]
+            
+        result = []
+        for item in arr
+            add = true
+            for ritem in result
+                if prop(item) == prop(ritem)
+                    add = false
+                    break
+            result.push item if add
+        result
+        
+    sortBy: arr prop ->
+        
+        if prop is str
+            key = prop
+            prop = (o) -> o[key]
+            
+        arr.sort (a,b) -> 
+            pa = prop a
+            pb = prop b
+            if pa is str and pb is str
+                pa.localeCompare pb, 'en' sensitivity:'variant' caseFirst:'upper' numeric:true
+            else 
+                Number(pa) - Number(pb)
+        
+    #  0000000   0000000          000  00000000   0000000  000000000  
+    # 000   000  000   000        000  000       000          000     
+    # 000   000  0000000          000  0000000   000          000     
+    # 000   000  000   000  000   000  000       000          000     
+    #  0000000   0000000     0000000   00000000   0000000     000     
+    
+    defaults: obj def ->
+        
+        for key,val of def
+            obj[key] ?= val
+        obj
+        
+    pickBy: obj pred ->
+        
+        result = {}
+        for key,val of obj
+            if pred key,val
+                result[key] = val
+        result
+        
+    deleteBy: obj pred ->
+        
+        for key,val of obj
+            if pred key,val
+                delete obj[key]
+        obj
+        
+    toPairs: obj ->
+        
+        result = []
+        for key,val of obj
+            result.push [key, val]
+        result
+        
+    
+    #  0000000  000      00000000  00000000  00000000   
+    # 000       000      000       000       000   000  
+    # 0000000   000      0000000   0000000   00000000   
+    #      000  000      000       000       000        
+    # 0000000   0000000  00000000  00000000  000        
+    
+    sleep: ms ○-> ○ new Promise((r) => setTimeout(r, ms)); true
+
+export util

@@ -1,0 +1,170 @@
+###
+000000000  00000000   0000000  000000000          000   000  000000000  000  000      
+   000     000       000          000             000   000     000     000  000      
+   000     0000000   0000000      000             000   000     000     000  000      
+   000     000            000     000             000   000     000     000  000      
+   000     00000000  0000000      000     000000   0000000      000     000  0000000  
+###
+
+use .. ◆ util
+
+▸ util
+
+    # 000   0000000  00000000   0000000   000   000   0000000   000      
+    # 000  000       000       000   000  000   000  000   000  000      
+    # 000  0000000   0000000   000 00 00  000   000  000000000  000      
+    # 000       000  000       000 0000   000   000  000   000  000      
+    # 000  0000000   00000000   00000 00   0000000   000   000  0000000  
+    
+    ▸ isEqual
+    
+        util.isEqual [1 2], [1 2] ▸ true
+        util.isEqual [1 2], [1 3] ▸ false
+        util.isEqual [1 2], [2 1] ▸ false
+        util.isEqual {a:1}, {a:1} ▸ true
+        util.isEqual {a:1}, {a:2} ▸ false
+        util.isEqual {a:1 b:2 c:3}, {a:1 b:2 c:3} ▸ true
+        util.isEqual {a:1 b:2 c:3}, {c:3 b:2 a:1} ▸ false
+        util.isEqual {a:1 b:2 c:'3' d:[[1],[2]]}, {a:1 b:2 c:'3' d:[[1],[2]]} ▸ true
+        util.isEqual {b:2 a:1 c:'3' d:[[1],[2]]}, {a:1 b:2 c:'3' d:[[1],[2]]} ▸ false
+        util.isEqual {b:1 a:2 c:'3' d:[[1],[2]]}, {a:1 b:2 c:'3' d:[[1],[2]]} ▸ false
+        util.isEqual {a:1 b:2 c:'3' d:[[2],[1]]}, {a:1 b:2 c:'3' d:[[1],[2]]} ▸ false
+        util.isEqual {a:1 b:2 c:'2' d:[[2],[1]]}, {a:1 b:2 c:'3' d:[[1],[2]]} ▸ false
+    
+    #  0000000   00000000   00000000    0000000   000   000    
+    # 000   000  000   000  000   000  000   000   000 000     
+    # 000000000  0000000    0000000    000000000    00000      
+    # 000   000  000   000  000   000  000   000     000       
+    # 000   000  000   000  000   000  000   000     000       
+    
+    ▸ zip
+    
+        a = [1 2 4]
+        b = ['c' 'd' 'e']
+        
+        util.zip a, b ▸ [[1 'c'],[2 'd'],[4 'e']]
+    
+    ▸ reversed
+    
+        arr = [1 2 3]
+        util.reversed arr ▸ [3 2 1]
+        arr ▸ [1 2 3]
+        
+    ▸ max
+        
+        arr = [1 2 3]
+        util.max arr ▸ 3
+
+    ▸ min
+        
+        arr = [1 2 3]
+        util.min arr ▸ 1
+        
+    ▸ pull
+    
+        arr = [1 2 3]
+        util.pull arr, 2 ▸ [1 3]
+        arr ▸ [1 3]
+        
+        util.pull ['a' 'b'], 'a' ▸ ['b']
+        util.pull ['a' 'b'], 'c' ▸ ['a' 'b']
+        util.pull [1 4], 2 ▸ [1 4]
+        util.pull [], 2 ▸ []
+        util.pull {}    ▸ {}
+        util.pull 1     ▸ 1
+        util.pull null  ▸ null
+        
+    ▸ pullIf
+    
+        arr = [1 2 3]
+        util.pullIf(arr, (i) -> i == 2) ▸ [1 3]
+        arr ▸ [1 3]
+        
+    ▸ keepIf
+    
+        arr = [1 2 3]
+        util.keepIf(arr, (i) -> i >= 2) ▸ [2 3]
+        arr ▸ [2 3]
+
+    ▸ findIf
+    
+        arr = [1 2 3]
+        util.findIf(arr, (i) -> i >= 2) ▸ 2
+        util.findIf(arr, (i) -> i <= 2) ▸ 1
+        util.findIf(arr, (i) -> i >= 8) ▸ undefined
+        
+    ▸ pullAll
+    
+        arr = [1 2 3]
+        util.pullAll arr, [1 3] ▸ [2]
+        arr ▸ [2]
+
+        arr = [1 9 9 2 8 3 7]
+        util.pullAll(arr, [3 5], (a,b) -> a >= b) ▸ [1 2]
+        arr ▸ [1 2]
+        
+        util.pullAll [], [], null ▸ []
+        util.pullAll [], [1, 3], null ▸ []
+        util.pullAll [] ▸ []
+        
+    ▸ uniq
+    
+        arr = [3 3 5 3 2]
+        util.uniq arr ▸ [3 5 2]
+        arr ▸ [3 3 5 3 2]
+        
+        util.uniq [] ▸ []
+        util.uniq [1 2] ▸ [1 2]
+        util.uniq [2 1] ▸ [2 1]
+        util.uniq [0 null '' undefined []] ▸ [0 null '' undefined []]
+        util.uniq [0 0 null null '' '' null undefined undefined] ▸ [0 null '' undefined]
+        util.uniq ['ab' 'abc' 'abd' 'ab'] ▸ ['ab' 'abc' 'abd']
+        
+    ▸ uniqEqual
+    
+        a = [[1 2 3], [1 2 3], [1 2 3 4]]
+        util.uniqEqual a ▸ [[1 2 3], [1 2 3 4]]
+        
+    ▸ uniqBy
+    
+        a = [{name:'a' age:1}, {name:'a' age:2}, {name:'c' age:1}]
+        util.uniqBy a, 'name' ▸ [{name:'a' age:1}, {name:'c' age:1}]
+        util.uniqBy a, 'age'  ▸ [{name:'a' age:1}, {name:'a' age:2}]
+        a = [{name:'a' age:1}, {name:'a' age:2}, {name:'c' age:1}, {name:'c' age:'1'}]
+        util.uniqBy(a, (o) -> o.name+o.age)  ▸ [{name:'a' age:1}, {name:'a' age:2}, {name:'c' age:1}]
+        
+    #  0000000   0000000          000  00000000   0000000  000000000    
+    # 000   000  000   000        000  000       000          000       
+    # 000   000  0000000          000  0000000   000          000       
+    # 000   000  000   000  000   000  000       000          000       
+    #  0000000   0000000     0000000   00000000   0000000     000       
+    
+    ▸ pickBy
+    
+        obj = a:1 b:2 c:4 d:8
+        
+        util.pickBy(obj, (k,v) -> k == 'a' or v > 3) ▸ a:1 c:4 d:8
+        
+    ▸ toPairs
+    
+        obj = a:1 b:2 c:3
+        
+        util.toPairs obj ▸ [['a' 1],['b' 2],['c' 3]]
+        
+    ▸ defaults
+    
+        def = c:3 b:4
+        obj = a:1 b:2
+        
+        util.defaults obj, def ▸ a:1 b:2 c:3
+        util.defaults {},  def ▸ c:3 b:4
+        
+        obj = a:1 b:2
+        util.defaults obj, obj ▸ a:1 b:2
+        
+        util.defaults {}, {} ▸ {}
+        util.defaults {} ▸ {}
+        util.defaults {a:1} ▸ {a:1}
+        
+        
+        

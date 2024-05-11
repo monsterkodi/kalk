@@ -1,0 +1,30 @@
+###
+     0000000   0000000     0000000   000   000  000000000
+    000   000  000   000  000   000  000   000     000
+    000000000  0000000    000   000  000   000     000
+    000   000  000   000  000   000  000   000     000
+    000   000  0000000     0000000    0000000      000
+  
+    simple about window
+###
+
+use ../kxk ▪ post elem $
+use ../kakao
+
+kakao.init ->
+
+    kakao 'window.setSize' 250 250
+    kakao 'window.center'
+    
+    post.on 'window.blur' -> kakao 'window.close'
+    window.onkeydown    = -> kakao 'window.close'
+    
+    main =$ '#main'
+    main.classList.add 'app-drag-region' # make the window draggable anywhere
+    
+    elem 'div' class:'about' id:'about' parent:main, children:
+        [
+            elem 'img' class:'image' src:window.aboutImage
+            elem 'div' class:'version' id:'version' text:'1.0.0'
+        ]
+    

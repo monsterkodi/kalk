@@ -1,0 +1,424 @@
+###
+00     00  000   0000000   0000000
+000   000  000  000       000
+000000000  000  0000000   000
+000 0 000  000       000  000
+000   000  000  0000000    0000000
+###
+
+use ./utils ▪ kc ke
+use ../../kxk ◆ slash
+
+▸ misc
+
+    # 0000000    000  00000000   
+    # 000   000  000  000   000  
+    # 000   000  000  0000000    
+    # 000   000  000  000   000  
+    # 0000000    000  000   000  
+    
+    ▸ dir
+    
+        kc '◆dir'  import.meta.url[7..] ▸ '_k_.dir()'
+        
+    ▸ file
+        
+        kc '◆file' import.meta.url[7..] ▸ '_k_.file()'
+        
+    ▸ main
+    
+        kc  """
+            ◆main
+                log 'hello'
+                log 'main'
+            """ ▸ """
+            if (((globalThis.process != null ? globalThis.process.argv : undefined) != null) && import.meta.filename === process.argv[1])
+            {
+                console.log('hello')
+                console.log('main')
+            }
+            """
+
+    # 000000000  000   000  000   0000000  
+    #    000     000   000  000  000       
+    #    000     000000000  000  0000000   
+    #    000     000   000  000       000  
+    #    000     000   000  000  0000000   
+    
+    ▸ this
+
+        kc  '@'             ▸   'this'
+        kc  '@a'            ▸   'this.a'
+        kc  '@a.b'          ▸   'this.a.b'
+        kc  '@a.b()'        ▸   'this.a.b()'
+        kc  't = @'         ▸   't = this'
+        kc  'f(1,@)'        ▸   'f(1,this)'
+        kc  '@[1]'          ▸   'this[1]'
+        kc  '@[2]()'        ▸   'this[2]()'
+        kc  '@[3](4)'       ▸   'this[3](4)'
+        kc  '@[5] 6'        ▸   'this[5](6)'
+        
+        kc  'return @ if a' ▸   
+            """
+            if (a)
+            {
+                return this
+            }
+            """
+        
+        kc  "a.on 'b' @c"   ▸   "a.on('b',this.c)" 
+        kc  "a.on 'b' @c"   ▸   "a.on('b',this.c)" 
+
+        kc  """
+            if @
+                1
+            """ ▸
+            """
+            if (this)
+            {
+                1
+            }
+            """
+
+        kc  """
+            if @ then 1
+            """ ▸
+            """
+            if (this)
+            {
+                1
+            }
+            """
+            
+        kc  """
+            a @, file
+            """ ▸
+            """
+            a(this,file)
+            """
+            
+        kc  """
+            a = @ == b
+            """ ▸
+            """
+            a = this === b
+            """
+            
+    # 000000000  00000000   000   000  
+    #    000     000   000   000 000   
+    #    000     0000000      00000    
+    #    000     000   000     000     
+    #    000     000   000     000     
+    
+    ▸ try
+
+        kc  """
+            try 
+                somethg
+            catch
+                blark
+            """ ▸
+            """
+            try
+            {
+                somethg
+            }
+            catch (err)
+            {
+                blark
+            }
+            """
+        
+        kc  """
+            try 
+                something
+            catch err
+                error err
+            """ ▸
+            """
+            try
+            {
+                something
+            }
+            catch (err)
+            {
+                console.error(err)
+            }
+            """
+
+        kc  """
+            try 
+                sthelse
+            catch err
+                error err
+            finally
+                cleanup
+            """ ▸
+            """
+            try
+            {
+                sthelse
+            }
+            catch (err)
+            {
+                console.error(err)
+            }
+            finally
+            {
+                cleanup
+            }
+            """
+            
+        # 00000000   00000000  000000000  000   000  00000000   000   000   0000000  
+        # 000   000  000          000     000   000  000   000  0000  000  000       
+        # 0000000    0000000      000     000   000  0000000    000 0 000  0000000   
+        # 000   000  000          000     000   000  000   000  000  0000       000  
+        # 000   000  00000000     000      0000000   000   000  000   000  0000000   
+
+        ▸ try returns
+        
+            kc  """
+                a = ->
+                    try
+                        p
+                    catch err
+                       err
+                """ ▸
+                """
+                
+                a = function ()
+                {
+                    try
+                    {
+                        return p
+                    }
+                    catch (err)
+                    {
+                        return err
+                    }
+                }
+                """
+        
+        ▸ if try returns
+        
+            kc  """
+                a = ->
+                    if 1
+                        try
+                            p
+                        catch err
+                           err
+                """ ▸
+                """
+                
+                a = function ()
+                {
+                    if (1)
+                    {
+                        try
+                        {
+                            return p
+                        }
+                        catch (err)
+                        {
+                            return err
+                        }
+                    }
+                }
+                """
+            
+    # 000000000  000   000  00000000    0000000   000   000  
+    #    000     000   000  000   000  000   000  000 0 000  
+    #    000     000000000  0000000    000   000  000000000  
+    #    000     000   000  000   000  000   000  000   000  
+    #    000     000   000  000   000   0000000   00     00  
+    
+    ▸ throw
+        
+        kc  "throw 'msg'"   ▸ "throw 'msg'"
+        
+    # 0000000    00000000  000      00000000  000000000  00000000  
+    # 000   000  000       000      000          000     000       
+    # 000   000  0000000   000      0000000      000     0000000   
+    # 000   000  000       000      000          000     000       
+    # 0000000    00000000  0000000  00000000     000     00000000  
+    
+    ▸ delete
+        
+        kc  "delete a"                  ▸   "delete a"
+        kc  "delete @a"                 ▸   "delete this.a"
+        kc  "delete a.b"                ▸   "delete a.b"
+                                           
+        kc  '[delete a, b]'             ▸   ';[delete a,b]'
+        kc  'delete a.b.c'              ▸   'delete a.b.c'
+        kc  '[delete a.b, a:b]'         ▸   ';[delete a.b,{a:b}]'
+        kc  'delete a.b == false'       ▸   'delete a.b === false'
+            
+    # 00000000   00000000   0000000   000   000  000  00000000   00000000
+    # 000   000  000       000   000  000   000  000  000   000  000
+    # 0000000    0000000   000 00 00  000   000  000  0000000    0000000
+    # 000   000  000       000 0000   000   000  000  000   000  000
+    # 000   000  00000000   00000 00   0000000   000  000   000  00000000
+
+    ▸ require
+
+        kc  "noon  = require 'noon'"    ▸   "noon = require('noon')"
+        kc  """
+            slash = require 'kslash'
+            kstr  = require 'kstr'
+            """ ▸
+            """
+            slash = require('kslash')
+            kstr = require('kstr')
+            """
+            
+        kc  """
+            if true
+                {m,n} = require 'bla'
+            """ ▸
+            """
+            if (true)
+            {
+                m = require('bla').m
+                n = require('bla').n
+            
+            }
+            """
+            
+        kc  """
+            { empty, noon, valid } = kxk
+            """ ▸
+            """
+            empty = kxk.empty
+            noon = kxk.noon
+            valid = kxk.valid
+            
+            """
+        
+    # 000  000   000         0000000   0000000   000   000  0000000    000  000000000  000   0000000   000   000
+    # 000  0000  000        000       000   000  0000  000  000   000  000     000     000  000   000  0000  000
+    # 000  000 0 000        000       000   000  000 0 000  000   000  000     000     000  000   000  000 0 000
+    # 000  000  0000        000       000   000  000  0000  000   000  000     000     000  000   000  000  0000
+    # 000  000   000         0000000   0000000   000   000  0000000    000     000     000   0000000   000   000
+
+    ▸ in condition
+
+        kc  "a in l"            ▸   "_k_.in(a,l)"
+        kc  "a in 'xyz'"        ▸   "_k_.in(a,'xyz')"
+        kc  "a in [1,2,3]"      ▸   "_k_.in(a,[1,2,3])"
+        kc  "a not in b"        ▸   "!(_k_.in(a,b))"
+        kc  "a not in [3,4]"    ▸   "!(_k_.in(a,[3,4]))"
+
+        kc  """
+            if a in l then 1
+            """ ▸
+            """
+            if (_k_.in(a,l))
+            {
+                1
+            }
+            """
+
+        kc  """
+            if not a in l then 2
+            """ ▸
+            """
+            if (!(_k_.in(a,l)))
+            {
+                2
+            }
+            """
+            
+        kc  """
+            if a in l
+                2
+            """ ▸
+            """
+            if (_k_.in(a,l))
+            {
+                2
+            }
+            """
+            
+        # kc  "a = ( a:1 b:2 ) ->" ▸     "a = function(arg)"
+
+    # 00000000   00000000   000  00     00  00000000   0000000  
+    # 000   000  000   000  000  000   000  000       000       
+    # 00000000   0000000    000  000000000  0000000   0000000   
+    # 000        000   000  000  000 0 000  000            000  
+    # 000        000   000  000  000   000  00000000  0000000   
+    
+    ▸ primes
+
+        ke  """
+            eratosthenes = (n) ->
+                
+                prime = [x < 2 and 1 or 0 for x in 0..n]
+                
+                for i in 0..Math.sqrt n
+                    
+                    if prime[i] == 0
+                        
+                        l = 2
+            
+                        while true
+                            
+                            break if n < j = i * l++
+            
+                            prime[j] = 1
+            
+                prime = prime each (i,p) -> [i, parseInt p ? 0 : i]
+                prime = prime.filter (p) -> p
+                            
+            eratosthenes 100
+            """ ▸ 
+            [
+              2  3  5  7  11 13 17 19 23 29 31 37 41 43 47 
+              53 59 61 67 71 73 79 83 89 97
+            ]
+        
+    #  0000000   0000000   00     00  00     00  00000000  000   000  000000000   0000000
+    # 000       000   000  000   000  000   000  000       0000  000     000     000
+    # 000       000   000  000000000  000000000  0000000   000 0 000     000     0000000
+    # 000       000   000  000 0 000  000 0 000  000       000  0000     000          000
+    #  0000000   0000000   000   000  000   000  00000000  000   000     000     0000000
+
+    # ▸ comments
+
+        # kc  """
+            # # a
+            # """
+        #  """
+            # // a
+            # """
+
+        # kc  """
+            # # a
+            # # b
+            # """
+        #  """
+            # // a
+            # // b
+            # """
+
+        # kc  """
+            # # a
+                # # b
+            # """
+        #  """
+            # // a
+                # // b
+            # """
+
+        # kc  """
+            # 1 # a
+            # 2    # b
+            # """
+        #  """
+            # 1
+              # // a
+            # 2
+                 # // b
+            # """
+
+        

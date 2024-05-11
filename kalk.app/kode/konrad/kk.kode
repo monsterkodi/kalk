@@ -1,0 +1,191 @@
+###
+    000   000  000   000    
+    000  000   000  000     
+    0000000    0000000      
+    000  000   000  000     
+    000   000  000   000    
+    
+    commandline tool that builds the application
+###
+
+use ../kxk ▪ sleep karg slash os
+use ../kxk ◆ watch
+use        ◆ knrd build spawn
+
+use child_process
+
+import fs from 'fs/promises'
+
+args = karg """
+    kk
+        options                                   **
+        info       show build status              = false
+        knrd       transpile kode, styl, pug      = false
+        build      build application executable   = false
+        rebuild    rebuild all targets            = false -R
+        watch      watch for file changes         = false
+        test       run tests                      = false
+        run        launch application executable  = false
+        clean      remove transpilated files      = false 
+        spawn      spawn app                      = false
+        verbose    log more                       = false
+        quiet      log nothing                    = false
+        debug      log debug                      = false
+    """
+
+class kk
+    
+    # 00000000   000   000  000   000  
+    # 000   000  000   000  0000  000  
+    # 0000000    000   000  000 0 000  
+    # 000   000  000   000  000  0000  
+    # 000   000   0000000   000   000  
+    
+    @run: ○->
+        
+        while not os.loaded # todo: move this check somewhere else!
+            ○ sleep 150
+            
+        # if not (args.info or args.test or args.knrd or args.build or args.run or args.clean or args.rebuild or args.watch)
+            # # no command given? assume all of them for now :)
+            # args.info  = true
+            # args.knrd  = true
+            # args.build = true
+            # args.test  = true
+            # args.run   = true
+        
+        if args.info    ➜○ kk.info()
+        if args.clean   ➜○ kk.clean()
+        if args.knrd    ➜○ knrd         args.options, args
+        if args.build   ➜○ kk.build()
+        if args.rebuild ➜○ kk.rebuild()                            
+        if args.test    ➜○ kk.test      args.options
+        if args.run     ➜○ kk.launch    args.options
+        if args.spawn   ➜○ kk.spawn     args.options
+        if args.watch   ➜○ kk.watch()                            
+            
+        # if valid args.options
+            # log 'leftover options' args.options
+                                                
+    # 0000000    000   000  000  000      0000000    
+    # 000   000  000   000  000  000      000   000  
+    # 0000000    000   000  000  000      000   000  
+    # 000   000  000   000  000  000      000   000  
+    # 0000000     0000000   000  0000000  0000000    
+    
+    @build: ○->
+        
+        log '🛠' if not args.quiet
+        build()
+        
+    @rebuild: ○->
+        
+        ○ knrd()
+        ○ kk.build()
+        kk.launch()
+                        
+    # 000  000   000  00000000   0000000   
+    # 000  0000  000  000       000   000  
+    # 000  000 0 000  000000    000   000  
+    # 000  000  0000  000       000   000  
+    # 000  000   000  000        0000000   
+    
+    @info: ○->
+        
+        log w4 '○● info' 
+        info =○ knrd.info()
+        log info
+        
+    # 000   000   0000000   000000000   0000000  000   000  
+    # 000 0 000  000   000     000     000       000   000  
+    # 000000000  000000000     000     000       000000000  
+    # 000   000  000   000     000     000       000   000  
+    # 00     00  000   000     000      0000000  000   000  
+    
+    @watch: ○->
+        
+        log w4('○● watch'), w5 kk.appPath()
+        
+        start = (cb) ->
+    
+            watch.watch kk.appPath(), recursive:true, cb: (watcher) ->
+                watcher.on 'change' (info) -> 
+                    cb info.path
+    
+        start (sourceFile) ○->
+            
+            ⮐ if slash.contains sourceFile, '.stash'
+            
+            log b5('🔧'), w3 sourceFile
+            
+            if slash.ext(sourceFile) in ['kode' 'pug' 'styl' 'noon']
+                ○ knrd sourceFile
+                ○ kk.test args.options
+    
+    # 000000000  00000000   0000000  000000000  
+    #    000     000       000          000     
+    #    000     0000000   0000000      000     
+    #    000     000            000     000     
+    #    000     00000000  0000000      000     
+    
+    @test: (options) ○->
+                
+        cmd = "node js/test.js"
+        cmd += ' ' + options.join ' ' if valid options
+        opt = shell:true cwd:kk.appPath() # run tests inside the .app folder
+        
+        # log w4 '○● test'
+        
+        new Promise (resolve, reject) ->
+        
+            child_process.exec cmd, opt, (err, stdout, stderr) -> 
+                
+                if err
+                    error 'ERROR' err
+                    resolve() # don't reject here to keep test watch running
+                else
+                    log stdout if valid stdout
+                    resolve()
+                    
+    #  0000000  000      00000000   0000000   000   000  
+    # 000       000      000       000   000  0000  000  
+    # 000       000      0000000   000000000  000 0 000  
+    # 000       000      000       000   000  000  0000  
+    #  0000000  0000000  00000000  000   000  000   000  
+    
+    @clean: ○->
+        
+        jsDir  = slash.path ◆dir, '../../js'
+        appExe = slash.path ◆dir, '../../Contents/MacOS/kakao'
+        ○ fs.rm jsDir, recursive:true, force:true 
+        ○ fs.unlink appExe
+
+    #  0000000  00000000    0000000   000   000  000   000  
+    # 000       000   000  000   000  000 0 000  0000  000  
+    # 0000000   00000000   000000000  000000000  000 0 000  
+    #      000  000        000   000  000   000  000  0000  
+    # 0000000   000        000   000  00     00  000   000  
+    
+    @spawn: (args) -> spawn args
+    
+    # 000       0000000   000   000  000   000   0000000  000   000  
+    # 000      000   000  000   000  0000  000  000       000   000  
+    # 000      000000000  000   000  000 0 000  000       000000000  
+    # 000      000   000  000   000  000  0000  000       000   000  
+    # 0000000  000   000   0000000   000   000   0000000  000   000  
+    
+    @launch: (args=[]) ->
+        
+        log '🚀'
+        cmd = slash.path ◆dir, '../../Contents/MacOS/kakao'
+        opt = shell:true detached:true
+        
+        child_process.spawn cmd, args, opt
+                    
+    @appPath: -> slash.path ◆dir, '../../'
+        
+    @appName: -> slash.name kk.appPath()
+                                
+global['kk'] = kk
+    
+export kk.run

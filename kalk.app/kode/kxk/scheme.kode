@@ -1,0 +1,78 @@
+###
+ 0000000   0000000  000   000  00000000  00     00  00000000  
+000       000       000   000  000       000   000  000       
+0000000   000       000000000  0000000   000000000  0000000   
+     000  000       000   000  000       000 0 000  000       
+0000000    0000000  000   000  00000000  000   000  00000000  
+###
+
+use ◆ dom post elem slash prefs
+$ = dom.$
+
+class Scheme
+    
+    @colors: {}
+    
+    @toggle: ->
+        
+        schemes = ['dark' 'bright']
+        
+        link =$ '.scheme-link'
+        currentScheme = slash.name slash.dir link.href
+        
+        nextSchemeIndex = ( schemes.indexOf(currentScheme) + 1) % schemes.length
+        nextScheme = schemes[nextSchemeIndex]
+        
+        Scheme.set nextScheme
+    
+    @set: scheme ->
+        
+        @colors = {}
+        
+        for link in document.querySelectorAll '.scheme-link'
+
+            css = slash.file link.href
+
+            newlink = elem 'link', 
+                href:  "css/ko/#{scheme}/#{css}"
+                rel:   'stylesheet'
+                type:  'text/css'
+                class: 'scheme-link'
+                
+            link.parentNode.replaceChild newlink, link
+            
+        prefs.set 'scheme' scheme    
+        post.emit 'schemeChanged' scheme
+
+    @colorForClass: clss ->
+        
+        if not @colors[clss]?
+            
+            div = elem class: clss
+            document.body.appendChild div
+            color = window.getComputedStyle(div).color
+            @colors[clss] = color
+            div.remove()
+            
+        return @colors[clss]
+        
+    @fadeColor: a b f ->
+        
+        av = @parseColor a
+        bv = @parseColor b
+        fv = [0,0,0]
+        for i in [0...3]
+            fv[i] = Math.round (1-f) * av[i] + f * bv[i]
+        "rgb(#{fv[0]}, #{fv[1]}, #{fv[2]})"
+    
+    @parseColor: c ->
+        
+        if c is str and c.startsWith 'rgb'
+            s = c.indexOf '('
+            e = c.indexOf ')'
+            c = c.slice s+1, e
+            v = c.split ','
+            return [parseInt(v[0]), parseInt(v[1]), parseInt(v[2])]
+    
+export Scheme
+

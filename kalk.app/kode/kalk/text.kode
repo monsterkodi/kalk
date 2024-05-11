@@ -1,0 +1,74 @@
+###
+000000000  00000000  000   000  000000000  
+   000     000        000 000      000     
+   000     0000000     00000       000     
+   000     000        000 000      000     
+   000     00000000  000   000     000     
+###
+
+class Text
+
+    @balance: txt ->
+        
+        o = 0
+        for c in txt
+            switch c
+                '(' ➜ o += 1
+                ')' ➜ o -= 1
+        o        
+    
+    @close: txt ->
+        
+        o = @balance txt
+        while o > 0
+            o -= 1
+            txt += ')'
+        txt
+        
+    @clean: txt ->
+        
+        o = @balance txt
+        while o > 0
+            o -= 1
+            txt = txt.replace '(' ' '
+        txt
+      
+    @numbers:     ['0' '1' '2' '3' '4' '5' '6' '7' '8' '9']
+    @constants:   [symbol.euler, 'π' 'ϕ' '°']
+    @ops:         ['+' '-' '/' '*' '^' '(']
+    @unfinished:  ['.' '+' '-' '/' '*' '^' '(']
+    
+    @endsWith: txt chars -> 
+        
+        # log 'endsWith' txt, chars
+        
+        ⮐ false if empty txt 
+        ⮐ false if not txt is str
+        
+        for c in chars
+            if txt.endsWith c
+                # log 'yes' txt, c
+                ⮐ true 
+            
+        false
+            
+    @popChar:            txt -> txt.substr 0, txt.length-1
+    @isInteger:          txt -> /\d+/.test txt
+    @endsWithFloat:      txt -> /\.\d+$/.test txt
+    @endsWithValue:      txt -> @endsWithNumber(txt) or @endsWithConstant(txt) or txt == '∞'
+    @endsWithNumber:     txt -> @endsWith txt, @numbers
+    @endsWithConstant:   txt -> @endsWith txt, @constants
+    @endsWithUnfinished: txt -> @endsWith txt, @unfinished
+    @endsWithOp:         txt -> @endsWith txt, @ops
+    @removeZeroInfinity: txt -> 
+        
+        popped = @popChar txt
+        
+        ⮐ popped if txt == '∞'
+        
+        if @endsWith(txt, ['0']) and not (@endsWith(popped, ['.']) or @endsWithNumber(popped))
+            popped 
+        else
+            txt
+
+export Text

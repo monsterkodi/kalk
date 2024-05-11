@@ -1,0 +1,43 @@
+# 00     00  00000000  000   000  000   000
+# 000   000  000       0000  000  000   000
+# 000000000  0000000   000 0 000  000   000
+# 000 0 000  000       000  0000  000   000
+# 000   000  00000000  000   000   0000000
+
+Kakao
+    New Window              cmdctrl+n
+    -
+    Open ...                cmdctrl+o
+    Save                    cmdctrl+s
+    Save As ...             cmdctrl+shift+s
+    --
+    About                   alt+cmdctrl+/
+    ---
+    Quit                    cmdctrl+q
+    
+Edit
+    #Cut                     cmdctrl+x
+    Copy                    cmdctrl+c
+    # Paste                   cmdctrl+v
+
+# 000   000  000  000   000  0000000     0000000   000   000
+# 000 0 000  000  0000  000  000   000  000   000  000 0 000
+# 000000000  000  000 0 000  000   000  000   000  000000000
+# 000   000  000  000  0000  000   000  000   000  000   000
+# 00     00  000  000   000  0000000     0000000   00     00
+
+Window
+    Toggle Menu             alt+m
+    --
+    Minimize                cmdctrl+m
+    Maximize                alt+cmdctrl+m
+    ---
+    Screenshot              f3
+    Reload                  alt+cmdctrl+l
+    ----
+    Focus Next              cmdctrl+`
+    Focus Previous          cmdctrl+shift+`
+    -----
+    Close                   cmdctrl+w
+    DevTools                alt+cmdctrl+i
+    

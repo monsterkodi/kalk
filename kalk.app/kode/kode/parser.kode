@@ -1,0 +1,1122 @@
+###
+    00000000    0000000   00000000    0000000  00000000  00000000
+    000   000  000   000  000   000  000       000       000   000
+    00000000   000000000  0000000    0000000   0000000   0000000
+    000        000   000  000   000       000  000       000   000
+    000        000   000  000   000  0000000   00000000  000   000
+
+    the equivalent of a grammar for kode.
+       
+    instead of converting an essentially dynamic problem to a static 
+    representation and then converting it back to dynamic code again,
+    it goes the direct route: less formal, but faster and easier to 
+    customize and debug.
+    
+    handles the main features of kode, the nasty details
+    and corner cases are handled in the base class 'parse'.
+        
+    each method here consumes and converts raw lexer tokens into an
+    expression object to simplify the renderer kode.
+###
+
+use         ◆ print parse
+use ./utils ▪ firstLineCol lastLineCol
+
+function Parser extends parse
+
+    scope: (exps) ->
+        
+        vars: []
+        exps: exps
+    
+    # 000  00000000
+    # 000  000
+    # 000  000000
+    # 000  000
+    # 000  000
+
+    if: (tok, tokens) ->
+
+        if tokens[0].type == 'block'
+            ⮐ @ifBlock tok, tokens
+
+        @push 'if'
+        @lockBlock = true
+        cond = @exp tokens
+        @lockBlock = false
+        thn = @then 'if' tokens
+
+        e = if:
+                cond:   cond
+                then:   thn
+                
+        @shiftNewlineTok 'if after then' tokens, tok, tokens[1]?.text == 'else'
+        
+        if tokens[0]?.type == 'block'
+            @verb 'block after if then -> switch to block mode' 
+            @pop 'if'
+            ⮐ @ifBlock tok, tokens, e
+        
+        while tokens[0]?.text == 'else' and tokens[1]?.text == 'if'
+
+            tokens.shift()
+            tokens.shift()
+
+            e.if.elifs ?= []
+
+            cond = @exp tokens
+
+            thn = @then 'elif' tokens
+
+            @shiftNewlineTok 'if after elif then' tokens, tok, tokens[1]?.text == 'else'
+            
+            e.if.elifs.push
+                elif:
+                    cond: cond
+                    then: thn
+
+        if tokens[0]?.text == 'else'
+
+            tokens.shift()
+
+            e.if.else = @block 'else' tokens
+            
+        @pop 'if'
+        e
+        
+    # 000  00000000  0000000    000       0000000    0000000  000   000  
+    # 000  000       000   000  000      000   000  000       000  000   
+    # 000  000000    0000000    000      000   000  000       0000000    
+    # 000  000       000   000  000      000   000  000       000  000   
+    # 000  000       0000000    0000000   0000000    0000000  000   000  
+    
+    ifBlock: (tok, tokens, e) ->
+        
+        @push 'if'
+
+        subbs = @subBlocks tokens.shift().tokens
+        
+        if not e
+            tokens = subbs.shift()
+            e = if:
+                    cond:   @exp tokens
+                    then:   @then 'if' tokens
+        
+        while subbs.length
+            tokens = subbs.shift()
+            if tokens[0]?.text == 'else'
+                tokens.shift()
+                e.if.else = @block 'else' tokens
+                break
+                
+            cond = @exp tokens
+            thn  = @then 'elif' tokens
+
+            e.if.elifs ?= []
+            e.if.elifs.push
+                elif:
+                    cond: cond
+                    then: thn
+                    
+        @pop 'if'
+        e
+        
+    # 000  00000000  000000000   0000000   000  000      
+    # 000  000          000     000   000  000  000      
+    # 000  000000       000     000000000  000  000      
+    # 000  000          000     000   000  000  000      
+    # 000  000          000     000   000  000  0000000  
+    
+    ifTail: (e, tok, tokens) ->
+        
+        if:
+            cond: @exp tokens
+            then: [e]
+            
+    # 00000000   0000000   00000000   
+    # 000       000   000  000   000  
+    # 000000    000   000  0000000    
+    # 000       000   000  000   000  
+    # 000        0000000   000   000  
+    
+    for: (tok, tokens) ->
+        
+        @push 'for'
+
+        vals = @exps 'for vals' tokens
+        
+        vals = vals[0] if vals.length == 1
+
+        inof = tokens.shift()
+        
+        list = @exp tokens
+
+        thn  = @then 'for' tokens
+        
+        @pop 'for' 
+
+        for:
+            vals:   vals
+            inof:   inof
+            list:   list
+            then:   thn
+            
+    # 00000000   0000000    0000000  000   000  
+    # 000       000   000  000       000   000  
+    # 0000000   000000000  000       000000000  
+    # 000       000   000  000       000   000  
+    # 00000000  000   000   0000000  000   000  
+    
+    each: (e, tokens) ->
+                
+        ech = tokens.shift()
+        
+        each:
+            lhs:    e
+            each:   ech
+            fnc:    @exp tokens 
+            
+    # 00000000   0000000   00000000   000000000   0000000   000  000      
+    # 000       000   000  000   000     000     000   000  000  000      
+    # 000000    000   000  0000000       000     000000000  000  000      
+    # 000       000   000  000   000     000     000   000  000  000      
+    # 000        0000000   000   000     000     000   000  000  0000000  
+    
+    forTail: (e, tok, tokens) ->
+        
+        @push 'for'
+        
+        vals = @exps 'for vals' tokens
+
+        vals = vals[0] if vals.length == 1
+
+        inof = tokens.shift()
+        
+        list = @exp tokens
+        
+        @pop 'for' 
+        
+        for:
+            vals:  vals
+            inof:  inof
+            list:  list
+            then: [e]
+            
+    # 000   000  000   000  000  000      00000000  
+    # 000 0 000  000   000  000  000      000       
+    # 000000000  000000000  000  000      0000000   
+    # 000   000  000   000  000  000      000       
+    # 00     00  000   000  000  0000000  00000000  
+    
+    while: (tok, tokens) ->
+        
+        @push 'while'
+        
+        cond = @exp tokens
+
+        thn = @then 'while' tokens
+        
+        @pop 'while'
+        
+        while:
+            cond: cond
+            then: thn
+
+    # 000   000  000   000  000  000      00000000  000000000   0000000   000  000      
+    # 000 0 000  000   000  000  000      000          000     000   000  000  000      
+    # 000000000  000000000  000  000      0000000      000     000000000  000  000      
+    # 000   000  000   000  000  000      000          000     000   000  000  000      
+    # 00     00  000   000  000  0000000  00000000     000     000   000  000  0000000  
+    
+    whileTail: (e, tok, tokens) ->
+        
+        # @push 'while'
+        
+        cond = @exp tokens
+
+        # @pop 'while'
+        
+        while:
+            cond: cond
+            then: [e]
+            
+    #  0000000  000   000  000  000000000   0000000  000   000
+    # 000       000 0 000  000     000     000       000   000
+    # 0000000   000000000  000     000     000       000000000
+    #      000  000   000  000     000     000       000   000
+    # 0000000   00     00  000     000      0000000  000   000
+
+    switch: (tok, tokens) ->
+        
+        @push 'switch'
+        
+        match = @exp tokens
+        
+        if tokens[0]?.type == 'block'
+            tokens = tokens.shift().tokens
+        else
+            return @error pop:'switch' msg:'block expected!' tokens
+        
+        whens = []
+        e = switch:
+                match:  match
+                whens:  whens
+            
+        if tokens[0]?.text != 'when'
+
+            subbs = @subBlocks tokens
+            
+            while subbs.length
+                
+                tokens = subbs.shift()
+                
+                if tokens[0]?.text == 'else'
+                    tokens.shift()
+                    e.switch.else = @block 'else' tokens
+                    break
+                    
+                whens.push @when null, tokens
+                    
+                if whens[-2]? and empty whens[-2].when.then 
+                    whens[-1].when.vals = whens[-2].when.vals.concat whens[-1].when.vals
+                    whens.splice -2 1
+        else
+            
+            while tokens[0]?.text == 'when'
+                lastWhen = tokens[0]
+                whens.push @exp tokens
+                @shiftNewlineTok 'switch after when' tokens, lastWhen, tokens[1]?.text in ['when' 'else']
+                        
+            if tokens[0]?.text == 'else'
+    
+                tokens.shift()
+    
+                e.switch.else = @block 'else' tokens
+            
+        @pop 'switch'
+        
+        e
+                        
+    # 000   000  000   000  00000000  000   000  
+    # 000 0 000  000   000  000       0000  000  
+    # 000000000  000000000  0000000   000 0 000  
+    # 000   000  000   000  000       000  0000  
+    # 00     00  000   000  00000000  000   000  
+    
+    when: (tok, tokens) ->
+        
+        @push 'when'
+        
+        vals = []
+        
+        while (tokens[0]? and (tokens[0].type not in ['block''nl']) and tokens[0].text != 'then')
+            vals.push @exp tokens
+        
+        thn = @then 'when' tokens
+        
+        @shiftNewlineTok 'when with empty then' tokens, tok, empty thn
+        
+        @pop 'when'
+        
+        when:
+            vals: vals
+            then: thn
+
+    # 000000000  00000000   000   000  
+    #    000     000   000   000 000   
+    #    000     0000000      00000    
+    #    000     000   000     000     
+    #    000     000   000     000     
+    
+    try: (tok, tokens) ->
+        
+        @push 'try'
+        
+        exps = @block 'body' tokens
+        
+        @shiftNewlineTok 'try body end' tokens, tok, tokens[1].text in ['catch' 'finally']
+        
+        if tokens[0]?.text == 'catch'
+            
+            @push 'catch'
+
+            tokens.shift()
+            
+            if tokens[0].type != 'block'
+                errr = @exp tokens
+        
+            ctch = 
+                errr: errr
+                exps: @block 'body' tokens
+        
+            @pop  'catch'
+
+            @shiftNewlineTok 'try catch end' tokens, tok, tokens[1]?.text == 'finally'
+            
+        if tokens[0]?.text == 'finally'
+            tokens.shift()
+            fnlly = @block 'body' tokens
+            
+        @pop 'try'
+
+        try:
+            exps:    exps
+            catch:   ctch
+            finally: fnlly
+            
+    # 000  00     00  00000000    0000000   00000000   000000000  
+    # 000  000   000  000   000  000   000  000   000     000     
+    # 000  000000000  00000000   000   000  0000000       000     
+    # 000  000 0 000  000        000   000  000   000     000     
+    # 000  000   000  000         0000000   000   000     000     
+    
+    import: (obj, tokens) ->
+
+        toImport = []
+            
+        while token = tokens.shift()
+
+            if token.type == 'nl'
+                break
+            toImport.push token
+                
+        import:
+            args: toImport
+            
+    # 000   000   0000000  00000000  
+    # 000   000  000       000       
+    # 000   000  0000000   0000000   
+    # 000   000       000  000       
+    #  0000000   0000000   00000000  
+    
+    use: (obj, tokens) ->
+        
+        toUse = []
+        
+        token = tokens.shift()
+                        
+        while token
+            
+            module = token.text
+            
+            if module == '◆'
+                module = '.'
+                # log 'unshift diamond'
+                tokens.unshift token
+                break
+            
+            while tokens.length and tokens[0].type != 'nl' and tokens[0].col == token.col + token.text.length
+                token = tokens.shift()
+                module += token.text
+            
+            toUse.push
+                type: 'var'
+                text:  module
+                
+            break if tokens.length and (tokens[0].type == 'nl' or tokens[0].text in '▪●◆')
+            
+            token = tokens.shift()
+            
+        items = []
+        
+        if tokens.length and tokens[0].text == '▪'
+            
+            tokens.shift()
+            token = tokens.shift()
+
+            while token
+                
+                item = token.text
+                
+                while tokens.length and tokens[0].type != 'nl' and tokens[0].col == token.col + token.text.length
+                    token = tokens.shift()
+                    item += token.text
+                
+                items.push item
+                    
+                break if tokens.length and tokens[0].type == 'nl'
+                
+                token = tokens.shift()
+
+        if tokens.length and tokens[0].text == '◆'
+            
+            # log 'use diamond'
+            toUse = []
+            
+            tokens.shift()
+            token = tokens.shift()
+
+            while token
+                
+                item = module + '/' + token.text
+                
+                while tokens.length and tokens[0].type != 'nl' and tokens[0].col == token.col + token.text.length
+                    token = tokens.shift()
+                    item += token.text
+                
+                toUse.push
+                    type: 'var'
+                    text:  item
+                    
+                break if tokens.length and tokens[0].type == 'nl'
+                
+                token = tokens.shift()
+                
+        if tokens.length and tokens[0].text == '●'
+            
+            tokens.shift()
+            token = tokens.shift()
+
+            name = token?.text
+            
+            while tokens.length and tokens[0].type != 'nl' and tokens[0].col == token.col + token.text.length
+                token = tokens.shift()
+                name += token.text
+                
+        if tokens.length and tokens[0].type != 'nl'
+            warn 'dangling use token?' tokens[0]
+                
+        use:   
+            toUse:toUse
+            items:items
+            name: name
+        
+    # 00000000  000   000  00000000    0000000   00000000   000000000  
+    # 000        000 000   000   000  000   000  000   000     000     
+    # 0000000     00000    00000000   000   000  0000000       000     
+    # 000        000 000   000        000   000  000   000     000     
+    # 00000000  000   000  000         0000000   000   000     000     
+    
+    export: (obj, tokens) ->
+        
+        toExport = []
+        start = tokens.shift()
+        
+        if start.text == '{'
+            while token = tokens.shift()
+                if token.text == '}'
+                    tokens.shift()
+                    break
+                toExport.push token
+        else if start.type == 'block'
+            toExport = @block 'export' start.tokens
+        else
+            tokens.unshift start
+            toExport = @exp tokens
+
+        export:
+            args: toExport
+            
+    # 0000000    000  00000000   00000000  000  000      00000000  
+    # 000   000  000  000   000  000       000  000      000       
+    # 000   000  000  0000000    000000    000  000      0000000   
+    # 000   000  000  000   000  000       000  000      000       
+    # 0000000    000  000   000  000       000  0000000  00000000  
+    
+    dirFile: (tok, tokens) ->
+        
+        dirFile: tokens.shift().text
+        
+    # 00     00   0000000   000  000   000  
+    # 000   000  000   000  000  0000  000  
+    # 000000000  000000000  000  000 0 000  
+    # 000 0 000  000   000  000  000  0000  
+    # 000   000  000   000  000  000   000  
+    
+    main: (tok, tokens) ->
+        
+        tokens.shift()
+        main: @block 'main' tokens
+            
+    #  0000000  000       0000000    0000000   0000000
+    # 000       000      000   000  000       000
+    # 000       000      000000000  0000000   0000000
+    # 000       000      000   000       000       000
+    #  0000000  0000000  000   000  0000000   0000000
+
+    class: (tok, tokens, type='class') ->
+
+        @push 'class'
+
+        name = tokens.shift()
+
+        e = {}
+        e[type] = name:name
+
+        if tokens[0]?.text == 'extends'
+            tokens.shift()
+            e[type].extends = @exps 'class extends' tokens, 'nl'
+
+        if tokens[0]?.type == 'block'
+            tokens = tokens.shift().tokens
+
+            e[type].body = @exps 'class body' tokens
+            @nameMethods e[type].body
+                
+        @pop 'class'
+
+        e
+
+    function: (tok, tokens) ->
+
+        @class tok, tokens, 'function'
+        
+    # 00000000  000   000  000   000   0000000
+    # 000       000   000  0000  000  000
+    # 000000    000   000  000 0 000  000
+    # 000       000   000  000  0000  000
+    # 000        0000000   000   000   0000000
+
+    func: (args, arrow, tokens) ->
+
+        @push 'func'
+        
+        body = @scope @block 'body' tokens
+        
+        @pop 'func'
+        
+        e = func:{}
+        e.func.args  = args if args
+        e.func.arrow = arrow
+        e.func.body  = body
+        e
+
+    # 00000000   00000000  000000000  000   000  00000000   000   000  
+    # 000   000  000          000     000   000  000   000  0000  000  
+    # 0000000    0000000      000     000   000  0000000    000 0 000  
+    # 000   000  000          000     000   000  000   000  000  0000  
+    # 000   000  00000000     000      0000000   000   000  000   000  
+    
+    return: (tok, tokens) ->
+        
+        if tokens[0]?.type != 'nl'        
+            val = @block 'return' tokens
+            if val?.length > 1
+                log 'unreachable code after return statement?' tok, tokens, noon val
+            val = val?[0]
+            
+        e = return: ret: tok
+        e.return.val = val if val
+        e
+
+    #  0000000   000   000   0000000   000  000000000  
+    # 000   000  000 0 000  000   000  000     000     
+    # 000000000  000000000  000000000  000     000     
+    # 000   000  000   000  000   000  000     000     
+    # 000   000  00     00  000   000  000     000     
+    
+    await: (tok, tokens) ->
+        
+        e = await: exp: @exp tokens
+        e
+        
+    #  0000000   0000000   000      000
+    # 000       000   000  000      000
+    # 000       000000000  000      000
+    # 000       000   000  000      000
+    #  0000000  000   000  0000000  0000000
+
+    call: (tok, tokens, qmrk) ->
+
+        @push 'call'
+
+        tok = tok.token if tok.token
+                        
+        last = lastLineCol tok
+        if tokens[0].text == '(' and tokens[0].line == last.line and tokens[0].col == last.col
+            open = tokens.shift()
+            if tokens[0]?.text == ')'
+                args = []
+            else
+                @push 'args('
+                args = @exps '(' tokens, ')'
+                @pop 'args('
+        else
+            if tok.text in ['typeof' 'new']
+                @push '▸arg'
+                args = [@exp tokens]
+                @pop  '▸arg'
+            else
+                args = @block 'args' tokens
+
+        if open 
+            if tokens[0]?.text == ')'
+                close = tokens.shift()
+            else if tokens[0]?.type == 'nl' and tokens[1].text == ')'
+                @shiftNewline 'implicit call ends' tokens
+                close = tokens.shift()
+
+        if open and not close then @error hdr:'call' msg:'explicit call without closing )' tokens
+
+        @pop 'call'
+        
+        args[0] = @prepareCallAssign args[0] if valid args
+                
+        e = call: callee: tok
+        e.call.open  = open  if open
+        e.call.qmrk  = qmrk  if qmrk
+        e.call.args  = args
+        e.call.close = close if close
+        e
+            
+    #  0000000   00000000   00000000  00000000    0000000   000000000  000   0000000   000   000
+    # 000   000  000   000  000       000   000  000   000     000     000  000   000  0000  000
+    # 000   000  00000000   0000000   0000000    000000000     000     000  000   000  000 0 000
+    # 000   000  000        000       000   000  000   000     000     000  000   000  000  0000
+    #  0000000   000        00000000  000   000  000   000     000     000   0000000   000   000
+
+    operation: (lhs, op, tokens) ->
+
+        @push "op#{op.text}"
+        
+        if op.text == '=' and tokens[0].type == 'block'
+            @blockAssign = true
+            tokens = tokens.shift().tokens
+        
+        rhs = @exp tokens
+        
+        delete @blockAssign
+        
+        @pop "op#{op.text}"
+        
+        rhs = @prepareCallAssign rhs
+                                            
+        if op.text == '?='
+            
+            op.text = '='
+            
+            rhs = 
+                qmrkop:
+                    lhs: lhs # should lhs be cloned here?
+                    qmrk: 
+                        type:'op' 
+                        text:'?'
+                        line: op.line
+                        col:  op.col
+                    rhs: rhs
+            
+        e = operation: {}
+        e.operation.lhs      = lhs if lhs
+        e.operation.operator = op
+        e.operation.rhs      = rhs if rhs
+        e
+            
+    # 000  000   000   0000000   0000000   000   000  0000000    
+    # 000  0000  000  000       000   000  0000  000  000   000  
+    # 000  000 0 000  000       000   000  000 0 000  000   000  
+    # 000  000  0000  000       000   000  000  0000  000   000  
+    # 000  000   000   0000000   0000000   000   000  0000000    
+    
+    incond: (lhs, tokens) ->
+        
+        intok = tokens.shift()
+        
+        @push 'in?'
+        rhs = @exp tokens
+        @pop  'in?'
+        
+        incond:
+            lhs: lhs
+            in:  intok
+            rhs: rhs
+            
+    #  0000000   00000000   00000000    0000000   000   000
+    # 000   000  000   000  000   000  000   000   000 000
+    # 000000000  0000000    0000000    000000000    00000
+    # 000   000  000   000  000   000  000   000     000
+    # 000   000  000   000  000   000  000   000     000
+
+    array: (open, tokens) ->
+
+        if tokens[0]?.text == ']'
+            return array:
+                open:  open
+                items: []
+                close: tokens.shift()
+
+        @push '['
+
+        items = @exps '[' tokens, ']'
+
+        close = @shiftClose 'array' ']' tokens
+
+        @pop '['
+        
+        if comp = @lcomp items
+            return comp
+        
+        array:
+            open:  open
+            items: items
+            close: close
+
+    #  0000000  000      000   0000000  00000000  
+    # 000       000      000  000       000       
+    # 0000000   000      000  000       0000000   
+    #      000  000      000  000       000       
+    # 0000000   0000000  000   0000000  00000000  
+    
+    slice: (from, tokens) ->
+
+        dots = tokens.shift()
+
+        if tokens[0]?.text == ']'
+            upto = null
+        else
+            upto = @exp tokens
+
+        slice:
+            from: from
+            dots: dots
+            upto: upto
+
+    # 000  000   000  0000000    00000000  000   000
+    # 000  0000  000  000   000  000        000 000
+    # 000  000 0 000  000   000  0000000     00000
+    # 000  000  0000  000   000  000        000 000
+    # 000  000   000  0000000    00000000  000   000
+
+    index: (tok, tokens) ->
+
+        @push 'idx'
+
+        open = tokens.shift()
+        
+        if tokens[0]?.type == 'dots'
+            slice = @slice null, tokens
+        else
+            slice = @exp tokens
+
+        close = @shiftClose 'index' ']' tokens
+        
+        @pop 'idx'
+
+        index:
+            idxee: tok
+            open:  open
+            slidx: slice
+            close: close
+
+    # 00000000    0000000   00000000   00000000  000   000   0000000
+    # 000   000  000   000  000   000  000       0000  000  000
+    # 00000000   000000000  0000000    0000000   000 0 000  0000000
+    # 000        000   000  000   000  000       000  0000       000
+    # 000        000   000  000   000  00000000  000   000  0000000
+
+    parens: (open, tokens) ->
+
+        if tokens[0]?.text == ')'
+            ⮐ parens:
+                open:  open
+                exps:  []
+                close: tokens.shift()
+        
+        @push '('
+
+        exps = @exps '(' tokens, ')'
+
+        close = @shiftClose 'parens' ')' tokens
+        
+        @pop '('
+
+        ⮐ comp if comp = @lcomp exps
+        
+        parens:
+            open:  open
+            exps:  exps
+            close: close
+            
+    # 000   000   0000000         00000000    0000000   00000000   00000000  000   000   0000000  
+    # 0000  000  000   000        000   000  000   000  000   000  000       0000  000  000       
+    # 000 0 000  000   000        00000000   000000000  0000000    0000000   000 0 000  0000000   
+    # 000  0000  000   000        000        000   000  000   000  000       000  0000       000  
+    # 000   000   0000000         000        000   000  000   000  00000000  000   000  0000000   
+    
+    argsWithoutParens: (firstArg, tokens) ->
+        
+        @push '○rgs'
+        tokens.unshift firstArg
+        exps = @exps '○rgs' tokens
+        @pop '○rgs'
+        
+        # log '○rgs exps' noon exps
+        
+        parens:
+            open:  type: 'paren' text:'('
+            exps:  exps
+            close: type: 'paren' text:')'
+
+    # 000       0000000   0000000   00     00  00000000   
+    # 000      000       000   000  000   000  000   000  
+    # 000      000       000   000  000000000  00000000   
+    # 000      000       000   000  000 0 000  000        
+    # 0000000   0000000   0000000   000   000  000        
+    
+    lcomp: (exps) ->
+        
+        ⮐ if not f = exps[0].for
+        
+        lcomp: exps[0]
+            
+    #  0000000  000   000  00000000   000      000   000
+    # 000       000   000  000   000  000       000 000
+    # 000       000   000  0000000    000        00000
+    # 000       000   000  000   000  000         000
+    #  0000000   0000000   000   000  0000000     000
+
+    curly: (open, tokens) ->
+
+        if tokens[0]?.text == '}'
+            ⮐ object:
+                open:    open
+                keyvals: []
+                close:   tokens.shift()
+
+        @push '{'
+
+        exps = @exps '{' tokens, '}'
+
+        close = @shiftClose 'curly' '}' tokens
+        if not close 
+            warn 'no close?' exps
+            warn 'no close?' tokens
+
+        @pop '{'
+
+        object:
+            open:    open
+            keyvals: exps
+            close:   close
+
+    #  0000000   0000000          000  00000000   0000000  000000000
+    # 000   000  000   000        000  000       000          000
+    # 000   000  0000000          000  0000000   000          000
+    # 000   000  000   000  000   000  000       000          000
+    #  0000000   0000000     0000000   00000000   0000000     000
+
+    object: (key, tokens) ->
+
+        @push '{'
+
+        first = firstLineCol key
+        
+        exps = [@keyval key, tokens]
+        
+        literals = @kode.atoms.concat ['keyword''op']
+        
+        while tokens.length
+
+            if tokens[0]?.type == 'nl'
+                break if tokens[1]?.type not in literals
+                break if tokens[2]?.text not in ': ' # ◂ the space checks for newline!
+                
+                if tokens[1]?.col >= first.col and tokens[1].text not in '])'
+                    @shiftNewline 'continue implicit object on nl...' tokens
+                    exps.push @exp tokens
+                    continue
+                break
+            else if tokens[0]?.type == 'block'
+                if tokens[0].col >= first.col or @stack[-1] == '{' and 'section' in @stack
+                    block = tokens.shift()
+                    tokens = block.tokens
+                    exps = exps.concat @exps 'object' block.tokens
+                break
+            else if tokens[0]?.line == first.line and tokens[0].text not in '])};'
+                exps = exps.concat @exps 'object' tokens, ';'
+                break
+            else
+                break if tokens[0].text in '])};'
+                break if tokens[0].type not in literals
+                
+        @pop '{'
+
+        object:
+            keyvals: exps
+
+    # 000   000  00000000  000   000  000   000   0000000   000
+    # 000  000   000        000 000   000   000  000   000  000
+    # 0000000    0000000     00000     000 000   000000000  000
+    # 000  000   000          000        000     000   000  000
+    # 000   000  00000000     000         0      000   000  0000000
+
+    keyval: (key, tokens) ->
+
+        colon = tokens.shift()
+
+        @push ':'
+
+        if tokens[0]?.type == 'block'
+            block = tokens.shift()
+            value = @exp block.tokens
+        else 
+            value = @exp tokens
+
+        @pop ':'
+
+        k = type:'key'
+        
+        if key.type 
+                        
+            k.text = key.text
+            k.line = key.line
+            k.col  = key.col
+            
+        else if key.prop
+            
+            {line, col} = firstLineCol key
+            text = @kode.renderer.node key
+            if text?.startsWith 'this'
+                if text == 'this' then text = '@'
+                else if text.startsWith 'this.' then text = '@' + text[5..]
+
+            k.text = text
+            k.line = line
+            k.col  = col
+            
+        else
+            log 'WHAT COULD THAT BE?' key
+            
+        keyval:
+            key:   k
+            colon: colon
+            val:   value
+            
+    # 000000000  000   000  000   0000000  
+    #    000     000   000  000  000       
+    #    000     000000000  000  0000000   
+    #    000     000   000  000       000  
+    #    000     000   000  000  0000000   
+    
+    this: (obj, tokens) ->
+
+        prop:
+            obj:  obj
+            dot:  type:'punct' text:'.' line:obj.line, col:obj.col
+            prop: tokens.shift()
+
+    # 00000000   00000000    0000000   00000000
+    # 000   000  000   000  000   000  000   000
+    # 00000000   0000000    000   000  00000000
+    # 000        000   000  000   000  000
+    # 000        000   000   0000000   000
+
+    prop: (obj, tokens) ->
+
+        dot  = tokens.shift()
+        prop = tokens.shift()
+        
+        # if not prop
+            # error tokens
+            # print.sheap @sheap, 'no prop'
+            
+        prop.type = 'var'
+        
+        prop:
+            obj:  obj
+            dot:  dot
+            prop: prop
+            
+    #  0000000    0000000   0000000  00000000  00000000   000000000  
+    # 000   000  000       000       000       000   000     000     
+    # 000000000  0000000   0000000   0000000   0000000       000     
+    # 000   000       000       000  000       000   000     000     
+    # 000   000  0000000   0000000   00000000  000   000     000     
+    
+    assert: (obj, tokens) ->
+        
+        assert:
+            obj:    obj
+            qmrk:   tokens.shift()
+            
+    #  0000000   00     00  00000000   000   000   0000000   00000000   
+    # 000   000  000   000  000   000  000  000   000   000  000   000  
+    # 000 00 00  000000000  0000000    0000000    000   000  00000000   
+    # 000 0000   000 0 000  000   000  000  000   000   000  000        
+    #  00000 00  000   000  000   000  000   000   0000000   000        
+    
+    qmrkop: (lhs, tokens) ->
+     
+        @push '?'
+        
+        qmrk = tokens.shift()
+        rhs  = @exp tokens
+        
+        @pop  '?'
+        
+        qmrkop:
+            lhs:    lhs
+            qmrk:   qmrk
+            rhs:    rhs
+            
+    #  0000000   00     00  00000000   000   000   0000000   0000000   000       0000000   000   000  
+    # 000   000  000   000  000   000  000  000   000       000   000  000      000   000  0000  000  
+    # 000 00 00  000000000  0000000    0000000    000       000   000  000      000   000  000 0 000  
+    # 000 0000   000 0 000  000   000  000  000   000       000   000  000      000   000  000  0000  
+    #  00000 00  000   000  000   000  000   000   0000000   0000000   0000000   0000000   000   000  
+    
+    qmrkcolon: (qmrkop, tokens) ->
+        
+        @push ':'
+        
+        colon = tokens.shift()
+        rhs = @exp tokens
+        
+        @pop  ':'
+        
+        qmrkcolon:
+            lhs:    qmrkop.lhs
+            qmrk:   qmrkop.qmrk
+            mid:    qmrkop.rhs
+            colon:  colon
+            rhs:    rhs
+                        
+            
+    #  0000000  00000000   0000000  000000000  000   0000000   000   000  
+    # 000       000       000          000     000  000   000  0000  000  
+    # 0000000   0000000   000          000     000  000   000  000 0 000  
+    #      000  000       000          000     000  000   000  000  0000  
+    # 0000000   00000000   0000000     000     000   0000000   000   000  
+    
+    section: (tok, tokens) ->
+        
+        title = type:'double' text:'"'+tok.text+'"' line:tok.line, col:tok.col
+        
+        if 'section' in @stack
+            @push 'subsect'
+            exps = @block 'subsect' tokens
+            @pop 'subsect'
+            subsect:
+                title:  title
+                exps:   exps
+        else
+            @push 'section'
+            exps = @block 'section' tokens
+            @pop 'section'
+            section:
+                title:  title
+                exps:   exps
+        
+    #  0000000   0000000   00     00  00000000    0000000   00000000   00000000  
+    # 000       000   000  000   000  000   000  000   000  000   000  000       
+    # 000       000   000  000000000  00000000   000000000  0000000    0000000   
+    # 000       000   000  000 0 000  000        000   000  000   000  000       
+    #  0000000   0000000   000   000  000        000   000  000   000  00000000  
+    
+    compare: (lhs, tokens) ->
+        
+        tokens.shift()
+        
+        compare:
+            lhs: lhs
+            rhs: @exp tokens
+
+    error: (o, tokens) ->
+        
+        @pop o.pop if o.pop
+        if globalThis.process
+            error B3(b7(" #{tokens?[0]?.line ? ' '} ")) + R1(y4(" #{o.hdr ? o.pop} ")) + R2(y7(" #{o.msg} "))
+        else
+            error " #{tokens?[0]?.line ? ' '} " + " #{o.hdr ? o.pop} " + " #{o.msg} "
+        null
+        
+export Parser

@@ -1,0 +1,68 @@
+
+// 0000000    00000000   000   0000000   000   000  000000000  
+// 000   000  000   000  000  000        000   000     000     
+// 0000000    0000000    000  000  0000  000000000     000     
+// 000   000  000   000  000  000   000  000   000     000     
+// 0000000    000   000  000   0000000   000   000     000     
+
+frameColor      = #fff
+bgColor         = #eee
+titleColor      = #ddd
+titleRedColor   = #f00
+textFocusColor  = #000
+textBlurColor   = #888
+
+// 000  000   000  00000000   000   000  000000000  
+// 000  0000  000  000   000  000   000     000     
+// 000  000 0 000  00000000   000   000     000     
+// 000  000  0000  000        000   000     000     
+// 000  000   000  000         0000000      000     
+
+.input-text 
+    color               textFocusColor
+    border              1px solid frameColor
+    border-radius       10px
+  
+// 000   000  00000000  000   000  
+// 000  000   000        000 000   
+// 0000000    0000000     00000    
+// 000  000   000          000     
+// 000   000  00000000     000     
+
+.key
+span
+    border              none
+    white-space         pre
+    &.nan
+        color           #f00
+    &.digit
+        color           #88f
+    &.function
+        color           #c20
+    &.constant
+        color           #d40
+    &.op0
+        color           #22f
+    &.op1
+        color           #44f
+    &.op2
+        color           #66f
+    &.bracket
+        color           #aaa
+    &.equals
+        color           #888
+    &.dot
+    &.exponent
+    &.complex
+        color           #44a
+    
+.key
+    z-index             1000
+    color               textBlurColor
+    border              1px solid frameColor
+    &:hover
+        background      frameColor
+        color           textFocusColor
+    &:active
+        background      titleColor
+            

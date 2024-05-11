@@ -1,0 +1,235 @@
+###
+000   0000000
+000  000     
+000  0000000 
+000       000
+000  0000000 
+###
+
+use ./utils ▪ kc ke
+
+▸ is    
+    
+    # 00     00  000   0000000   0000000  
+    # 000   000  000  000       000       
+    # 000000000  000  0000000   000       
+    # 000 0 000  000       000  000       
+    # 000   000  000  0000000    0000000  
+    
+    ▸ misc
+        
+        ke '1 is "number"'              ▸   true
+        ke 'a = {} is Object'           ▸   true
+        ke 'a = {} is "object"'         ▸   true
+        ke '(->) is "function"'         ▸   true
+        ke '[] is "object"'             ▸   true
+        ke '[] is Array'                ▸   true
+        ke '"" is "string"'             ▸   true
+        ke '(new String "") is String'  ▸   true
+        ke '(new Number 0) is Number'   ▸   true
+        
+        ke  """
+            class A
+            class B extends A
+            a = new B
+            a is B and a is A and a is 'object'
+            """ ▸ true
+            
+        ke '"" is String'               ▸   false
+        ke '1 is Number'                ▸   false
+        
+        kc 'log new Object()'           ▸ 'console.log(new Object())'
+        
+        kc  "if d is 'function' and not o?" ▸ 
+            """
+            if (typeof(d) === 'function' && !(o != null))
+            {
+            }
+            """
+            
+        kc  "if not a is Array and not a is 'object'" ▸ 
+            """
+            if (!(a instanceof Array) && !(typeof(a) === 'object'))
+            {
+            }
+            """
+        
+    # 0000000    000       0000000    0000000  000   000  
+    # 000   000  000      000   000  000       000  000   
+    # 0000000    000      000   000  000       0000000    
+    # 000   000  000      000   000  000       000  000   
+    # 0000000    0000000   0000000    0000000  000   000  
+    
+    ▸ in if block
+    
+        kc  """
+            if
+                a is Object ➜ 1
+                a is Array  ➜ 2
+            """ ▸
+            """
+            if (a instanceof Object)
+            {
+                1
+            }
+            else if (a instanceof Array)
+            {
+                2
+            }
+            """
+            
+        kc  """
+            if
+                a is Object 
+                    1
+                a is Array  
+                    2
+            """ ▸
+            """
+            if (a instanceof Object)
+            {
+                1
+            }
+            else if (a instanceof Array)
+            {
+                2
+            }
+            """
+            
+    #  0000000  000000000  00000000   
+    # 000          000     000   000  
+    # 0000000      000     0000000    
+    #      000     000     000   000  
+    # 0000000      000     000   000  
+    
+    ▸ str
+    
+        ke  'a = "" is str'                         ▸ true
+        ke  'a = "abc" is str'                      ▸ true
+        ke  'a = new String() is str'               ▸ true
+        ke  'a = new String("") is str'             ▸ true
+        ke  'a = new String("abc") is str'          ▸ true
+        ke  '"" is str and "a" is str and new String("abc") is str' ▸ true
+        ke  'a = 1 is str'                          ▸ false
+        ke  'a = [] is str'                         ▸ false
+        ke  'a = {} is str'                         ▸ false
+        ke  'a = null is str'                       ▸ false
+        ke  'a = undefined is str'                  ▸ false
+
+    #  0000000   0000000          000  
+    # 000   000  000   000        000  
+    # 000   000  0000000          000  
+    # 000   000  000   000  000   000  
+    #  0000000   0000000     0000000   
+    
+    ▸ obj
+    
+        ke  'a = {} is obj'                         ▸ true
+        ke  'a = {a:1} is obj'                      ▸ true
+        ke  'a = new Object() is obj'               ▸ true
+        ke  'a = new Object({}) is obj'             ▸ true
+        ke  'a = new Object({a:1}) is obj'          ▸ true
+        ke  '{} is obj and new Object() is obj' ▸ true
+        ke  'null is obj or new Map() is obj or [] is obj' ▸ false
+        ke  'a = 1 is obj'                          ▸ false
+        ke  'a = [] is obj'                         ▸ false
+        ke  'a = "x" is obj'                        ▸ false
+        ke  'a = null is obj'                       ▸ false
+        ke  'a = undefined is obj'                  ▸ false
+        ke  'a = new String() is obj'               ▸ false
+        ke  'a = new Array() is obj'                ▸ false
+        ke  'a = new Map() is obj'                  ▸ false
+        ke  'a = new Set() is obj'                  ▸ false
+
+    #  0000000   00000000   00000000   
+    # 000   000  000   000  000   000  
+    # 000000000  0000000    0000000    
+    # 000   000  000   000  000   000  
+    # 000   000  000   000  000   000  
+    
+    ▸ arr
+    
+        ke  'a = [] is arr'                         ▸ true
+        ke  'a = [1 2] is arr'                      ▸ true
+        ke  'a = new Array() is arr'                ▸ true
+        ke  'a = new Array([]) is arr'              ▸ true
+        ke  'a = new Array([1]) is arr'             ▸ true
+        ke  '[] is arr and new Array() is arr'      ▸ true
+        ke  'null is arr or new Set() is arr or {} is arr' ▸ false
+        ke  'a = 1 is arr'                          ▸ false
+        ke  'a = {} is arr'                         ▸ false
+        ke  'a = "x" is arr'                        ▸ false
+        ke  'a = null is arr'                       ▸ false
+        ke  'a = undefined is arr'                  ▸ false
+        ke  'a = new String() is arr'               ▸ false
+        ke  'a = new Object() is arr'               ▸ false
+        ke  'a = new Map() is arr'                  ▸ false
+        ke  'a = new Set() is arr'                  ▸ false
+
+    # 00000000  000   000  000   000   0000000  
+    # 000       000   000  0000  000  000       
+    # 000000    000   000  000 0 000  000       
+    # 000       000   000  000  0000  000       
+    # 000        0000000   000   000   0000000  
+    
+    ▸ func
+    
+        ke  'a = ->\na is func'                     ▸ true
+        ke  'a = ()->\na is func'                   ▸ true
+        ke  'a = 1 is func'                         ▸ false
+        ke  'a = {} is func'                        ▸ false
+        ke  'a = "x" is func'                       ▸ false
+        ke  'a = null is func'                      ▸ false
+        ke  'a = undefined is func'                 ▸ false
+        ke  'a = new String() is func'              ▸ false
+        ke  'a = new Object() is func'              ▸ false
+        ke  'a = new Array() is func'               ▸ false
+        ke  'a = new Set() is func'                 ▸ false
+        
+    # 000   000  000   000  00     00  
+    # 0000  000  000   000  000   000  
+    # 000 0 000  000   000  000000000  
+    # 000  0000  000   000  000 0 000  
+    # 000   000   0000000   000   000  
+    
+    ▸ num
+        # https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric/174921#174921
+        # with the modification that Infinity is a number
+            
+        ke  'a = "-10" is num'                      ▸ true
+        ke  'a = "0" is num'                        ▸ true
+        ke  'a = "5" is num'                        ▸ true
+        ke  'a = -16 is num'                        ▸ true
+        ke  'a = 0 is num'                          ▸ true
+        ke  'a = 32 is num'                         ▸ true
+        ke  'a = "040" is num'                      ▸ true
+        ke  'a = 0144 is num'                       ▸ true
+        ke  'a = "0xFF" is num'                     ▸ true
+        ke  'a = 0xFFF is num'                      ▸ true
+        ke  'a = "-1.6" is num'                     ▸ true
+        ke  'a = "4.536" is num'                    ▸ true
+        ke  'a = -2.6 is num'                       ▸ true
+        ke  'a = 3.1415 is num'                     ▸ true
+        ke  'a = 8e5 is num'                        ▸ true
+        ke  'a = "123e-2" is num'                   ▸ true
+        ke  'a = Infinity is num'                   ▸ true
+        ke  'a = -Infinity is num'                  ▸ true
+        ke  'a = Number.POSITIVE_INFINITY is num'   ▸ true
+        ke  'a = Number.NEGATIVE_INFINITY is num'   ▸ true
+        ke '"0xFF" is num and "-4.536" is num and 42 is num' ▸ true
+        ke  'a = "" is num'                         ▸ false
+        ke  'a = "        " is num'                 ▸ false
+        ke  'a = "\t\t" is num'                     ▸ false
+        ke  'a = "abcdefghijklm1234567890" is num'  ▸ false
+        ke  'a = "xabcdefx" is num'                 ▸ false
+        ke  'a = true is num'                       ▸ false
+        ke  'a = false is num'                      ▸ false
+        ke  'a = "bcfed5.2" is num'                 ▸ false
+        ke  'a = "7.2acdgs" is num'                 ▸ false
+        ke  'a = undefined is num'                  ▸ false
+        ke  'a = null is num'                       ▸ false
+        ke  'a = NaN is num'                        ▸ false
+        ke  'a = (new Date(2009, 1, 1)) is num'     ▸ false
+        ke  'a = (new Object()) is num'             ▸ false
+        ke  'a = (->) is num'                       ▸ false
+        

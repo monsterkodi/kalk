@@ -1,0 +1,22 @@
+###
+    00     00   0000000   000  000   000    
+    000   000  000   000  000  0000  000    
+    000000000  000000000  000  000 0 000    
+    000 0 000  000   000  000  000  0000    
+    000   000  000   000  000  000   000    
+
+    this is the entry point of the javascript
+    which runs in the web view of the window.
+    
+    loaded in ../js/index.html which is 
+    transpiled from ../pug/index.pug
+###
+
+use ./kakao
+use ./kxk ▪ win elem $
+    
+kakao.init ->
+
+    new win
+
+    elem text:'func = () -> => a == b:{}, c()' parent:$ 'main'

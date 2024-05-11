@@ -1,0 +1,207 @@
+###
+    000   000  000  000   000
+    000 0 000  000  0000  000
+    000000000  000  000 0 000
+    000   000  000  000  0000
+    00     00  000  000   000
+    
+    handles window events from the main process
+    handles the titlebar and its menu
+    calls methods on its delegate
+###
+
+use ./dom ▪ $ stopEvent
+use ◆ ffs elem post prefs slash stash keyinfo title
+
+function Delegate
+    
+    onWindowWillLoadStash:    win          -> log "onWindowWillLoadStash #{win.id}"
+    onWindowDidLoadStash:     win          -> log "onWindowDidLoadStash #{win.id}"
+    onWindowWithoutStash:     win          -> log "onWindowWithoutStash #{win.id}"
+    onWindowWillShow:         win          -> log "onWindowWillShow #{win.id}"
+    onWindowCreated:          win          -> log "win #{win.id}"
+    onWindowAnimationTick:    win tickInfo -> #log("onWindowAnimationTick" tickInfo) if tickInfo.fps < 20
+    onWindowResize:           win event    -> log "onWindowResize" event
+    onWindowFocus:            win          -> log "onWindowFocus"
+    onWindowBlur:             win          -> log "onWindowBlur"
+    onWindowKeyDown:          win keyInfo  -> log "onWindowKeyDown " keyInfo.combo if not empty keyInfo.combo
+    onWindowKeyUp:            win keyInfo  -> log "onWindowKeyUp "   keyInfo.combo if not empty keyInfo.combo
+    onWindowClose:            win          -> log "onWindowClose #{win.id}"
+    onWindowMenuTemplate:     win template -> log "onWindowMenuTemplate #{win.id}" template
+    
+function Win
+
+    @Delegate: Delegate
+    
+    @: @delegate ->
+        
+        window.prefs = prefs
+        window.prefs.init()
+        
+        @saveStashOnClose = true
+        @delegate ?= new Delegate
+        
+        post.on 'window.blur'  @onWindowBlur
+        post.on 'window.focus' @onWindowFocus
+        post.on 'window.close' @onWindowClose
+        post.on 'window.frame' @onWindowFrame
+        post.on 'window.willResize' @onWindowWillResize
+        post.on 'menuAction'   @onMenuAction
+        post.on 'stashLoaded'  @onStashLoaded
+        post.on 'saveStash'    @saveStash
+        post.on 'menu.init'    (template) => @delegate?.onWindowMenuTemplate? @, template
+        
+        menuIcon = @delegate.menuIcon ? kakao.bundle.img 'menu_kakao.png'
+        menuNoon = @delegate.menuNoon ? kakao.bundle.res 'menu_kakao.noon'
+        
+        window.titlebar = new title icon:menuIcon, menu:menuNoon
+        
+        window.addEventListener 'keydown' @onKeyDown
+        window.addEventListener 'keyup'   @onKeyUp
+        window.addEventListener 'resize'  @onResize
+        
+        window.requestAnimationFrame @animate
+        
+        main =$ 'main'
+        main.focus()
+        
+        @id = window.winID
+        # log 'winID' @id
+                    
+        window.stash = new stash "win/#{@id}"
+
+        @restoreFromStash()
+        
+        kakao 'win.setMinSize' 250 125
+        
+        # elem class:'test' text:"○○" parent:main
+        # elem class:'test' text:"#{id}" parent:main
+        
+        @delegate?.onWindowCreated? @
+        
+    restoreFromStash: ○->
+        
+        log 'restoreFromStash' @
+                    
+        list =○ ffs.list kakao.bundle.app '.stash/old'
+        if valid list
+            
+            old = list.shift()
+            
+            if @delegate.onWindowWillLoadStash is func ➜ ○ @delegate.onWindowWillLoadStash @
+            
+            ○ window.stash.load old.path
+
+            if @delegate.onWindowDidLoadStash is func ➜ ○ @delegate.onWindowDidLoadStash @
+            
+            ffs.remove old.path
+            
+            if valid list
+                
+                kakao 'window.new' 'ko.html' # only load one old window, it will load the next one ...
+        else 
+            if window.stash.isEmpty()
+                if @delegate.onWindowWithoutStash is func ➜ ○ @delegate.onWindowWithoutStash @
+            else
+                if @delegate.onWindowDidLoadStash is func ➜ ○ @delegate.onWindowDidLoadStash @
+
+        if @delegate.onWindowWillShow is func ➜ ○ @delegate.onWindowWillShow @
+                    
+    saveStash: ->
+        
+        log 'saveStash'
+     
+        post.emit 'saveChanges' 
+        post.emit 'stash'
+        window.prefs.save()
+        window.stash.save()
+            
+    animate: =>
+        
+        window.requestAnimationFrame @animate
+                
+        now = window.performance.now()
+        delta = (now - @lastAnimationTime)
+        @lastAnimationTime = now
+        
+        fps = parseInt 1000/delta
+        if fps < 20
+            kakao "window.framerateDrop" fps
+            
+        @delegate?.onWindowAnimationTick? @, delta:delta, fps:fps, time:now
+                                    
+    onResize:     event => @delegate?.onWindowResize? @, event#; log 'resize' event.target.innerWidth, event.target.innerHeight
+    onWindowFocus:      => @delegate?.onWindowFocus?  @
+    onWindowBlur:       => @delegate?.onWindowBlur?   @
+    onWindowClose:      => post.emit 'saveStash' if @saveStashOnClose; @delegate?.onWindowClose?  @
+    onWindowFrame: info => window.stash.set 'frame' info.frame#; log 'window.frame' info.frame.w, info.frame.h
+    onWindowWillResize: info newSize => #log 'window.willResize' info.frame.w, info.frame.h, newSize
+    onStashLoaded: => 
+        # log 'win.stashLoaded'
+        if frame = window.stash.get 'frame'
+            kakao 'window.setFrame' frame
+    
+    # 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
+    # 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
+    # 000000000  0000000   000 0 000  000   000  000000000  000          000     000  000   000  000 0 000  
+    # 000 0 000  000       000  0000  000   000  000   000  000          000     000  000   000  000  0000  
+    # 000   000  00000000  000   000   0000000   000   000   0000000     000     000   0000000   000   000  
+    
+    onMenuAction: action =>
+        
+        # log 'onMenuAction' action
+        
+        ⮐ if @delegate?.onWindowMenuAction? @, action
+            
+        switch action.toLowerCase()
+            'focus next'     ➜ kakao 'window.focusNext'
+            'focus previous' ➜ kakao 'window.focusPrev'
+            'new window'     ➜ kakao 'window.new' slash.file document.URL
+            'maximize'       ➜ kakao 'window.maximize'
+            'minimize'       ➜ kakao 'window.minimize'
+            'screenshot'     ➜ kakao 'window.snapshot'
+            'fullscreen'     ➜ kakao 'window.fullscreen'
+            'reload'         ➜ kakao 'window.reload'
+            'devtools'       ➜ kakao 'window.toggleInspector'
+            'quit'           ➜ kakao 'app.quit'
+            'open ...'       ➜ kakao 'window.new' 'ko.html'
+            'close'          
+                # if the window is closed by the user 
+                # (titlebar close button, menu item or keyboard shortcut)
+                ffs.list(kakao.bundle.app '.stash/win').then (list) =>
+                    if list.length > 1              # if not the last window
+                        window.stash.clear()        #   remove the stash file
+                        @saveStashOnClose = false   #   and prevent saving it 
+                    kakao 'window.close'
+            'about'          
+                if @delegate.aboutImage
+                    kakao 'window.new' 'about.html' "window.aboutImage = \"#{@delegate.aboutImage}\";"
+                else
+                    kakao 'window.new' 'about.html' "window.aboutImage = \"#{kakao.bundle.img 'about_kakao.png'}\";"
+        0
+        
+    # 000   000  00000000  000   000
+    # 000  000   000        000 000
+    # 0000000    0000000     00000
+    # 000  000   000          000
+    # 000   000  00000000     000
+    
+    onKeyDown: event =>
+
+        info = keyinfo.forEvent event
+        info.event = event
+        
+        stopEvent event
+        
+        if 'unhandled' == window.titlebar.handleKeyInfo info
+            
+            @delegate?.onWindowKeyDown? @, info
+                
+    onKeyUp: event =>
+        
+        info = keyinfo.forEvent event
+        info.event = event
+        
+        @delegate?.onWindowKeyUp? @, info
+
+export Win

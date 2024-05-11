@@ -1,0 +1,20 @@
+###
+000   000  000000000  000  000    
+000   000     000     000  000    
+000   000     000     000  000    
+000   000     000     000  000    
+ 0000000      000     000  0000000
+###
+
+use ../kolor
+
+ext = 'kode'
+
+export
+    lang: (l) -> ext = l
+    ranges: (s) -> kolor.ranges s, ext
+    dissect: (c) -> kolor.dissect c.split('\n'), ext
+    
+    inc: (rgs, start, match) -> 
+        for r in rgs ➜ if r.start == start and r.match == match ➜ ⮐ r.clss
+        log 'fail' rgs

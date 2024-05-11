@@ -1,0 +1,33 @@
+###
+    00000000   00000000   00000000  00000000   0000000
+    000   000  000   000  000       000       000     
+    00000000   0000000    0000000   000000    0000000 
+    000        000   000  000       000            000
+    000        000   000  00000000  000       0000000 
+    
+    stores application wide preferences in .app/.stash/prefs.noon
+###
+
+use ◆ slash store
+
+function Prefs
+    
+    @store: null
+    
+    @init: ->
+
+        ⮐ error 'prefs.init -- duplicate stores?' if @store?
+        @store = new store 'prefs'
+
+    @get:  key value -> @store ? @store.get(key, value) : clone value
+    @set:  key value -> @store?.set(key, value)
+    @del:  key value -> @store?.del(key)
+    @save:           -> @store?.save()
+    
+    @toggle: key ->
+        
+        val = not @get key, false
+        @set key, val
+        val
+        
+export Prefs

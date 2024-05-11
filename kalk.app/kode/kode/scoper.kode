@@ -1,0 +1,145 @@
+###
+     0000000   0000000   0000000   00000000   00000000  00000000 
+    000       000       000   000  000   000  000       000   000
+    0000000   000       000   000  00000000   0000000   0000000  
+         000  000       000   000  000        000       000   000
+    0000000    0000000   0000000   000        00000000  000   000
+
+    walks through an abstract syntax tree and collects vars
+###
+
+class Scoper
+
+    @: (@kode) ->
+
+        @verbose = @kode.args.verbose
+        @debug   = @kode.args.debug
+        @raw     = @kode.args.raw
+        
+    #  0000000   0000000   000      000      00000000   0000000  000000000  
+    # 000       000   000  000      000      000       000          000     
+    # 000       000   000  000      000      0000000   000          000     
+    # 000       000   000  000      000      000       000          000     
+    #  0000000   0000000   0000000  0000000  00000000   0000000     000     
+    
+    collect: (tl) ->
+        
+        @maps = []
+        @args = []
+        @vars = []
+        @scope tl
+        tl
+
+    #  0000000   0000000   0000000   00000000   00000000  
+    # 000       000       000   000  000   000  000       
+    # 0000000   000       000   000  00000000   0000000   
+    #      000  000       000   000  000        000       
+    # 0000000    0000000   0000000   000        00000000  
+    
+    scope: (body) ->
+
+        @maps.push {}
+        @args.push {}
+        @vars.push body.vars
+        @exp e for e in body.exps
+        @maps.pop()
+        @args.pop()
+        @vars.pop()
+        body
+        
+    # 00000000  000   000  000   000   0000000  
+    # 000       000   000  0000  000  000       
+    # 000000    000   000  000 0 000  000       
+    # 000       000   000  000  0000  000       
+    # 000        0000000   000   000   0000000  
+    
+    func: (f) ->
+
+        @maps.push {}
+        @args.push {}
+        @vars.push f.body.vars
+        
+        for arg in f.args?.parens.exps
+            if t = arg.text
+                @args[-1][t] = t
+            else if t = arg.operation?.lhs?.text
+                @args[-1][t] = t
+            else
+                @verb 'todo: scoper handle complex arg?' arg if arg.prop?.obj?.text != '@'
+
+        @exp e for e in f.body?.exps
+        @maps.pop()
+        @args.pop()
+        @vars.pop()
+        f
+        
+    # 00000000  000   000  00000000   
+    # 000        000 000   000   000  
+    # 0000000     00000    00000000   
+    # 000        000 000   000        
+    # 00000000  000   000  000        
+    
+    exp: (e) ->
+
+        if not e then return
+            
+        insert = (v,t) =>
+            
+            return if map[v] for map in @maps
+            return if arg[v] for arg in @args
+                
+            @verb yellow(v), red(t)
+            
+            @vars[-1].push text:v, type:t
+            @maps[-1][v] = t
+        
+        if e.type 
+            if e.type == 'code'
+                @exp e.exps
+            return
+        else if e is Array  then @exp v for v in e if e.length
+        else if e is Object
+                                        
+            if op = e.operation
+                if op.operator.text == '='
+                    if op.lhs?.text
+                        insert op.lhs.text, op.operator.text
+                    else if op.lhs.object
+                        for keyval in op.lhs.object.keyvals
+                            if keyval.type == 'var'
+                                insert keyval.text, 'curly'
+                    else if op.lhs.array
+                        for val in op.lhs.array.items
+                            if val.type == 'var'
+                                insert val.text, 'array'
+                            
+            if fv = e.for?.vals
+                
+                if fv.text
+                    insert fv.text, 'for'
+                else 
+                    for v in fv.array?.items ? e.for.vals
+                        insert v.text, 'for' if v.text
+                        
+            if e.assert
+                @verb 'assert' e
+                if e.assert.obj.type != 'var' and not e.assert.obj.index
+                    insert "_#{e.assert.qmrk.line}_#{e.assert.qmrk.col}_" '?.'
+                
+            if e.qmrkop
+                @verb 'qmrkop' e
+                if e.qmrkop.lhs.type != 'var'
+                    insert "_#{e.qmrkop.qmrk.line}_#{e.qmrkop.qmrk.col}_" ' ? '
+
+            if e.function
+                insert e.function.name.text
+                    
+            if e.func
+                @func e.func
+            else
+                @exp val for key,val of e
+        return
+        
+    verb: -> if @debug then console.log.apply console.log, arguments 
+
+export Scoper

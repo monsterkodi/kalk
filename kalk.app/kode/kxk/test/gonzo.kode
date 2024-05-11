@@ -1,0 +1,112 @@
+###
+000000000  00000000   0000000  000000000         0000000    0000000   000   000  0000000   0000000 
+   000     000       000          000           000        000   000  0000  000     000   000   000
+   000     0000000   0000000      000           000  0000  000   000  000 0 000    000    000   000
+   000     000            000     000           000   000  000   000  000  0000   000     000   000
+   000     00000000  0000000      000            0000000    0000000   000   000  0000000   0000000 
+###
+
+use .. ◆ gonzo
+
+▸ gonzo
+
+    ▸ single
+    
+        gonzo """
+            A
+                B
+            """ ▸ [
+                line: 'A'
+                indent: 0
+                blck: [
+                    line:'B'
+                    indent: 4
+                ]
+            ]
+
+    ▸ outdent
+    
+        gonzo """
+            A
+                B
+            C
+            """ ▸ [
+                line: 'A'
+                indent: 0
+                blck: [
+                    line:'B'
+                    indent: 4
+                ]
+            ,
+                line: 'C'
+                indent: 0
+            ]
+            
+    ▸ double
+
+        gonzo """
+            A
+               B
+                 C
+            """ ▸ [
+                line: 'A'
+                indent: 0
+                blck: [
+                    line:'B'
+                    indent: 3
+                    blck: [
+                        line:'C'
+                        indent:5
+                    ]
+                ]
+            ]
+
+    ▸ ioio
+
+        gonzo """
+            I
+              O
+            i
+              o
+            """ ▸ [
+                line: 'I'
+                indent: 0
+                blck: [
+                    line:'O'
+                    indent: 2
+                    ]
+            ,
+                line: 'i'
+                indent: 0
+                blck: [
+                    line:'o'
+                    indent: 2
+                    ]
+            ]
+            
+    ▸ sublevel
+    
+        gonzo """
+            header
+            level1
+                sub
+                level2
+                    subsub
+            """ ▸ [
+                line: 'header'
+                indent: 0
+            ,
+                line: 'level1'
+                indent: 0
+                blck: [
+                    line: 'sub'
+                    indent: 4
+                ,
+                    line: 'level2'
+                    indent: 4
+                    blck: [
+                        line: 'subsub'
+                        indent: 8
+                    ]
+                ]
+            ]

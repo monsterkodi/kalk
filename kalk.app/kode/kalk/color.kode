@@ -1,0 +1,54 @@
+###
+ 0000000   0000000   000       0000000   00000000 
+000       000   000  000      000   000  000   000
+000       000   000  000      000   000  0000000  
+000       000   000  000      000   000  000   000
+ 0000000   0000000   0000000   0000000   000   000
+###
+
+use ../kxk ▪ matchr
+
+class Color
+
+    @: ->
+        
+        cfg = 
+            '=': 'equals'
+            'e[-+]': 'exponent'
+            '[\\.]': 'dot'
+            '[\\(\\)]': 'bracket'
+            '\\d+': 'digit' 
+            '°': 'digit' 
+            'i': 'complex'
+            '(sin|cos|a?tan|exp|log)': 'function'
+            'NaN': 'nan'
+            '[πx∞ϕ]': 'constant'
+            '[∡√^]': 'op0'
+            '[*/]': 'op1'
+            '[+-]': 'dot'
+            
+        cfg[symbol.euler] = 'constant'
+            
+        @config = matchr.config cfg
+    
+    colorize: text => 
+        
+        rngs = matchr.ranges @config, text
+                
+        colorized = ''
+        index = 0
+        for rng in rngs
+            while index < rng.start
+                index += 1
+                colorized += "&nbsp;"
+            if index > rng.start
+                continue
+            clss = rng.clss ? 'text'
+            colorized += "<span class=\"#{clss}\">#{rng.match}</span>"
+            index = rng.start + rng.match.length
+        while index < text.length
+            index += 1
+            colorized += "&nbsp;"
+        return colorized
+
+export (new Color()).colorize

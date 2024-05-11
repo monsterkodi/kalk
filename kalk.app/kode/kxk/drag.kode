@@ -1,0 +1,155 @@
+###
+    0000000    00000000    0000000    0000000 
+    000   000  000   000  000   000  000      
+    000   000  0000000    000000000  000  0000
+    000   000  000   000  000   000  000   000
+    0000000    000   000  000   000   0000000 
+###
+
+use ./dom ▪ $ stopEvent
+use ./kpos
+
+function Drag
+
+    @: (cfg) ->
+        
+        cfg ?= {}
+        @target    = cfg.target ? 'titlebar'
+        @handle    = cfg.handle
+        @onStart   = cfg.onStart
+        @onMove    = cfg.onMove
+        @onStop    = cfg.onStop
+        @active    = cfg.active    ? true
+        @stopEvent = cfg.stopEvent ? true
+
+        if @target is str
+            t =$ @target
+            if not t?
+                return error "Drag -- can't find drag target with id", @target
+            @target = t
+            
+        if not @target?
+            return error "Drag -- can't find drag target"
+        
+        if @target == document.body
+            @useScreenPos = true
+            
+        @useScreenPos ?= cfg.useScreenPos
+            
+        error "Drag -- onStart not a function?" if @onStart? and not @onStart is 'function'
+        error "Drag -- onMove not a function?" if @onMove? and not @onMove is 'function'
+        error "Drag -- onEnd not a function?" if @onEnd? and not @onEnd is 'function'
+                
+        @dragging  = false
+        @listening = false
+        @handle    = $(@handle) if @handle is str
+        @handle   ?= @target
+        @activate() if @active
+
+    #  0000000  000000000   0000000   00000000   000000000  
+    # 000          000     000   000  000   000     000     
+    # 0000000      000     000000000  0000000       000     
+    #      000     000     000   000  000   000     000     
+    # 0000000      000     000   000  000   000     000     
+    
+    start: (p, event) ->
+        
+        if not @dragging and @listening
+            
+            @dragging = true
+            @startPos = p
+            @pos      = p
+            @delta    = kpos 0 0
+            @deltaSum = kpos 0 0
+            
+            if 'skip' == @onStart? @, event
+                delete @startPos
+                @dragging = false
+                return @
+                
+            @lastPos = p
+                    
+            if @stopEvent != false
+                stopEvent event
+    
+            document.addEventListener 'mousemove' @dragMove
+            document.addEventListener 'mouseup'   @dragUp
+        @
+    
+    eventPos: (event) =>
+        
+        if @useScreenPos
+            kpos x:event.screenX, y:event.screenY
+        else
+            kpos event
+        
+    dragStart: (event) => @start @eventPos(event), event
+        
+    # 00     00   0000000   000   000  00000000  
+    # 000   000  000   000  000   000  000       
+    # 000000000  000   000   000 000   0000000   
+    # 000 0 000  000   000     000     000       
+    # 000   000   0000000       0      00000000  
+    
+    dragMove: (event) =>
+
+        if @dragging
+            @pos      = @eventPos event
+            @delta    = @lastPos.to @pos
+            @deltaSum = @startPos.to @pos
+            
+            if @constrainKey? and event[@constrainKey]
+                @constrain ?= if Math.abs(@delta.x) >= Math.abs(@delta.y) then kpos 1,0 else kpos 0,1
+                @delta.x *= @constrain.x
+                @delta.y *= @constrain.y
+            else
+                delete @constrain
+                
+            @onMove? @, event 
+            @lastPos = @pos
+        @
+                
+    dragUp: (event) => 
+        
+        delete @constrain
+        @dragStop event
+
+    #  0000000  000000000   0000000   00000000   
+    # 000          000     000   000  000   000  
+    # 0000000      000     000   000  00000000   
+    #      000     000     000   000  000        
+    # 0000000      000      0000000   000        
+    
+    dragStop: (event) =>
+
+        if @dragging
+            document.removeEventListener 'mousemove' @dragMove
+            document.removeEventListener 'mouseup'   @dragUp
+            @onStop @, event if @onStop? and event?
+            delete @lastPos
+            delete @startPos
+            @dragging = false
+        @
+
+    #  0000000    0000000  000000000  000  000   000   0000000   000000000  00000000  
+    # 000   000  000          000     000  000   000  000   000     000     000       
+    # 000000000  000          000     000   000 000   000000000     000     0000000   
+    # 000   000  000          000     000     000     000   000     000     000       
+    # 000   000   0000000     000     000      0      000   000     000     00000000  
+    
+    activate: =>
+        
+        if not @listening
+            @listening = true
+            @handle.addEventListener 'mousedown' @dragStart
+        @
+
+    deactivate: =>
+
+        if @listening
+            @handle.removeEventListener 'mousedown' @dragStart
+            @listening = false
+            @dragStop() if @dragging
+        @
+
+export Drag

@@ -1,0 +1,184 @@
+###
+    00000000    0000000    0000000    
+    000   000  000   000  000         
+    00000000   000   000  0000000     
+    000        000   000       000    
+    000         0000000   0000000     
+###
+
+clamp = (r1, r2, v) ->
+    
+    v = r1 if not Number.isFinite v
+    [s1, s2] = [Math.min(r1,r2), Math.max(r1,r2)]
+    v = s1 if v < s1
+    v = s2 if v > s2
+    v = r1 if not Number.isFinite v
+    v
+
+function Pos
+
+    @: (@x, @y) ->
+        if @x?.clientX?
+            event = @x
+            if isNaN window.scrollX
+                @x = event.clientX + document.documentElement.scrollLeft + document.body.scrollLeft
+                @y = event.clientY + document.documentElement.scrollTop + document.body.scrollTop
+            else
+                @x = event.clientX + window.scrollX + 1
+                @y = event.clientY + window.scrollY + 1
+        else if @x?.getBoundingClientRect is func
+            br = @x.getBoundingClientRect()
+            @x = br.left
+            @y = br.top
+        else if not @y? and Pos.isPos @x
+            @y = @x.y
+            @x = @x.x
+        @x = 0 if isNaN @x
+        @y = 0 if isNaN @y
+        
+    copy: (o) -> @x = o.x; @y = o.y; @
+    clone: -> new Pos @x, @y
+
+    reset: -> @x = @y = 0
+    
+    plus: (val) ->
+        newPos = @clone()
+        if val?
+            newPos.x += val.x if not isNaN(val.x)
+            newPos.y += val.y if not isNaN(val.y)
+        newPos
+
+    minus: (val) ->
+        newPos = @clone()
+        if val?
+            newPos.x -= val.x if not isNaN(val.x)
+            newPos.y -= val.y if not isNaN(val.y)
+        newPos
+        
+    times: (val) -> @clone().scale val
+        
+    clamped: (lower, upper) -> @clone().clamp lower, upper
+    rounded: (v=1.0) -> new Pos Math.round(@x/v)*v, Math.round(@y/v)*v
+        
+    to:  (other) -> other.minus @
+    mid: (other) -> @plus(other).scale 0.5
+    interpolate: (other, f) -> @plus @to(other).scale f
+
+    min: (val) ->
+        newPos = @clone()
+        return newPos if not val?
+        newPos.x = val.x if not isNaN(val.x) and @x > val.x
+        newPos.y = val.y if not isNaN(val.y) and @y > val.y
+        newPos
+
+    max: (val) ->
+        newPos = @clone()
+        return newPos if not val?
+        newPos.x = val.x if not isNaN(val.x) and @x < val.x
+        newPos.y = val.y if not isNaN(val.y) and @y < val.y
+        newPos
+
+    normal:         -> @clone().normalize()
+    neg:            -> @clone().negate()
+    length:         -> return Math.sqrt @square()
+    dot:        (o) -> @x*o.x + @y*o.y
+    cross:      (o) -> @x*o.y - @y*o.x
+    square:         -> (@x * @x) + (@y * @y)
+    distSquare: (o) -> @minus(o).square()
+    dist:       (o) -> Math.sqrt @distSquare(o)
+    equals:     (o) -> @x == o?.x and @y == o?.y
+    deg2rad:    (d) -> Math.PI*d/180.0
+    rad2deg:    (r) -> r*180.0/Math.PI
+    
+    isClose:    (o,dist=0.1) -> Math.abs(@x-o.x)+Math.abs(@y-o.y) < dist
+    isZero:     (e=0.000001) -> Math.abs(@x)<e and Math.abs(@y)<e
+    
+    angle: (o=new Pos(0,1)) ->
+        @rad2deg Math.acos @normal().dot o.normal()
+        
+    perp: -> new Pos -@y, @x
+    
+    rotation: (o) -> 
+        d = o.dot @perp()
+        if Math.abs(d) < 0.0001
+            return 0 if @dot(o) > 0
+            return 180
+        s = d > 0 and -1 or 1
+        s * @angle o
+            
+    check: ->
+        newPos = @clone()
+        newPos.x = 0 if isNaN(newPos.x)
+        newPos.y = 0 if isNaN(newPos.y)
+        newPos
+
+    _str: -> 
+        s  = @x ? "<x:#{@x} " : "<NaN "
+        s += @y ? "y:#{@y}>" : "NaN>"
+
+    @isPos: (o) -> o? and o.x? and o.y? and Number.isFinite(o.x) and Number.isFinite(o.y)
+    
+    #_________________________________________________________ destructive
+    
+    fade: (o, val) ->
+        @x = @x * (1-val) + o.x * val
+        @y = @y * (1-val) + o.y * val
+        @
+    
+    scale: (val) ->
+        @x *= val
+        @y *= val
+        @
+
+    mul: (other) ->
+        @x *= other.x
+        @y *= other.y
+        @
+        
+    div: (other) ->
+        @x /= other.x
+        @y /= other.y
+        @
+        
+    add: (other) ->
+        @x += other.x
+        @y += other.y
+        @
+
+    sub: (other) ->
+        @x -= other.x
+        @y -= other.y
+        @
+
+    clamp: (lower, upper) ->        
+        if lower? and upper?            
+            @x = clamp(lower.x, upper.x, @x)
+            @y = clamp(lower.y, upper.y, @y)
+        @
+        
+    normalize: ->
+        l = @length()
+        if l
+            l = 1.0/l
+            @x *= l
+            @y *= l
+        @    
+
+    negate: ->
+        @x *= -1
+        @y *= -1
+        @
+        
+    rotate: (angle) ->
+        angle -= 360 while angle >  360 
+        angle += 360 while angle < -360 
+        return @ if angle == 0
+        rad = @deg2rad angle
+        cos = Math.cos rad
+        sin = Math.sin rad
+        x  = @x
+        @x = cos*@x - sin*@y
+        @y = sin* x + cos*@y
+        @
+
+export (x,y) -> new Pos x,y

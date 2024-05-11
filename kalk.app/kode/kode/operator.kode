@@ -1,0 +1,211 @@
+###
+     0000000   00000000   00000000  00000000    0000000   000000000   0000000   00000000   
+    000   000  000   000  000       000   000  000   000     000     000   000  000   000  
+    000   000  00000000   0000000   0000000    000000000     000     000   000  0000000    
+    000   000  000        000       000   000  000   000     000     000   000  000   000  
+     0000000   000        00000000  000   000  000   000     000      0000000   000   000  
+
+    walks through an abstract syntax tree and sorts operation chains by precedence
+###
+
+use ./print
+
+# 00000000   00000000   00000000   0000000  00000000  0000000    00000000  000   000   0000000  00000000  
+# 000   000  000   000  000       000       000       000   000  000       0000  000  000       000       
+# 00000000   0000000    0000000   000       0000000   000   000  0000000   000 0 000  000       0000000   
+# 000        000   000  000       000       000       000   000  000       000  0000  000       000       
+# 000        000   000  00000000   0000000  00000000  0000000    00000000  000   000   0000000  00000000  
+
+precedence = (o) ->
+    
+    return 12 if o?.qmrkcolon
+    
+    t = o?.operation?.operator.text
+    
+    switch t
+    
+        'new'                                     ➜ -1
+        'last' 'first'
+        'is' 'equals' 'noon'                      ➜  0
+        'copy' 'clone' 
+        'not' 'delete' 'empty' 'valid' '~'        ➜  1
+        '*' '/' '%'                               ➜  2
+        '+' '-'                                   ➜  3
+        '<<' '>>' '>>>'                           ➜  4
+        '<' '<=' '>' '>='                         ➜  5
+        '==' '!=' 'eql'                           ➜  6
+        '&'                                       ➜  7
+        '^'                                       ➜  8
+        '|'                                       ➜  9
+        'and'                                     ➜ 10
+        'or'                                      ➜ 11
+        '?' '?:'                                  ➜ 12
+        '='                                       ➜ 13
+        '+=' '-=' '*=' '/=' '%=' '&=' '^=' '|='   ➜ 14
+        '<<=' '>>=' '>>>=' '&&=' '||=' '?='       ➜ 15
+                                                  ➜ Infinity
+
+assign = ['=''+=''-=''*=''/=''%=''^=''&=''|=''&&=''||=']
+
+#  0000000   00000000   00000000  00000000    0000000   000000000   0000000   00000000   
+# 000   000  000   000  000       000   000  000   000     000     000   000  000   000  
+# 000   000  00000000   0000000   0000000    000000000     000     000   000  0000000    
+# 000   000  000        000       000   000  000   000     000     000   000  000   000  
+#  0000000   000        00000000  000   000  000   000     000      0000000   000   000  
+
+class Operator
+
+    @: (@kode) ->
+
+        @verbose = @kode.args.verbose
+        @debug   = @kode.args.debug
+        
+    #  0000000   0000000   000      000      00000000   0000000  000000000  
+    # 000       000   000  000      000      000       000          000     
+    # 000       000   000  000      000      0000000   000          000     
+    # 000       000   000  000      000      000       000          000     
+    #  0000000   0000000   0000000  0000000  00000000   0000000     000     
+    
+    collect: (tl) ->
+        
+        if tl?.exps?.length
+            @exp e for e in tl.exps
+        tl
+        
+    # 00000000  000   000  00000000   
+    # 000        000 000   000   000  
+    # 0000000     00000    00000000   
+    # 000        000 000   000        
+    # 00000000  000   000  000        
+    
+    exp: (e) ->
+
+        if  
+            not e       ➜ return
+            e.type      ➜ return
+            e is Array  ➜ @exp v for v in e if e.length
+            e.operation 
+                @op e
+                if e.operation?.rhs 
+                    @exp e.operation.rhs 
+                else if e.qmrkcolon 
+                    @exp e.qmrkcolon.mid 
+                    @exp e.qmrkcolon.rhs
+            e is Object
+                for key,val of e
+                    if val
+                        if val.operation then @op val
+                        else @exp val
+                                    
+    #  0000000   00000000   
+    # 000   000  000   000  
+    # 000   000  00000000   
+    # 000   000  000        
+    #  0000000   000        
+    
+    op: (e) ->
+        
+        chain = [e]
+        
+        c = e.operation
+        while c.rhs?.operation or c.rhs?.qmrkcolon
+            chain.push c.rhs
+            c = c.rhs.operation or c.rhs?.qmrkcolon
+        
+        if chain.length > 1
+            
+            p = chain.map (i) -> precedence i
+                        
+            @logChain chain, p if @debug
+            
+            for i in 1...p.length
+                if p[i] > p[i-1]
+                    @fixPrec e
+                    break
+                    
+        else
+            @exp e.operation.rhs
+                    
+    # 00000000  000  000   000          00000000   00000000   00000000   0000000
+    # 000       000   000 000           000   000  000   000  000       000     
+    # 000000    000    00000            00000000   0000000    0000000   000     
+    # 000       000   000 000           000        000   000  000       000     
+    # 000       000  000   000          000        000   000  00000000   0000000
+    
+    fixPrec: (e) ->
+        
+        op = e.operation or e.qmrkcolon
+        
+        if precedence(e) < precedence(op.rhs)
+            
+            ⮐ if op.operator.text == 'not' and 
+                (op.rhs?.incond or op.rhs?.operation?.operator?.text) in assign
+                
+            ⮐ if op.operator.text in assign
+                
+            ⮐ if e.operation.rhs?.operation?.operator.text in assign
+                
+            @verb 'swap' precedence(e), precedence(op.rhs)
+            print.ast 'before swap' e if @debug
+                                
+            if op.rhs.qmrkcolon
+                
+                newlhs = 
+                    operation:
+                        lhs:        op.lhs
+                        operator:   op.operator
+                        rhs:        op.rhs.qmrkcolon.lhs
+                
+                newop = 
+                    lhs:        newlhs
+                    qmrk:       op.rhs.qmrkcolon.qmrk
+                    mid:        op.rhs.qmrkcolon.mid
+                    colon:      op.rhs.qmrkcolon.colon
+                    rhs:        op.rhs.qmrkcolon.rhs
+                  
+                delete e.operation
+                e.qmrkcolon = newop
+            else 
+                newlhs = 
+                    operation:
+                        lhs:        op.lhs
+                        operator:   op.operator
+                        rhs:        op.rhs.operation.lhs
+                    
+                newop = 
+                    lhs: newlhs
+                    operator: op.rhs.operation.operator
+                    rhs:      op.rhs.operation.rhs
+
+                e.operation = newop
+                
+                @op e.operation.rhs if e.operation.rhs?.operation or e.operation.rhs?.qmrkcolon
+            
+            print.ast 'after swap2' e if @debug
+            
+        else
+            # some dangerous game we are playing here...
+            @op op.rhs if op.rhs?.operation or op.rhs?.qmrkcolon
+            if precedence(e) < precedence(op.rhs)
+                @fixPrec e
+
+    logChain: (chain, p) ->
+                
+        s = ''
+        rndr = (n) => 
+            try
+                w2 @kode.renderer.node n
+            catch e
+                print.noon e, n
+        s += chain.map((i) => 
+                if i.operation
+                    (rndr i.operation.lhs) + ' ' + w3(i.operation.operator.text) + ' ' + b6(precedence i)
+                else
+                    (rndr i.qmrkcolon.lhs) + ' ? ' + (rndr i.qmrkcolon.mid) + ' ' 
+            ).join ' '
+        s += ' ' + rndr(chain[-1].operation?.rhs) ? '...'
+        log w4('▪'), s, g3 p
+        
+    verb: -> if @debug then console.log.apply console.log, arguments 
+
+export Operator

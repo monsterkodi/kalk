@@ -1,0 +1,1744 @@
+###
+00000000   00000000  000   000  0000000    00000000  00000000   00000000  00000000
+000   000  000       0000  000  000   000  000       000   000  000       000   000
+0000000    0000000   000 0 000  000   000  0000000   0000000    0000000   0000000
+000   000  000       000  0000  000   000  000       000   000  000       000   000
+000   000  00000000  000   000  0000000    00000000  000   000  00000000  000   000
+###
+
+use ../kxk  ◆ kstr slash
+use ./utils ▪ firstLineCol lastLineCol
+use ◆ print 
+
+kolorNames = ['r' 'g' 'b' 'c' 'm' 'y' 'w']
+
+class Renderer
+
+    @: (@kode) ->
+
+        @debug    = @kode.args?.debug
+        @verbose  = @kode.args?.verbose
+        @hint     = _k_:{}
+        @varstack = []
+        
+    # 00000000   00000000  000   000  0000000    00000000  00000000   
+    # 000   000  000       0000  000  000   000  000       000   000  
+    # 0000000    0000000   000 0 000  000   000  0000000   0000000    
+    # 000   000  000       000  0000  000   000  000       000   000  
+    # 000   000  00000000  000   000  0000000    00000000  000   000  
+    
+    render: (ast, source) ->
+
+        if @verbose ➜ log noon ast
+        
+        @file = source
+        if source and globalThis.process
+            @source = slash.relative source, globalThis.process.cwd()
+        # log @file, @source
+        
+        @ast = ast
+            
+        @hint = _k_:{}
+        @varstack = [ast.vars]
+        @indent = ''
+
+        s = ''
+        
+        if @kode.args.header
+            s += @js "// monsterkodi/kakao #{@kode.version}\n\n" true
+            
+        s += @js "var _k_\n\n", true
+        
+        if valid ast.vars
+            vl = @sortVars ast.vars
+            s += @js "var #{vl}\n\n" true
+
+        s += @nodes ast.exps, '\n' true
+        
+        if @hint.section
+            s  = 'var toExport = {}\n' + s
+            s += '\ntoExport._test_ = true'
+            s += '\nexport default toExport\n'
+        
+        s = @header s            
+        s
+        
+    js: (s, tl) => 
+    
+        @srcmap?.commit s, tl
+        s
+        
+    # 000   000  00000000   0000000   0000000    00000000  00000000   
+    # 000   000  000       000   000  000   000  000       000   000  
+    # 000000000  0000000   000000000  000   000  0000000   0000000    
+    # 000   000  000       000   000  000   000  000       000   000  
+    # 000   000  00000000  000   000  0000000    00000000  000   000  
+    
+    header: (s) ->
+
+        return s if empty Object.keys @hint._k_
+
+        kf = 
+            isNum:      "function (o) {return !isNaN(o) && !isNaN(parseFloat(o)) && (isFinite(o) || o === Infinity || o === -Infinity)}"
+            isObj:      "function (o) {return !(o == null || typeof o != 'object' || o.constructor.name !== 'Object')}"
+            isArr:      "function (o) {return Array.isArray(o)}"
+            isStr:      "function (o) {return typeof o === 'string' || o instanceof String}"
+            isFunc:     "function (o) {return typeof o === 'function'}"
+            isElem:     "function (o) {return o != null && typeof o === 'object' && o.nodeType === 1}"
+            list:       "function (l) {return l != null ? typeof l.length === 'number' ? l : [] : []}"
+            first:      "function (o) {return o != null ? o.length ? o[0] : undefined : o}"
+            last:       "function (o) {return o != null ? o.length ? o[o.length-1] : undefined : o}"
+            min:        "function () { var m = Infinity; for (var a of arguments) { if (Array.isArray(a)) {m = _k_.min.apply(_k_.min,[m].concat(a))} else {var n = parseFloat(a); if(!isNaN(n)){m = n < m ? n : m}}}; return m }"
+            max:        "function () { var m = -Infinity; for (var a of arguments) { if (Array.isArray(a)) {m = _k_.max.apply(_k_.max,[m].concat(a))} else {var n = parseFloat(a); if(!isNaN(n)){m = n > m ? n : m}}}; return m }"
+            empty:      "function (l) {return l==='' || l===null || l===undefined || l!==l || typeof(l) === 'object' && Object.keys(l).length === 0}"
+            in:         "function (a,l) {return (typeof l === 'string' && typeof a === 'string' && a.length ? '' : []).indexOf.call(l,a) >= 0}"
+            extend:     "function (c,p) {for (var k in p) { if (Object.prototype.hasOwnProperty(p, k)) c[k] = p[k] } function ctor() { this.constructor = c; } ctor.prototype = p.prototype; c.prototype = new ctor(); c.__super__ = p.prototype; return c;}"
+            each_r:     "function (o) {return Array.isArray(o) ? [] : typeof o == 'string' ? o.split('') : {}}"
+            dbg:        "function (f,l,c,m,...a) { console.log(f + ':' + l + ':' + c + (m ? ' ' + m + '\\n' : '\\n') + a.map(function (a) { return _k_.noon(a) }).join(' '))}"
+            profile:    "function (id) {_k_.hrtime ??= {}; _k_.hrtime[id] = performance.now(); }"
+            profilend:  "function (id) { var b = performance.now()-_k_.hrtime[id]; let f=0.001; for (let u of ['s','ms','μs','ns']) { if (u=='ns' || (b*f)>=1) { return console.log(id+' '+Number.parseFloat(b*f).toFixed(1)+' '+u); } f*=1000; }}"
+            assert:     "function (f,l,c,m,t) { if (!t) {console.log(f + ':' + l + ':' + c + ' ▴ ' + m)}}"
+            clamp:      "function (l,h,v) { var ll = Math.min(l,h), hh = Math.max(l,h); if (!_k_.isNum(v)) { v = ll }; if (v < ll) { v = ll }; if (v > hh) { v = hh }; if (!_k_.isNum(v)) { v = ll }; return v }"
+            copy:       "function (o) { return Array.isArray(o) ? o.slice() : typeof o == 'object' && o.constructor.name == 'Object' ? Object.assign({}, o) : typeof o == 'string' ? ''+o : o }"
+            clone:      "function (o,v) { v ??= new Map(); if (Array.isArray(o)) { if (!v.has(o)) {var r = []; v.set(o,r); for (var i=0; i < o.length; i++) {if (!v.has(o[i])) { v.set(o[i],_k_.clone(o[i],v)) }; r.push(v.get(o[i]))}}; return v.get(o) } else if (typeof o == 'string') { if (!v.has(o)) {v.set(o,''+o)}; return v.get(o) } else if (o != null && typeof o == 'object' && o.constructor.name == 'Object') { if (!v.has(o)) { var k, r = {}; v.set(o,r); for (k in o) { if (!v.has(o[k])) { v.set(o[k],_k_.clone(o[k],v)) }; r[k] = v.get(o[k]) }; }; return v.get(o) } else {return o} }"
+            eql:        "function (a,b,s) { var i, k, v; s = (s != null ? s : []); if (Object.is(a,b)) { return true }; if (typeof(a) !== typeof(b)) { return false }; if (!(Array.isArray(a)) && !(typeof(a) === 'object')) { return false }; if (Array.isArray(a)) { if (a.length !== b.length) { return false }; var list = _k_.list(a); for (i = 0; i < list.length; i++) { v = list[i]; s.push(i); if (!_k_.eql(v,b[i],s)) { s.splice(0,s.length); return false }; if (_k_.empty(s)) { return false }; s.pop() } } else if (_k_.isStr(a)) { return a === b } else { if (!_k_.eql(Object.keys(a),Object.keys(b))) { return false }; for (k in a) { v = a[k]; s.push(k); if (!_k_.eql(v,b[k],s)) { s.splice(0,s.length); return false }; if (_k_.empty(s)) { return false }; s.pop() } }; return true }"
+            noon:       "function (obj) { var pad = function (s, l) { while (s.length < l) { s += ' ' }; return s }; var esc = function (k, arry) { var es, sp; if (0 <= k.indexOf('\\n')) { sp = k.split('\\n'); es = sp.map(function (s) { return esc(s,arry) }); es.unshift('...'); es.push('...'); return es.join('\\n') } if (k === '' || k === '...' || _k_.in(k[0],[' ','#','|']) || _k_.in(k[k.length - 1],[' ','#','|'])) { k = '|' + k + '|' } else if (arry && /\ \ /.test(k)) { k = '|' + k + '|' }; return k }; var pretty = function (o, ind, seen) { var k, kl, l, v, mk = 4; if (Object.keys(o).length > 1) { for (k in o) { if (Object.prototype.hasOwnProperty(o,k)) { kl = parseInt(Math.ceil((k.length + 2) / 4) * 4); mk = Math.max(mk,kl); if (mk > 32) { mk = 32; break } } } }; l = []; var keyValue = function (k, v) { var i, ks, s, vs; s = ind; k = esc(k,true); if (k.indexOf('  ') > 0 && k[0] !== '|') { k = `|${k}|` } else if (k[0] !== '|' && k[k.length - 1] === '|') { k = '|' + k } else if (k[0] === '|' && k[k.length - 1] !== '|') { k += '|' }; ks = pad(k,Math.max(mk,k.length + 2)); i = pad(ind + '    ',mk); s += ks; vs = toStr(v,i,false,seen); if (vs[0] === '\\n') { while (s[s.length - 1] === ' ') { s = s.substr(0,s.length - 1) } }; s += vs; while (s[s.length - 1] === ' ') { s = s.substr(0,s.length - 1) }; return s }; for (k in o) { if (Object.hasOwn(o,k)) { l.push(keyValue(k,o[k])) } }; return l.join('\\n') }; var toStr = function (o, ind = '', arry = false, seen = []) { var s, t, v; if (!(o != null)) { if (o === null) { return 'null' }; if (o === undefined) { return 'undefined' }; return '<?>' }; switch (t = typeof(o)) { case 'string': {return esc(o,arry)}; case 'object': { if (_k_.in(o,seen)) { return '<v>' }; seen.push(o); if ((o.constructor != null ? o.constructor.name : undefined) === 'Array') { s = ind !== '' && arry && '.' || ''; if (o.length && ind !== '') { s += '\\n' }; s += (function () { var result = []; var list = _k_.list(o); for (var li = 0; li < list.length; li++)  { v = list[li];result.push(ind + toStr(v,ind + '    ',true,seen))  } return result }).bind(this)().join('\\n') } else if ((o.constructor != null ? o.constructor.name : undefined) === 'RegExp') { return o.source } else { s = (arry && '.\\n') || ((ind !== '') && '\\n' || ''); s += pretty(o,ind,seen) }; return s } default: return String(o) }; return '<???>' }; return toStr(obj) }"
+            k:          "{ f:(r,g,b)=>'\\x1b[38;5;'+(16+36*r+6*g+b)+'m', F:(r,g,b)=>'\\x1b[48;5;'+(16+36*r+6*g+b)+'m', r:(i)=>(i<6)&&_k_.k.f(i,0,0)||_k_.k.f(5,i-5,i-5), R:(i)=>(i<6)&&_k_.k.F(i,0,0)||_k_.k.F(5,i-5,i-5), g:(i)=>(i<6)&&_k_.k.f(0,i,0)||_k_.k.f(i-5,5,i-5), G:(i)=>(i<6)&&_k_.k.F(0,i,0)||_k_.k.F(i-5,5,i-5), b:(i)=>(i<6)&&_k_.k.f(0,0,i)||_k_.k.f(i-5,i-5,5), B:(i)=>(i<6)&&_k_.k.F(0,0,i)||_k_.k.F(i-5,i-5,5), y:(i)=>(i<6)&&_k_.k.f(i,i,0)||_k_.k.f(5,5,i-5), Y:(i)=>(i<6)&&_k_.k.F(i,i,0)||_k_.k.F(5,5,i-5), m:(i)=>(i<6)&&_k_.k.f(i,0,i)||_k_.k.f(5,i-5,5), M:(i)=>(i<6)&&_k_.k.F(i,0,i)||_k_.k.F(5,i-5,5), c:(i)=>(i<6)&&_k_.k.f(0,i,i)||_k_.k.f(i-5,5,5), C:(i)=>(i<6)&&_k_.k.F(0,i,i)||_k_.k.F(i-5,5,5), w:(i)=>'\\x1b[38;5;'+(232+(i-1)*3)+'m', W:(i)=>'\\x1b[48;5;'+(232+(i-1)*3+2)+'m', wrap:(open,close,reg)=>(s)=>open+(~(s+='').indexOf(close,4)&&s.replace(reg,open)||s)+close, F256:(open)=>_k_.k.wrap(open,'\\x1b[39m',new RegExp('\\\\x1b\\\\[39m','g')), B256:(open)=>_k_.k.wrap(open,'\\x1b[49m',new RegExp('\\\\x1b\\\\[49m','g'))}"
+            lpad:       "function (l,s='',c=' ') {s=String(s); while(s.length<l){s=c+s} return s}"
+            rpad:       "function (l,s='',c=' ') {s=String(s); while(s.length<l){s+=c} return s}"
+            trim:       "function (s,c=' ') {return _k_.ltrim(_k_.rtrim(s,c),c)}"
+            rtrim:      "function (s,c=' ') {while (_k_.in(s.slice(-1)[0],c)) { s = s.slice(0, s.length - 1) } return s}"
+            ltrim:      "function (s,c=' ') { while (_k_.in(s[0],c)) { s = s.slice(1) } return s}"
+            dir:        "function () { let url = import.meta.url.substring(7); let si = url.lastIndexOf('/'); return url.substring(0, si); }"
+            file:       "function () { return import.meta.url.substring(7); }"
+                        
+        if @hint._k_.eql    ➜ @hint._k_.isStr = true; @hint._k_.list    = true; @hint._k_.empty = true;
+        if @hint._k_.noon   ➜ @hint._k_.in    = true; @hint._k_.list    = true;
+        if @hint._k_.trim   ➜ @hint._k_.ltrim = true; @hint._k_.rtrim   = true;
+        if @hint._k_.clamp  ➜ @hint._k_.isNum = true
+        if @hint._k_.ltrim  ➜ @hint._k_.in    = true
+        if @hint._k_.rtrim  ➜ @hint._k_.in    = true
+        if @hint._k_.dbg    ➜ @hint._k_.noon  = true
+                
+        hr = @hint._k_ each (k,v) -> if kf[k] then [k, "#{k}: #{kf[k]}"]
+        ks = Object.values(hr).join ', '
+        ps = ''
+        
+        if @hint._k_.k
+            for c in kolorNames
+                for i in 1..8
+                    u = c.toUpperCase()
+                    if @hint._k_[c+i] or @hint._k_[u+c+(9-i)]
+                        ps += ';_k_.'+c+i+'='+"_k_.k.F256(_k_.k.#{c}(#{i}))"
+                    if @hint._k_[u+i] or @hint._k_[u+c+i]
+                        ps += ';_k_.'+u+i+'='+"_k_.k.B256(_k_.k.#{u}(#{i}))"
+                    if @hint._k_[u+c+i]
+                        ps += ';_k_.'+u+c+i+'='+"s=>_k_.#{u}#{i}(_k_.#{c}#{9-i}(s))"
+        
+        ht = "var _k_ = {#{ks}}#{ps}\n\n"
+
+        s = s.replace "var _k_\n\n" ht
+        s
+                
+    # 000   000   0000000   0000000    00000000   0000000  
+    # 0000  000  000   000  000   000  000       000       
+    # 000 0 000  000   000  000   000  0000000   0000000   
+    # 000  0000  000   000  000   000  000            000  
+    # 000   000   0000000   0000000    00000000  0000000   
+    
+    nodes: (nodes, sep=',' tl) ->
+
+        if not nodes?
+            log 'no nodes?!?' @stack, @sheap
+            print.ast 'no nodes' @ast
+            return ''
+        
+        s = ''
+        for i in 0...nodes.length
+            
+            a = @atom nodes[i]
+        
+            if sep[0] == '\n'
+                
+                stripped = kstr.lstrip a
+                if stripped[0] in '([' then a = ';'+a
+                else if stripped.startsWith 'function' then a = "(#{a})"
+                
+            # if kstr.lstrip(a)[0] in '([' then log "prefix with ;?", sep, a
+            
+            a += if i<nodes.length-1 then sep else ''
+            @js a, tl if tl
+            s += a
+        s
+
+    # 000   000   0000000   0000000    00000000
+    # 0000  000  000   000  000   000  000
+    # 000 0 000  000   000  000   000  0000000
+    # 000  0000  000   000  000   000  000
+    # 000   000   0000000   0000000    00000000
+
+    node: (exp) ->
+
+        return '' if not exp
+
+        if exp.type? and exp.text? then return @token exp
+
+        if exp is Array then return (@node(a) for a in exp).join ';\n'
+
+        s = ''
+
+        for k,v of exp
+
+            if @[k] is func
+                s += @[k] v
+            else
+                log R4("renderer.node unhandled key #{k} in exp"), exp # if @debug or @verbose
+        s
+
+    #  0000000   000000000   0000000   00     00
+    # 000   000     000     000   000  000   000
+    # 000000000     000     000   000  000000000
+    # 000   000     000     000   000  000 0 000
+    # 000   000     000      0000000   000   000
+
+    atom: (exp) ->
+
+        @fixAsserts @node exp
+        
+    qmrkop: (p) ->
+        
+        if p.lhs.type == 'var' or not p.qmrk
+            lhs = @atom p.lhs
+            "(#{lhs} != null ? #{lhs} : #{@atom p.rhs})"
+        else
+            vn = @makeVar p.qmrk
+            "((#{vn}=#{@atom p.lhs}) != null ? #{vn} : #{@atom p.rhs})"
+
+    qmrkcolon: (p) ->
+        
+        "(#{@atom p.lhs} ? #{@atom p.mid} : #{@atom p.rhs})"
+        
+    # 00000000  000  000   000   0000000    0000000   0000000  00000000  00000000   000000000   0000000
+    # 000       000   000 000   000   000  000       000       000       000   000     000     000
+    # 000000    000    00000    000000000  0000000   0000000   0000000   0000000       000     0000000
+    # 000       000   000 000   000   000       000       000  000       000   000     000          000
+    # 000       000  000   000  000   000  0000000   0000000   00000000  000   000     000     0000000
+
+    assert: (p) ->
+
+        # @verb 'fix' p
+        if p.obj.type != 'var' and not p.obj.index
+            '▾' + @node(p.obj) + "▸#{p.qmrk.line}_#{p.qmrk.col}◂"
+        else
+            '▾' + @node(p.obj) + "▸#{0}_#{0}◂" # hint fixAssert to not use generated var
+    
+    fixAsserts: (s) ->
+
+        # @verb 'fixAsserts' s
+        
+        return '' if not s? or s.length == 0
+        return s if s in ['▾' "'▾'" '"▾"']
+        
+        while s[0] == '▾' then s = s[1..] # remove any leading ▾
+        
+        if /(?<!['"\[])[▾]/.test s
+            i = s.indexOf '▾'
+            if (n = s.indexOf '\n' i) > i
+                # log b3('n!'), w3(s[...i]), m6(s[i+1...n]), green(s[n..])
+                return s[...i] + @fixAsserts(s[i+1...n]) + @fixAsserts(s[n..])
+            else
+                # log b3('▾!'), w3(s[...i]), m6(s[i+1..])
+                return s[...i] + @fixAsserts s[i+1..]
+        
+        splt = s.split /▸\d+_\d+◂/
+        mtch = s.match /▸\d+_\d+◂/g
+
+        if splt.length > 1
+
+            mtch = mtch.map (m) -> "_#{m[1..-2]}_"
+            
+            if splt[-1] == '' # assert ends with ?
+                if splt.length > 2
+                    splt.pop()
+                    mtch.pop()
+                    t = splt.shift()
+                    while splt.length                    
+                        t += '▸'+mtch.shift()[1...-1]+'◂'
+                        t += splt.shift()
+                    t = @fixAsserts t
+                else 
+                    t = splt[0]
+                return  "(#{t} != null)"
+                
+            # log splt, mtch
+
+            s = ''
+
+            for i in 0...mtch.length
+
+                if mtch.length > 1 
+                    rhs = if i then (if mtch[i-1] != "_0_0_" then mtch[i-1] else l)+splt[i] else splt[0]
+                    if mtch[i] != "_0_0_"
+                        l = "(#{mtch[i]}=#{rhs})"
+                    else
+                        l = rhs
+                else
+                    l = splt[0]
+
+                if splt[i+1][0] == '('
+                    s += "typeof #{l} === \"function\" ? "
+                else
+                    s += "#{l} != null ? "
+
+            if mtch.length > 1
+                if mtch[-1] != "_0_0_"
+                    s += mtch[-1]+splt[-1]
+                else
+                    s += l+splt[-1]
+            else
+                s += splt[0]+splt[1]
+
+            for i in 0...mtch.length then s += " : undefined"
+
+            s = "(#{s})"
+        # log 'fixedAsserts' s
+        s
+
+    # 000   000   0000000  00000000  
+    # 000   000  000       000       
+    # 000   000  0000000   0000000   
+    # 000   000       000  000       
+    #  0000000   0000000   00000000  
+    
+    use: (n) ->
+
+        s = ''
+        
+        if valid n.items
+            
+            if n.toUse.length > 1
+                error 'items for multiple modules?!'
+                            
+            m   = n.toUse[0]
+            mod = m.text ? m
+            
+            name = slash.name mod
+            s += 'import ' + name
+
+            if mod[0] == '.'
+                s += " from \"#{slash.swapExt mod, 'js'}\"\n"
+            else
+                s += " from \"#{mod}\"\n"
+                
+            for item in n.items
+                s += "let #{item} = #{name}.#{item}\n"
+                
+        else if valid n.name
+
+            if n.toUse.length > 1
+                error 'named import for multiple modules?!'
+            
+            m   = n.toUse[0]
+            mod = m.text ? m
+            
+            name = slash.name mod
+            s += 'import ' + n.name
+
+            if mod[0] == '.'
+                s += " from \"#{slash.swapExt mod, 'js'}\"\n"
+            else
+                s += " from \"#{mod}\"\n"
+                
+        else
+        
+            for m in n.toUse
+    
+                name = slash.name m.text
+                s += 'import ' + name
+                
+                mod = m.text ? m
+    
+                if @file # is this actually doing something meaningful?
+    
+                    if mod[0] == '.'
+                        kodeFile = slash.path slash.dir(@file), mod + '.kode'
+                        jsFile = slash.path slash.dir(@file), mod + '.js'
+                    else
+                        kodeFile = slash.path slash.dir(@file), name + '.kode'
+                        jsFile = slash.path slash.dir(@file), name + '.js'
+                                                
+                    if mod[0] == '.'
+                        relFile = slash.relative jsFile, slash.dir(@file)
+                        if relFile[0] != '.'
+                            relFile = './' + relFile
+                        s += " from \"#{relFile}\"\n"
+                    else
+                        s += " from \"#{mod}\"\n"
+                    
+                else
+                    if mod[0] == '.'
+                        s += " from \"#{slash.swapExt mod, 'js'}\"\n"
+                    else
+                        s += " from \"#{mod}\"\n"
+        s
+        
+    # 000  00     00  00000000    0000000   00000000   000000000  
+    # 000  000   000  000   000  000   000  000   000     000     
+    # 000  000000000  00000000   000   000  0000000       000     
+    # 000  000 0 000  000        000   000  000   000     000     
+    # 000  000   000  000         0000000   000   000     000     
+    
+    import: (n) ->
+
+        s = ''
+        s += 'import '
+        s += @nodes n.args, ' '
+        s
+
+    # 00000000  000   000  00000000    0000000   00000000   000000000  
+    # 000        000 000   000   000  000   000  000   000     000     
+    # 0000000     00000    00000000   000   000  0000000       000     
+    # 000        000 000   000        000   000  000   000     000     
+    # 00000000  000   000  000         0000000   000   000     000     
+    
+    export: (n) ->
+
+        s = ''
+        s += 'export '
+        if n.args is arr
+            a = @nodes n.args, ' '
+            if a[0] == "{" 
+                s += 'default ' + a
+            else 
+                s += '{ ' + a + ' };'
+        else 
+            s += 'default ' + @node n.args
+            s += ';'
+        s
+        
+    dirFile: (n) ->
+        
+        s = ''
+        if n == 'dir'
+            @hint._k_.dir = true
+            s = "_k_.dir()"
+        if n == 'file'
+            @hint._k_.file = true
+            s = "_k_.file()"
+        s
+        
+    main: (n) ->
+        
+        idt = rpad 4
+        s = 'if (((globalThis.process != null ? globalThis.process.argv : undefined) != null) && import.meta.filename === process.argv[1])'
+        s += '\n{\n'
+        s += idt + @nodes n, '\n' + idt
+        s += '\n}'
+        s
+        
+    #  0000000  000       0000000    0000000   0000000
+    # 000       000      000   000  000       000
+    # 000       000      000000000  0000000   0000000
+    # 000       000      000   000       000       000
+    #  0000000  0000000  000   000  0000000   0000000
+
+    class: (n) ->
+
+        s = ''
+        s += "class #{n.name.text}"
+
+        if n.extends
+            s += " extends " + n.extends.map((e) => @node e).join ', '
+
+        s += '\n{'
+
+        mthds = n.body
+
+        if mthds?.length
+            [con, bind] = @prepareMethods mthds
+            
+            if bind.length
+                
+                for e in con.keyval.val.func.body.exps
+                    if e.call?.callee.text == 'super'
+                        superCall = con.keyval.val.func.body.exps.splice(con.keyval.val.func.body.exps.indexOf(e), 1)[0]
+                        break
+                
+                for b in bind
+                    bn = b.keyval.val.func.name.text
+                    con.keyval.val.func.body.exps ?= []
+                    con.keyval.val.func.body.exps.unshift
+                        type: 'code'
+                        text: "this.#{bn} = this.#{bn}.bind(this)"
+                        
+                if superCall
+                    con.keyval.val.func.body.exps.unshift superCall
+            
+            @indent = '    '
+            for mi in 0...mthds.length
+                s += '\n' if mi
+                s += @mthd mthds[mi]
+            s += '\n'
+            @indent = ''
+        s += '}\n'
+        s
+        
+    #  0000000  000   000  00000000   00000000  00000000   
+    # 000       000   000  000   000  000       000   000  
+    # 0000000   000   000  00000000   0000000   0000000    
+    #      000  000   000  000        000       000   000  
+    # 0000000    0000000   000        00000000  000   000  
+    
+    super: (p) ->
+        
+        if @mthdName # new style class
+            if @mthdName == 'constructor'
+                "#{p.callee.text}(#{@nodes p.args, ','})"
+            else
+                "#{p.callee.text}.#{@mthdName}(#{@nodes p.args, ','})"
+        else if @fncnName and @fncsName # old style function
+            "#{@fncnName}.__super__.#{@fncsName}.call(this#{valid p.args ? (',' + @nodes p.args, ',') : ''})"
+        
+    # 00     00  000000000  000   000  0000000
+    # 000   000     000     000   000  000   000
+    # 000000000     000     000000000  000   000
+    # 000 0 000     000     000   000  000   000
+    # 000   000     000     000   000  0000000
+
+    mthd: (n) ->
+
+        # insert super(...arguments) in constructors?
+        
+        if n.keyval
+            s  = '\n'
+            if n.keyval.val.func?
+                @mthdName = n.keyval.val.func.name.text
+                s += @indent + @func n.keyval.val.func
+                delete @mthdName
+            else
+                if n.keyval.key.text.startsWith '@'
+                    s += @indent + 'static ' + n.keyval.key.text[1..] + ' = ' + @node n.keyval.val
+                else
+                    log 'what is this?' n
+        s
+
+    # 00000000  000   000  000   000   0000000  000000000  000   0000000   000   000  
+    # 000       000   000  0000  000  000          000     000  000   000  0000  000  
+    # 000000    000   000  000 0 000  000          000     000  000   000  000 0 000  
+    # 000       000   000  000  0000  000          000     000  000   000  000  0000  
+    # 000        0000000   000   000   0000000     000     000   0000000   000   000  
+    
+    function: (n) ->
+
+        @fncnName = n.name.text
+        
+        s = '\n'
+        s += "#{@fncnName} = (function ()\n"
+        s += '{\n'
+
+        if n.extends
+            for e in n.extends
+                @hint._k_.extend = true
+                s += "    _k_.extend(#{n.name.text}, #{@node e})"
+            s += '\n'
+
+        mthds = n.body
+
+        if mthds?.length
+            
+            [con, bind] = @prepareMethods mthds
+            
+            if bind.length
+                for b in bind
+                    bn = b.keyval.val.func.name.text
+                    con.keyval.val.func.body.exps ?= []
+                    con.keyval.val.func.body.exps.unshift
+                        type: 'code'
+                        text: "this[\"#{bn}\"] = this[\"#{bn}\"].bind(this)"
+                        
+            if n.extends
+                con.keyval.val.func.body.exps ?= []
+                for e in con.keyval.val.func.body.exps
+                    if e.call and e.call.callee.text == 'super'
+                        callsSuper = true
+                        break
+                if not callsSuper
+                    con.keyval.val.func.body.exps.push
+                        type: 'code'
+                        text: "return #{@fncnName}.__super__.constructor.apply(this, arguments)"
+                        
+            @indent = '    '
+            for mi in 0...mthds.length
+                s += @funcs mthds[mi], n.name.text
+                s += '\n'
+            @indent = ''
+            
+        delete @fncnName
+            
+        s += "    return #{n.name.text}\n"
+        s += '})()\n'
+        s
+        
+    # 00000000  000   000  000   000   0000000   0000000  
+    # 000       000   000  0000  000  000       000       
+    # 000000    000   000  000 0 000  000       0000000   
+    # 000       000   000  000  0000  000            000  
+    # 000        0000000   000   000   0000000  0000000   
+    
+    funcs: (n, className) ->
+
+        s = ''
+        if f = n.keyval?.val?.func
+            if f.name.text == 'constructor'
+                @fncsName = 'constructor'
+                s = @indent + @func f, 'function ' + className
+                s += '\n'
+            else if f.name.text.startsWith 'static'
+                @fncsName = f.name.text[7..]
+                s = @indent + @func f, "#{className}[\"#{@fncsName}\"] = function"
+                s += '\n'
+            else
+                @fncsName = f.name.text
+                s = @indent + @func f, "#{className}.prototype[\"#{@fncsName}\"] = function"
+                s += '\n'
+            delete @fncsName
+        else
+            if n.keyval?.key?.text?[0] == '@'
+                member = n.keyval.key.text[1..]
+                s = @indent + "#{className}[\"#{member}\"] = " + @node n.keyval.val
+        s
+        
+    # 00000000   00000000   00000000  00000000   00     00  00000000  000000000  000   000
+    # 000   000  000   000  000       000   000  000   000  000          000     000   000
+    # 00000000   0000000    0000000   00000000   000000000  0000000      000     000000000
+    # 000        000   000  000       000        000 0 000  000          000     000   000
+    # 000        000   000  00000000  000        000   000  00000000     000     000   000
+
+    prepareMethods: (mthds) ->
+
+        bind = []
+        for m in mthds
+            if not m.keyval
+                print.ast 'not a method?' m
+                print.ast 'not a method?' mthds
+                continue
+            if not m.keyval.val.func # probably a static var
+                continue
+
+            name = m.keyval.val.func.name.text
+            if name in ['@' 'constructor']
+                if con then error 'more than one constructor?'
+                m.keyval.val.func.name.text = 'constructor'
+                con = m
+            else if name?.startsWith '@'
+                m.keyval.val.func.name.text = 'static ' + name[1..]
+            else if m.keyval.val.func?.arrow.text == '=>'
+                bind.push m
+
+        if (bind.length or @fncnName) and not con  # found some methods to bind or old school class, but no constructor
+            ast = @kode.ast "constructor: ->" # create one from scratch
+            con = ast.exps[0].object.keyvals[0]
+            con.keyval.val.func.name = type:'name' text:'constructor'
+            mthds.unshift con
+
+        [con, bind]
+        
+    # 00000000  000   000  000   000   0000000
+    # 000       000   000  0000  000  000
+    # 000000    000   000  000 0 000  000
+    # 000       000   000  000  0000  000
+    # 000        0000000   000   000   0000000
+
+    func: (n, name) ->
+
+        return '' if not n
+
+        gi = @ind()
+        
+        name ?= n.name?.text ? 'function'
+        
+        if n.arrow.text[0] == '○'
+            if name.indexOf('function') >= 0
+                name = name.replace 'function' 'async function'
+            else if name.indexOf('static') >= 0
+                name = name.replace 'static' 'static async'
+            else
+                name = 'async ' + name
+
+        s = name
+        s += ' ('
+
+        args = n.args?.parens?.exps
+        if args
+            [str, ths] = @args args
+            s += str
+
+        s += ')\n'
+        s += gi + '{'
+
+        @varstack.push n.body.vars
+
+        if n.body.exps?[0]?.call?.callee.text == 'super'
+            s += '\n'
+            s += @indent + @node n.body.exps.shift()
+            s += '\n' + gi
+        
+        if valid n.body.vars
+                        
+            s += '\n'
+            vs = @sortVars n.body.vars
+            s += @indent + "var #{vs}\n"
+
+        if valid ths
+            s += '\n'
+            for t in ths
+                s += @indent + t + '\n'
+            s += gi
+            
+        if valid n.body.exps
+
+            s += '\n'
+            s += @indent + @nodes n.body.exps, '\n'+@indent
+            s += '\n' + gi
+
+        s += '}'
+
+        @varstack.pop()
+
+        @ded()
+        
+        if n.arrow.text == '=>' and not n.name
+            s = "(#{s}).bind(this)"
+        
+        s
+
+    #  0000000   00000000    0000000    0000000
+    # 000   000  000   000  000        000
+    # 000000000  0000000    000  0000  0000000
+    # 000   000  000   000  000   000       000
+    # 000   000  000   000   0000000   0000000
+
+    args: (args) ->
+
+        ths  = []
+        used = {}
+
+        if args.length > 1 and args[-1].text == '...' and args[-2].type == 'var'
+            args.pop()
+            args[-1].text = '...' + args[-1].text
+        
+        for a in args
+            if a.text then used[a.text] = a.text
+
+        args = args.map (a) =>
+            t = @node a
+            if t?.startsWith 'this.'
+                l = trim t.split('=')[0]
+                
+                txt = l[5..]
+                if used[txt]
+                    for i in [1..100]
+                        if not used[txt+i]
+                            ths.push "this.#{txt} = #{txt+i}"
+                            txt += i
+                            used[txt] = txt
+                            return "#{txt}" + (t.split('=')[1] ? '')
+                else
+                    ths.push "#{l} = #{txt}"
+                return t[5..]
+            t
+                
+        str = args.join ', '
+
+        [str,ths]
+
+    # 00000000   00000000  000000000  000   000  00000000   000   000
+    # 000   000  000          000     000   000  000   000  0000  000
+    # 0000000    0000000      000     000   000  0000000    000 0 000
+    # 000   000  000          000     000   000  000   000  000  0000
+    # 000   000  00000000     000      0000000   000   000  000   000
+
+    return: (n) ->
+
+        s = 'return ' + @node n.val
+        trim s
+
+    await: (n) ->
+
+        s = 'await ' + @node n.exp
+        trim s
+        
+    #  0000000   0000000   000      000
+    # 000       000   000  000      000
+    # 000       000000000  000      000
+    # 000       000   000  000      000
+    #  0000000  000   000  0000000  0000000
+
+    call: (p) ->
+        
+        if p.callee.text in ['log''warn''error']
+            p.callee.text = "console.#{p.callee.text}"
+            
+        callee = @node p.callee
+        
+        if p.args
+            
+            if callee.length == 2 and /[1-8]/.test(callee[1]) and callee[0].toLowerCase() in kolorNames
+                @hint._k_.k = true
+                @hint._k_[callee] = true
+                return "_k_.#{callee}(#{@nodes p.args, ','})"
+
+            if callee.length == 3 and /[1-8]/.test(callee[2]) and callee[0].toLowerCase() in kolorNames and callee[1] in kolorNames
+                @hint._k_.k = true
+                @hint._k_[callee] = true
+                return "_k_.#{callee}(#{@nodes p.args, ','})"
+                
+            switch callee
+                
+                'new' 'throw' ➜ "#{callee} #{@nodes p.args, ','}"
+                'int'         ➜ "parseInt(#{@nodes p.args, ','})"
+                'float'       ➜ "parseFloat(#{@nodes p.args, ','})"
+                    
+                'super' ➜ @super p
+                    
+                'dbg'
+                    @hint._k_.dbg = true
+                    if p.args[0].type in ['var'] or p.args[0]?.prop or p.args[0]?.call
+                        msg = '"'
+                        msg += @node p.args[0]
+                        msg += '"'
+                    else msg = 'null'
+                    "_k_.dbg(#{'\"' + (@source or '???') + '\"'}, #{p.callee.line}, #{p.callee.col}, #{msg}, #{@nodes p.args, ','})"
+                    
+                'clamp' 'min' 'max' 'lpad' 'rpad' 'trim' 'ltrim' 'rtrim' # 'first' 'last' ???
+                    @hint._k_[callee] = true
+                    "_k_.#{callee}(#{@nodes p.args, ','})"
+                    
+                '▴'
+                    @hint._k_.assert = true
+                    if p.args[0].type in ['single''double''triple']
+                        msg = p.args[0].text
+                        p.args.shift()
+                    else msg = '"assert failed!"'
+                    msg += ' + " ' + @nodes(p.args, ',') + '"'
+                    "_k_.assert(#{'\"' + (@source or '???') + '\"'}, #{p.callee.line}, #{p.callee.col}, #{msg}, #{@nodes p.args, ','})"
+                    
+                ➜
+                    "#{callee}(#{@nodes p.args, ','})"
+        else
+            "#{callee}()"
+
+    # 00000000   00000000    0000000   00000000  
+    # 000   000  000   000  000   000  000       
+    # 00000000   0000000    000   000  000000    
+    # 000        000   000  000   000  000       
+    # 000        000   000   0000000   000       
+    
+    prof: (p) ->
+        
+        if p.text in ['●''●▸']
+            @hint._k_.profile   = true
+            @hint._k_.profilend = true
+            "_k_.profile('#{p.id}')"
+        else if p.text == '●▪'
+            @hint._k_.profilend = true
+            "_k_.profilend('#{p.id}')"
+            
+    # 000  00000000
+    # 000  000
+    # 000  000000
+    # 000  000
+    # 000  000
+
+    if: (n) ->
+
+        first = firstLineCol n
+        last  = lastLineCol n
+
+        if (first.line == last.line and n.else and not n.returns) or n.inline
+            return @ifInline n
+
+        gi = @ind()
+
+        s = ''
+        s += "if (#{@atom(n.cond)})\n"
+        s += gi+"{\n"
+        if valid n.then
+            s += @indent + @nodes(n.then, '\n'+@indent) + '\n'
+        s += gi+"}"
+
+        for elif in n.elifs
+            s += '\n'
+            s += gi + "else if (#{@atom(elif.elif.cond)})\n"
+            s += gi+"{\n"
+            if valid elif.elif.then
+                s += @indent + @nodes(elif.elif.then, '\n'+@indent) + '\n'
+            s += gi+"}"
+
+        if n.else
+            s += '\n'
+            s += gi + 'else\n'
+            s += gi+"{\n"
+            if valid n.else
+                s += @indent + @nodes(n.else, '\n'+@indent) + '\n'
+            s += gi+"}"
+
+        @ded()
+        s
+
+    # 000  00000000  000  000   000  000      000  000   000  00000000
+    # 000  000       000  0000  000  000      000  0000  000  000
+    # 000  000000    000  000 0 000  000      000  000 0 000  0000000
+    # 000  000       000  000  0000  000      000  000  0000  000
+    # 000  000       000  000   000  0000000  000  000   000  00000000
+
+    ifInline: (n, dontClose) ->
+
+        s = ''
+
+        s += "#{@atom(n.cond)} ? "
+        if n.then?.length
+            s += (@atom(e) for e in n.then).join ', '
+
+        if n.elifs
+            for e in n.elifs
+                s += ' : '
+                s += @ifInline e.elif, true
+
+        if n.else
+            s += ' : '
+            if n.else.length == 1
+                s += @atom n.else[0]
+            else
+                s += '(' + (@atom e for e in n.else).join(', ') + ')'
+        else if not dontClose
+            s += ' : undefined'
+        s
+
+    # 00000000   0000000    0000000  000   000  
+    # 000       000   000  000       000   000  
+    # 0000000   000000000  000       000000000  
+    # 000       000   000  000       000   000  
+    # 00000000  000   000   0000000  000   000  
+    
+    each: (n) ->
+        
+        numArgs = n.fnc.func.args?.parens.exps.length
+        
+        rv = 'r'+@makeVar n.each
+        
+        i = @indent
+        if numArgs == 1
+            @hint._k_.each_r = true
+            @ind()
+            fnc = @node n.fnc
+            @ded()
+            """
+            #{i}(function (o) {
+            #{i}    var #{rv} = _k_.each_r(o)
+            #{i}    for (var k in o)
+            #{i}    {   
+            #{i}        var m = (#{fnc})(o[k])
+            #{i}        if (m != null)
+            #{i}        {
+            #{i}            #{rv}[k] = m
+            #{i}        }
+            #{i}    }
+            #{i}    return typeof o == 'string' ? #{rv}.join('') : #{rv}
+            #{i}})(#{@node n.lhs})
+            """
+        else if numArgs
+            @hint._k_.each_r = true
+            @ind()
+            fnc = @node n.fnc
+            @ded()            
+            """
+            #{i}(function (o) {
+            #{i}    var r = _k_.each_r(o)
+            #{i}    for (var k in o)
+            #{i}    {   
+            #{i}        var m = (#{fnc})(k, o[k])
+            #{i}        if (m != null && m[0] != null)
+            #{i}        {
+            #{i}            r[m[0]] = m[1]
+            #{i}        }
+            #{i}    }
+            #{i}    return typeof o == 'string' ? r.join('') : r
+            #{i}})(#{@node n.lhs})
+            """
+            
+        else # no args
+            if n.fnc.func.body.exps?.length > 0 # some func but no args
+                @hint._k_.each_r = true
+                @ind()
+                fnc = @node n.fnc
+                @ded()            
+                """
+                #{i}(function (o) {
+                #{i}    var r = _k_.each_r(o)
+                #{i}    for (var k in o)
+                #{i}    {   
+                #{i}        var m = (#{fnc})(o[k])
+                #{i}        if (m != null)
+                #{i}        {
+                #{i}            r[k] = m
+                #{i}        }
+                #{i}    }
+                #{i}    return typeof o == 'string' ? r.join('') : r
+                #{i}})(#{@node n.lhs})
+                    
+                """
+            else # no args and empty func
+                """
+                #{i}(function (o) { return Array.isArray(o) ? [] : typeof o == 'string' ? '' : {} })(#{@node n.lhs})
+                """
+        
+    # 00000000   0000000   00000000
+    # 000       000   000  000   000
+    # 000000    000   000  0000000
+    # 000       000   000  000   000
+    # 000        0000000   000   000
+
+    for: (n) ->
+
+        if not n.then then @verb 'for expected then' n
+
+        switch n.inof.text
+            'in' ➜ @for_in n
+            'of' ➜ @for_of n
+                 ➜ error 'for expected in/of'
+
+    # 00000000   0000000   00000000           000  000   000  
+    # 000       000   000  000   000          000  0000  000  
+    # 000000    000   000  0000000            000  000 0 000  
+    # 000       000   000  000   000          000  000  0000  
+    # 000        0000000   000   000  000000  000  000   000  
+    
+    for_in: (n, varPrefix='', lastPrefix='', lastPostfix='', lineBreak) ->
+
+        if not n.list.qmrkop and not n.list.array and not n.list.slice
+            @hint._k_.list = true
+            list = "_k_.list(#{@atom n.list})"
+        else
+            if n.list.array?.items[0]?.slice or n.list.slice
+                return @for_in_range n, varPrefix, lastPrefix, lastPostfix, lineBreak
+            list = @node n.list
+
+        if not list or list == 'undefined'
+            print.noon 'no list for' n.list
+            print.ast 'no list for' n.list
+
+        gi = lineBreak or @ind()
+        nl = lineBreak or '\n'
+        eb = lineBreak and ';' or '\n'
+        
+        g2 = if lineBreak then '' else @indent
+        
+        listVar = @freshVar 'list'
+        iterVar = @makeVar n.inof
+        s = ''
+        s += "var #{listVar} = #{list}" + eb
+        if n.vals.text
+            s += gi+"for (var #{iterVar} = 0; #{iterVar} < #{listVar}.length; #{iterVar}++)" + nl
+            s += gi+"{"+nl
+            s += g2+"#{n.vals.text} = #{listVar}[#{iterVar}]" + eb
+        else if n.vals.array?.items
+            s += gi+"for (var #{iterVar} = 0; #{iterVar} < #{listVar}.length; #{iterVar}++)" + nl
+            s += gi+"{"+nl
+            for j in 0...n.vals.array.items.length
+                v = n.vals.array.items[j]
+                s += g2+"#{v.text} = #{listVar}[#{iterVar}][#{j}]" + eb
+        else if n.vals.length > 1
+            iterVar = n.vals[1].text
+            s += gi+"for (#{iterVar} = 0; #{iterVar} < #{listVar}.length; #{iterVar}++)" + nl
+            s += gi+"{" + nl
+            s += g2+"#{varPrefix}#{n.vals[0].text} = #{listVar}[#{iterVar}]" + eb
+
+        for e in n.then
+            prefix = if lastPrefix and e == n.then[-1] then lastPrefix else ''
+            postfix = if lastPostfix and e == n.then[-1] then lastPostfix else ''
+            s += g2 + prefix+@node(e)+postfix + nl
+        s += gi+"}"
+
+        @ded() if not lineBreak
+        s
+
+    # 00000000   0000000   00000000           000  000   000          00000000    0000000   000   000   0000000   00000000  
+    # 000       000   000  000   000          000  0000  000          000   000  000   000  0000  000  000        000       
+    # 000000    000   000  0000000            000  000 0 000          0000000    000000000  000 0 000  000  0000  0000000   
+    # 000       000   000  000   000          000  000  0000          000   000  000   000  000  0000  000   000  000       
+    # 000        0000000   000   000  000000  000  000   000  000000  000   000  000   000  000   000   0000000   00000000  
+    
+    for_in_range: (n, varPrefix, lastPrefix, lastPostfix, lineBreak) ->
+        
+        slice = n.list.array?.items[0]?.slice ? n.list.slice
+
+        # log 'for_in_range' slice
+        
+        gi = lineBreak or @ind()
+        nl = lineBreak or '\n'
+        eb = lineBreak and ';' or '\n'
+        
+        g2 = if lineBreak then '' else @indent
+        
+        iterVar   = n.vals.text ? n.vals[0].text
+        
+        iterStart = @node slice.from
+        iterEnd   = @node slice.upto
+        
+        start = parseInt iterStart
+        end   = parseInt iterEnd
+        
+        iterCmp = if slice.dots.text == '...' then '<' else '<='
+        invCmp  = if slice.dots.text == '...' then '>' else '>='
+        iterDir = '++'
+        
+        if Number.isFinite(start) and Number.isFinite(end)
+            
+            if start > end
+                iterCmp = if slice.dots.text == '...' then '>' else '>='
+                iterDir = '--'
+                
+            loopStart = "#{iterVar} = #{iterStart}"
+            loopCheck = "#{iterVar} #{iterCmp} #{iterEnd}"
+            loopUpdate = "#{iterVar}#{iterDir}"
+            
+        else
+            
+            llc = firstLineCol slice.from
+            rlc = firstLineCol slice.upto
+            
+            lv = @makeVar llc
+            rv = @makeVar rlc
+            
+            loopStart  = "var #{lv} = #{iterVar} = #{iterStart}, #{rv} = #{iterEnd}"
+            loopCheck  = "(#{lv} <= #{rv} ? #{iterVar} #{iterCmp} #{iterEnd} : #{iterVar} #{invCmp} #{iterEnd})"
+            loopUpdate = "(#{lv} <= #{rv} ? ++#{iterVar} : --#{iterVar})"
+                
+        s = ''
+        s += "for (#{loopStart}; #{loopCheck}; #{loopUpdate})" + nl
+
+        s += gi+"{"+nl
+        for e in n.then
+            prefix = if lastPrefix and e == n.then[-1] then lastPrefix else ''
+            postfix = if lastPostfix and e == n.then[-1] then lastPostfix else ''
+            s += g2 + prefix+@node(e)+postfix + nl
+        s += gi+"}"
+            
+        @ded() if not lineBreak
+        s
+        
+    # 00000000   0000000   00000000            0000000   00000000  
+    # 000       000   000  000   000          000   000  000       
+    # 000000    000   000  0000000            000   000  000000    
+    # 000       000   000  000   000          000   000  000       
+    # 000        0000000   000   000  000000   0000000   000       
+    
+    for_of: (n, varPrefix='', lastPrefix='', lastPostfix='', lineBreak) ->
+
+        gi = lineBreak or @ind()
+        nl = lineBreak or '\n'
+        eb = lineBreak and ';' or '\n'
+        g2 = if lineBreak then '' else @indent
+
+        key = n.vals.text ? n.vals[0]?.text
+        val = n.vals[1]?.text
+
+        obj = @node n.list
+        s = ''
+        s += "for (#{varPrefix}#{key} in #{obj})"+nl
+        s += gi+"{"+nl
+        if val
+            s += g2+"#{varPrefix}#{val} = #{obj}[#{key}]" + eb
+        for e in n.then
+            prefix = if lastPrefix and e == n.then[-1] then lastPrefix else ''
+            postfix = if lastPostfix and e == n.then[-1] then lastPostfix else ''
+            s += g2+ prefix+@node(e)+postfix + nl
+            
+        s += gi+"}"
+
+        @ded() if not lineBreak
+        s
+        
+    # 000       0000000   0000000   00     00  00000000   
+    # 000      000       000   000  000   000  000   000  
+    # 000      000       000   000  000000000  00000000   
+    # 000      000       000   000  000 0 000  000        
+    # 0000000   0000000   0000000   000   000  000        
+    
+    lcomp: (n) ->
+
+        v = 'r'+@makeVar n.for.inof
+        comp = (f) =>
+            switch f.inof.text
+                when 'in' then @for_in f, 'var ' "#{v}.push(" ')' ' '
+                when 'of' then @for_of f, 'var ' "#{v}.push(" ')' ' '
+                
+        "(function () { var #{v} = []; #{comp n.for} return #{v} }).bind(this)()"
+
+    # 000   000  000   000  000  000      00000000
+    # 000 0 000  000   000  000  000      000
+    # 000000000  000000000  000  000      0000000
+    # 000   000  000   000  000  000      000
+    # 00     00  000   000  000  0000000  00000000
+
+    while: (n) ->
+
+        gi = @ind()
+
+        s = ''
+        s += "while (#{@atom n.cond})\n"
+        s += gi+"{\n"
+        # for e in n.then
+            # s += @indent + @node(e) + '\n'
+        s += @indent + @nodes(n.then, '\n'+@indent) + '\n' if valid n.then
+        s += gi+"}"
+
+        @ded()
+        s
+
+    #  0000000  000   000  000  000000000   0000000  000   000
+    # 000       000 0 000  000     000     000       000   000
+    # 0000000   000000000  000     000     000       000000000
+    #      000  000   000  000     000     000       000   000
+    # 0000000   00     00  000     000      0000000  000   000
+
+    switch: (n) ->
+
+        if not n.match then error 'switch expected match' n
+        if not n.whens then error 'switch expected whens' n
+
+        gi = @ind()
+
+        s = ''
+        s += "switch (#{@node n.match})\n"
+        s += gi+"{\n"
+        
+        for e in n.whens
+            s += gi+ @node(e) + '\n'
+            
+        if valid n.else
+            s += @indent+'default:\n'
+            for e in n.else
+                s += @indent+'    '+ @node(e) + '\n'
+                
+        s += gi+"}\n"
+
+        @ded()
+        s
+
+    # 000   000  000   000  00000000  000   000
+    # 000 0 000  000   000  000       0000  000
+    # 000000000  000000000  0000000   000 0 000
+    # 000   000  000   000  000       000  0000
+    # 00     00  000   000  00000000  000   000
+
+    when: (n) ->
+
+        if not n.vals then return error 'when expected vals' n
+
+        s = ''
+        for e in n.vals
+            i = e != n.vals[0] and @indent or '    '
+            s += i+'case ' + @node(e) + ':\n'
+        for e in n.then
+            gi = @ind()
+            s += gi + '    ' + @node(e) + '\n'
+            @ded()
+        if not (n.then and n.then[-1] and n.then[-1].return)
+            s += @indent + '    ' + 'break' 
+        s
+
+    # 000000000  00000000   000   000  
+    #    000     000   000   000 000   
+    #    000     0000000      00000    
+    #    000     000   000     000     
+    #    000     000   000     000     
+    
+    try: (n) ->
+        
+        s = ''
+        gi = @ind()
+        s += 'try\n'
+        s += gi+'{\n'
+        s += @indent+@nodes n.exps, '\n'+@indent
+        s += '\n'
+        s += gi+'}'
+        if n.catch
+            s += '\n'
+            s += gi+"catch (#{@node(n.catch.errr) or 'err'})\n" 
+            s += gi+'{\n'
+            s += @indent+@nodes n.catch.exps, '\n'+@indent
+            s += '\n'
+            s += gi+'}'
+        if n.finally
+            s += '\n'
+            s += gi+'finally\n'
+            s += gi+'{\n'
+            s += @indent+@nodes n.finally, '\n'+@indent
+            s += '\n'
+            s += gi+'}'
+        @ded()
+        s
+        
+    # 000000000   0000000   000   000  00000000  000   000
+    #    000     000   000  000  000   000       0000  000
+    #    000     000   000  0000000    0000000   000 0 000
+    #    000     000   000  000  000   000       000  0000
+    #    000      0000000   000   000  00000000  000   000
+
+    token: (tok) ->
+
+        s = 
+            if tok.type == 'comment'
+                @comment tok
+            else if tok.type == 'this'
+                'this'
+            else if tok.type == 'triple'
+                '`' + tok.text[3..-4] + '`'
+            else if tok.type == 'bool' and tok.text == 'yes'
+                'true'
+            else if tok.type == 'bool' and tok.text == 'no'
+                'false'
+            else if tok.type?.startsWith 'prof'
+                @prof tok
+            else
+                tok.text
+                
+        @js s, tok
+        s
+
+    #  0000000   0000000   00     00  00     00  00000000  000   000  000000000
+    # 000       000   000  000   000  000   000  000       0000  000     000
+    # 000       000   000  000000000  000000000  0000000   000 0 000     000
+    # 000       000   000  000 0 000  000 0 000  000       000  0000     000
+    #  0000000   0000000   000   000  000   000  00000000  000   000     000
+
+    comment: (tok) ->
+
+        if tok.text?.startsWith '###'
+            '/*' + tok.text[3..-4] + '*/' + '\n'
+        else if tok.text.startsWith '#'
+            rpad(tok.col) + '//' + tok.text[1..-1]
+        else
+            error "# comment token expected"
+            ''
+
+    #  0000000   00000000   00000000  00000000    0000000   000000000  000   0000000   000   000
+    # 000   000  000   000  000       000   000  000   000     000     000  000   000  0000  000
+    # 000   000  00000000   0000000   0000000    000000000     000     000  000   000  000 0 000
+    # 000   000  000        000       000   000  000   000     000     000  000   000  000  0000
+    #  0000000   000        00000000  000   000  000   000     000     000   0000000   000   000
+
+    operation: (op) ->
+
+        opmap = (o) ->
+            omp =
+                and:    '&&'
+                or:     '||'
+                not:    '!'
+                empty:  '_k_.empty'
+                valid:  '!_k_.empty'
+                eql:    '_k_.eql'
+                '==':   '==='
+                '!=':   '!=='
+            omp[o] ? o
+
+        o   = opmap op.operator.text
+        sep = ' '
+        sep = '' if (not op.lhs and op.operator.text not in ['delete' 'new']) or not op.rhs
+
+        if o in ['<''<=''===''!==''>=''>''_k_.eql']
+            ro = opmap op.rhs?.operation?.operator.text
+            if ro in ['<''<=''===''!==''>=''>''_k_.eql']
+                return '(' + @atom(op.lhs) + sep + o + sep + @atom(op.rhs.operation.lhs) + ' && ' + kstr.lstrip(@atom(op.rhs)) + ')'
+
+        open = close = ''
+        
+        if 
+            o == '='
+            
+                if op.lhs.object # lhs is curly, eg. {x,y} = require ''
+                    s = ''
+                    for keyval in op.lhs.object.keyvals
+                        ind = if op.lhs.object.keyvals.indexOf(keyval) > 0 then @indent else ''
+                        s += ind + "#{keyval.text} = #{@atom(op.rhs)}.#{keyval.text}\n"
+                    return s
+                    
+                
+                if op.lhs.array # lhs is aray, eg. [x,y] = require ''
+                    v = @makeVar op.operator
+                    s = "var #{v} = #{@atom(op.rhs)}"
+                    for val in op.lhs.array.items
+                        i = op.lhs.array.items.indexOf val
+                        s += "; #{val.text} = #{v}[#{i}]"
+                    return s + '\n'
+                    
+                if op.lhs and @containsAssert op.lhs
+                    # dbg op.lhs
+                    s = "if (" + @atom(@pruneAssert op.lhs) + ") { #{@node(@clearAsserts op.lhs)} = " + @atom(op.rhs) + " }"
+                    return s
+        
+            o == '!'
+
+                if op.rhs?.incond or op.rhs?.operation?.operator?.text in ['=' 'is'] 
+                    open = '('
+                    close = ')'
+                # else
+                    # log '!' op.rhs
+                        
+            op.operator.text in ['empty' 'valid']
+                @hint._k_.empty = true
+                @hint._k_.valid = true if op.operator.text == 'valid'
+                open = '('
+                close = ')'
+
+            op.operator.text in ['first' 'last']
+                @hint._k_[op.operator.text] = true
+                rhs = @node op.rhs
+                if rhs[0] not in '.-+'
+                    if rhs[0] == '('
+                        return "_k_.#{op.operator.text}#{@node op.rhs}"
+                    else
+                        return "_k_.#{op.operator.text}(#{@node op.rhs})"
+                
+            op.operator.text == 'eql'
+                @hint._k_[op.operator.text] = true
+                return "_k_.#{op.operator.text}(#{@node op.lhs}, #{@node op.rhs})"
+
+            op.operator.text in ['copy' 'clone']
+                @hint._k_[op.operator.text] = true
+                return "_k_.#{op.operator.text}(#{@node op.rhs})"
+                            
+            op.operator.text == 'noon'
+                @hint._k_.noon = true
+                return "_k_.noon(#{@node op.rhs})"
+                            
+            op.rhs?.operation?.operator.text == '='
+                open = '('
+                close = ')'
+                
+            op.operator.text == 'is'
+                if op.rhs?.type in ['single' 'double' 'triple']
+                    return "typeof(#{@atom op.lhs}) === #{@node op.rhs}"
+                else
+                    if 
+                        op.rhs.text == 'num'
+                            lhs = @atom op.lhs
+                            @hint._k_.isNum = true
+                            return "_k_.isNum(#{lhs})"
+                            
+                        op.rhs.text == 'obj'
+                            if op.lhs.type == 'num'
+                                return 'false'
+                            else
+                                lhs = @atom op.lhs
+                                @hint._k_.isObj = true
+                                return "_k_.isObj(#{lhs})"                                
+
+                        op.rhs.text == 'arr'
+                            if op.lhs.type == 'num'
+                                return 'false'
+                            else
+                                lhs = @atom op.lhs
+                                @hint._k_.isArr = true
+                                return "_k_.isArr(#{lhs})"
+                                
+                        op.rhs.text == 'str'
+                            lhs = @atom op.lhs
+                            @hint._k_.isStr = true                            
+                            return "_k_.isStr(#{lhs})"
+
+                        op.rhs.text == 'func'
+                            lhs = @atom op.lhs
+                            @hint._k_.isFunc = true
+                            return "_k_.isFunc(#{lhs})"
+
+                        op.rhs.text == 'elem'
+                            lhs = @atom op.lhs
+                            @hint._k_.isElem = true
+                            return "_k_.isElem(#{lhs})"
+                            
+                        else
+                            return "#{@atom op.lhs} instanceof #{@atom op.rhs}"
+            
+        first = firstLineCol op.lhs
+        prfx = if first.col == 0 and op.rhs?.func then '\n' else ''
+ 
+        lhs = if op.lhs then @atom(op.lhs) + sep else ''
+        
+        prfx + lhs + o + sep + open + kstr.lstrip @atom(op.rhs) + close
+
+    # 000  000   000   0000000   0000000   000   000  0000000
+    # 000  0000  000  000       000   000  0000  000  000   000
+    # 000  000 0 000  000       000   000  000 0 000  000   000
+    # 000  000  0000  000       000   000  000  0000  000   000
+    # 000  000   000   0000000   0000000   000   000  0000000
+
+    incond: (p) ->
+        
+        @hint._k_.in = true
+        "_k_.in(#{@atom p.lhs},#{@atom p.rhs})"
+
+    # 00000000    0000000   00000000   00000000  000   000   0000000
+    # 000   000  000   000  000   000  000       0000  000  000
+    # 00000000   000000000  0000000    0000000   000 0 000  0000000
+    # 000        000   000  000   000  000       000  0000       000
+    # 000        000   000  000   000  00000000  000   000  0000000
+
+    parens: (p) -> 
+
+        "(#{@nodes p.exps})"
+
+    #  0000000   0000000          000  00000000   0000000  000000000
+    # 000   000  000   000        000  000       000          000
+    # 000   000  0000000          000  0000000   000          000
+    # 000   000  000   000  000   000  000       000          000
+    #  0000000   0000000     0000000   00000000   0000000     000
+
+    object: (p) -> 
+        nodes = p.keyvals.map (s) => @atom s
+        nodes = nodes.map (n) -> if ':' in n then n else "#{n}:#{n}"        
+        "{#{nodes.join ','}}"
+
+    # 000   000  00000000  000   000  000   000   0000000   000
+    # 000  000   000        000 000   000   000  000   000  000
+    # 0000000    0000000     00000     000 000   000000000  000
+    # 000  000   000          000        000     000   000  000
+    # 000   000  00000000     000         0      000   000  0000000
+
+    keyval: (p) ->
+        key = @node p.key
+        if key[0] not in "'\"" and /[\.\,\;\*\+\-\/\=\|]/.test key then key = "'#{key}'"
+        "#{key}:#{@atom(p.val)}"
+
+    # 00000000   00000000    0000000   00000000
+    # 000   000  000   000  000   000  000   000
+    # 00000000   0000000    000   000  00000000
+    # 000        000   000  000   000  000
+    # 000        000   000   0000000   000
+
+    prop:   (p) ->
+
+        "#{@node(p.obj)}.#{@node p.prop}"
+
+    # 000  000   000  0000000    00000000  000   000
+    # 000  0000  000  000   000  000        000 000
+    # 000  000 0 000  000   000  0000000     00000
+    # 000  000  0000  000   000  000        000 000
+    # 000  000   000  0000000    00000000  000   000
+
+    index:  (p) ->
+
+        if slice = p.slidx.slice
+
+            from = if slice.from? then @node slice.from else '0'
+
+            addOne = slice.dots.text == '..'
+
+            upto = if slice.upto? then @node slice.upto else '-1'
+
+            if slice.upto?.type == 'num' or slice.upto?.operation or upto == '-1'
+                u = parseInt upto
+                if Number.isFinite u
+                    if u == -1 and addOne
+                        upper = ''
+                    else
+                        u += 1 if addOne
+                        upper = ", #{u}"
+                else
+                    upper = ", #{upto}"
+            else
+                if addOne then if upto then upper = ", typeof #{upto} === 'number' ? #{upto}+1 : Infinity"
+                else                        upper = ", typeof #{upto} === 'number' ? #{upto} : -1"
+
+            "#{@node(p.idxee)}.slice(#{from}#{upper ? ''})"
+        else
+            if p.slidx.text?[0] == '-'
+                ni = parseInt p.slidx.text
+                if ni == -1
+                    return "#{@node(p.idxee)}.slice(#{ni})[0]"
+                else
+                    return "#{@node(p.idxee)}.slice(#{ni},#{ni+1})[0]"
+
+            "#{@node(p.idxee)}[#{@node p.slidx}]"
+
+    #  0000000   00000000   00000000    0000000   000   000
+    # 000   000  000   000  000   000  000   000   000 000
+    # 000000000  0000000    0000000    000000000    00000
+    # 000   000  000   000  000   000  000   000     000
+    # 000   000  000   000  000   000  000   000     000
+
+    array: (p) ->
+
+        if p.items[0]?.slice
+            @slice p.items[0].slice
+        else
+            "[#{@nodes p.items, ','}]"
+
+    #  0000000  000      000   0000000  00000000
+    # 000       000      000  000       000
+    # 0000000   000      000  000       0000000
+    #      000  000      000  000       000
+    # 0000000   0000000  000   0000000  00000000
+
+    slice: (p) ->
+        
+        if p.from.type == 'num' == p.upto?.type
+            from = parseInt p.from.text
+            upto = parseInt p.upto.text
+            if upto-from <= 10
+                if p.dots.text == '...' then upto--
+                '['+((x for x in [from..upto]).join ',')+']'
+            else
+                o = if p.dots.text == '...' then '<' else '<='
+                "(function() { var r = []; for (var i = #{from}; i #{o} #{upto}; i++){ r.push(i); } return r; }).apply(this)"
+        else
+            o = if p.dots.text == '...' then '<' else '<='
+            "(function() { var r = []; for (var i = #{@node p.from}; i #{o} #{@node p.upto}; i++){ r.push(i); } return r; }).apply(this)"
+        
+    #  0000000  000000000  00000000   000  00000000    0000000   000      
+    # 000          000     000   000  000  000   000  000   000  000      
+    # 0000000      000     0000000    000  00000000   000   000  000      
+    #      000     000     000   000  000  000        000   000  000      
+    # 0000000      000     000   000  000  000         0000000   0000000  
+    
+    stripol: (chunks) ->
+
+        s = '`'
+        for chunk in chunks
+            t = chunk.text
+            switch chunk.type
+                'open'  ➜    s +=       t + '${'
+                'midl'  ➜    s += '}' + t + '${'
+                'close' ➜    s += '}' + t
+                        ➜    if chunk.code  
+                                 c = @nodes chunk.code.exps
+                                 if c[0] == ';' ➜ c = c[1..]
+                                 s+= c
+        s += '`'
+        s
+
+    #  0000000  00000000   0000000  000000000  000   0000000   000   000  
+    # 000       000       000          000     000  000   000  0000  000  
+    # 0000000   0000000   000          000     000  000   000  000 0 000  
+    #      000  000       000          000     000  000   000  000  0000  
+    # 0000000   00000000   0000000     000     000   0000000   000   000  
+    
+    section: (p) ->
+        
+        @hint.section = true
+                
+        gi = @ind()
+        s = "toExport[#{p.title.text}] = function ()\n"
+        s+= gi + '{\n' 
+        s+= @indent + @nodes(p.exps, '\n'+@indent, true) + '\n' if valid p.exps
+        s+= gi + '}\n' 
+        s+= "toExport[#{p.title.text}]._section_ = true"
+        @ded()
+        s
+        
+    subsect: (p) ->
+        
+        gi = @ind()
+        s = "section(#{p.title.text}, function ()\n"
+        s+= gi + '{\n'
+        s+= @indent + @nodes(p.exps, '\n'+@indent) + '\n' if valid p.exps
+        s+= gi + '})'
+        @ded()
+        s
+        
+    #  0000000   0000000   00     00  00000000    0000000   00000000   00000000  
+    # 000       000   000  000   000  000   000  000   000  000   000  000       
+    # 000       000   000  000000000  00000000   000000000  0000000    0000000   
+    # 000       000   000  000 0 000  000        000   000  000   000  000       
+    #  0000000   0000000   000   000  000        000   000  000   000  00000000  
+    
+    compare: (p) ->
+        
+        s = 'compare('   \
+          + @node(p.lhs) \
+          + ','          \
+          + @node(p.rhs) \
+          + ')'
+        s
+        
+    containsAssert: (e) ->
+        
+        return false if not e
+        if e.assert  ➜ ⮐ true
+        if e.prop    ➜ ⮐ @containsAssert e.prop.obj
+        if e.index   ➜ ⮐ @containsAssert e.index.idxee
+        if e.call    ➜ ⮐ @containsAssert e.call.callee
+        false
+        
+    pruneAssert: (e) ->
+  
+        return e if not e
+        if e.prop  ➜ ⮐ @pruneAssert e.prop.obj
+        if e.index ➜ ⮐ @pruneAssert e.index.idxee
+        if e.call  ➜ ⮐ @pruneAssert e.call.callee
+        e
+        
+    clearAsserts: (e) ->
+        
+        ⮐ e if not e
+        if e.assert ➜ ⮐ @clearAsserts e.assert.obj
+        if e.prop
+            c = clone e
+            c.prop.obj = @clearAsserts e.prop.obj
+            ⮐ c
+        if e.index
+            c = clone e
+            c.index.idxee = @clearAsserts e.index.idxee
+            ⮐ c
+        if e.call
+            c = clone e
+            c.call.callee = @clearAsserts e.call.callee
+            ⮐ c
+        e
+        
+    #  0000000   0000000   00000000   000000000  000   000   0000000   00000000    0000000  
+    # 000       000   000  000   000     000     000   000  000   000  000   000  000       
+    # 0000000   000   000  0000000       000      000 000   000000000  0000000    0000000   
+    #      000  000   000  000   000     000        000     000   000  000   000       000  
+    # 0000000    0000000   000   000     000         0      000   000  000   000  0000000   
+    
+    sortVars: (vars) ->
+        
+        vl = [v.text for v in vars]
+        vl.sort (a,b) -> 
+            if  a[0] == '_' and b[0] != '_' ➜ 1
+                a[0] != '_' and b[0] == '_' ➜ -1
+                                            ➜ a.localeCompare b
+        vl.join ', '
+        
+    # 00000000  00000000   00000000   0000000  000   000  000   000   0000000   00000000   
+    # 000       000   000  000       000       000   000  000   000  000   000  000   000  
+    # 000000    0000000    0000000   0000000   000000000   000 000   000000000  0000000    
+    # 000       000   000  000            000  000   000     000     000   000  000   000  
+    # 000       000   000  00000000  0000000   000   000      0      000   000  000   000  
+    
+    freshVar: (name, suffix=0) ->
+
+        for vars in @varstack
+            for v in vars
+                if v.text == name + (suffix or '')
+                    return @freshVar name, suffix+1
+
+        @varstack[-1].push text:name + (suffix or '')
+        name + (suffix or '')
+
+    makeVar: (tok) -> "_#{tok.line}_#{tok.col}_"
+        
+    verb: -> if @debug then console.log.apply console.log, arguments
+    
+    ind: ->
+
+        oi = @indent
+        @indent += '    '
+        oi
+
+    ded: -> @indent = @indent[...-4]
+       
+export Renderer

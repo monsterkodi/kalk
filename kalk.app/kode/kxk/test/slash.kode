@@ -1,0 +1,527 @@
+# 000000000  00000000   0000000  000000000
+#    000     000       000          000
+#    000     0000000   0000000      000
+#    000     000            000     000
+#    000     00000000  0000000      000
+
+use .. ◆ slash
+
+▸ slash
+    
+    # 000   000   0000000   00000000   00     00   0000000   000      000  0000000  00000000  
+    # 0000  000  000   000  000   000  000   000  000   000  000      000     000   000       
+    # 000 0 000  000   000  0000000    000000000  000000000  000      000    000    0000000   
+    # 000  0000  000   000  000   000  000 0 000  000   000  000      000   000     000       
+    # 000   000   0000000   000   000  000   000  000   000  0000000  000  0000000  00000000  
+    
+    ▸ normalize
+    
+        slash.normalize 'xyz'               ▸ 'xyz'
+        slash.normalize 'x/y/z'             ▸ 'x/y/z'
+        slash.normalize 'x\\y/z\\'          ▸ 'x/y/z/'
+        slash.normalize '\\x\\y/z'          ▸ '/x/y/z'
+        slash.normalize '..\\x\\y/z'        ▸ '../x/y/z'
+        slash.normalize './x\\y/z'          ▸ './x/y/z'
+        
+        slash.normalize 'x/./z'             ▸ 'x/z'
+        slash.normalize 'x/../z'            ▸ 'z'
+        slash.normalize './x/y/z/../../a'   ▸ './x/a'
+        
+        slash.normalize '../up'             ▸ '../up'
+        slash.normalize '//'                ▸ '/'
+        slash.normalize '//././////././'    ▸ '/'
+        slash.normalize './x/../../z'       ▸ '../z'
+        slash.normalize './x/../../../y'    ▸ '../../y'
+    
+    # 00000000    0000000   000000000  000   000  
+    # 000   000  000   000     000     000   000  
+    # 00000000   000000000     000     000000000  
+    # 000        000   000     000     000   000  
+    # 000        000   000     000     000   000  
+
+    ▸ path
+    
+        slash.path ''                       ▸ ''
+        slash.path null                     ▸ ''
+        slash.path undefined                ▸ ''
+        slash.path 'a' 'b' 'c'              ▸ 'a/b/c'
+        
+        slash.path '' '' 'void' '' ''       ▸ 'void'
+        slash.path '' '' 'oops' '' 'alla'   ▸ 'oops/alla'
+        
+        slash.path 'C:\\FOO' '.\\BAR' 'that\\sucks'  ▸ 'C:/FOO/BAR/that/sucks'
+        
+        slash.path '~'                      ▸ '~'
+        slash.path '/'                      ▸ '/'
+        slash.path './'                     ▸ './'
+        slash.path '../'                    ▸ '../'
+        slash.path '.././'                  ▸ '../'
+        slash.path './relative'             ▸ './relative'
+        slash.path '../parent'              ▸ '../parent'
+        slash.path '.././././'              ▸ '../'
+        slash.path '//'                     ▸ '/'
+        slash.path 'C:/'                    ▸ 'C:/'
+        slash.path 'C://'                   ▸ 'C:/'
+        slash.path 'C:'                     ▸ 'C:/'
+        slash.path 'C:\\'                   ▸ 'C:/'
+        slash.path 'C:/some/path/on.c'      ▸ 'C:/some/path/on.c'
+    
+        slash.path "C:\\"                   ▸ "C:/"
+        slash.path "C:/"                    ▸ "C:/"
+        slash.path "C://"                   ▸ "C:/"
+        slash.path "C:"                     ▸ "C:/"
+        slash.path "C:\\Back\\Slash\\Crap"  ▸ "C:/Back/Slash/Crap"
+        slash.path "C:\\Back\\Slash\\Crap\\..\\..\\To\\The\\..\\Future" ▸ "C:/Back/To/Future"
+         
+    # 00000000   00000000  00     00   0000000   000   000  00000000  0000000    00000000   000  000   000  00000000  
+    # 000   000  000       000   000  000   000  000   000  000       000   000  000   000  000  000   000  000       
+    # 0000000    0000000   000000000  000   000   000 000   0000000   000   000  0000000    000   000 000   0000000   
+    # 000   000  000       000 0 000  000   000     000     000       000   000  000   000  000     000     000       
+    # 000   000  00000000  000   000   0000000       0      00000000  0000000    000   000  000      0      00000000  
+    
+    ▸ removeDrive
+        
+        slash.removeDrive '/some/path'      ▸ '/some/path'
+        slash.removeDrive 'c:/some/path'    ▸ '/some/path'
+        slash.removeDrive 'c:\\some\\path'  ▸ '/some/path'
+        slash.removeDrive 'c:/'             ▸ '/'
+        slash.removeDrive 'c:\\'            ▸ '/'
+        slash.removeDrive 'c:'              ▸ '/'
+        slash.removeDrive '/'               ▸ '/'
+    
+    # 000   0000000  00000000    0000000    0000000   000000000  
+    # 000  000       000   000  000   000  000   000     000     
+    # 000  0000000   0000000    000   000  000   000     000     
+    # 000       000  000   000  000   000  000   000     000     
+    # 000  0000000   000   000   0000000    0000000      000     
+    
+    ▸ isRoot
+        
+        slash.isRoot 'C:/'      ▸ true
+        slash.isRoot 'D:'       ▸ true
+        slash.isRoot '/'        ▸ true
+        slash.isRoot '/a'       ▸ false
+        slash.isRoot 'c:/a'     ▸ false
+        slash.isRoot 'C:\\a'    ▸ false
+        
+    # 00000000    0000000   00000000    0000000  00000000  
+    # 000   000  000   000  000   000  000       000       
+    # 00000000   000000000  0000000    0000000   0000000   
+    # 000        000   000  000   000       000  000       
+    # 000        000   000  000   000  0000000   00000000  
+    
+    ▸ parse
+    
+        slash.parse('/a/b/c.txt') ▸ path:'/a/b/c.txt' dir: '/a/b' file: 'c.txt' name: 'c' ext: 'txt'
+        slash.parse('/a/b/c')     ▸ path:'/a/b/c'     dir: '/a/b' file: 'c'     name: 'c' ext: ''
+        slash.parse('/a/b/c/')    ▸ path:'/a/b/c'     dir: '/a/b' file: 'c'     name: 'c' ext: ''
+        slash.parse('/a')         ▸ path:'/a'         dir: '/'    file: 'a'     name: 'a' ext: ''
+        
+        user = slash.user()
+        slash.parse('~') ▸ path:'~' dir:'/Users' file:user, name:user, ext: ''
+        
+        if slash.win()
+            
+            slash.parse('c:').root  ▸ 'c:/'
+            slash.parse('c:').dir   ▸ 'c:/'
+
+    # 0000000    000  00000000   
+    # 000   000  000  000   000  
+    # 000   000  000  0000000    
+    # 000   000  000  000   000  
+    # 0000000    000  000   000  
+    
+    ▸ dir
+    
+        slash.dir '/some/path/file.txt' ▸ '/some/path'
+        slash.dir '/some/dir/'          ▸ '/some'
+        slash.dir '/some/dir'           ▸ '/some'
+        slash.dir 'some/dir/'           ▸ 'some'
+        slash.dir 'some/dir'            ▸ 'some'
+        slash.dir '/some/'              ▸ '/'
+        slash.dir '/some'               ▸ '/'
+        slash.dir './rel'               ▸ '.'
+        slash.dir './rel/ative'         ▸ './rel'
+        slash.dir '../..'               ▸ '..'
+        slash.dir '.'                   ▸ ''
+        slash.dir '..'                  ▸ ''
+        slash.dir './'                  ▸ ''
+        slash.dir '../'                 ▸ ''
+        slash.dir '~'                   ▸ slash.dir slash.home()
+        slash.dir '~/'                  ▸ slash.dir slash.home()
+        
+        if slash.win()
+            
+            slash.dir 'C:/'                 ▸ ''
+            slash.dir 'C:/'                 ▸ ''
+            slash.dir 'C:/Back'             ▸ 'C:/'
+            slash.dir 'D:\\Back'            ▸ 'D:/'
+        
+    # 00000000    0000000   000000000  000   000  000      000   0000000  000000000  
+    # 000   000  000   000     000     000   000  000      000  000          000     
+    # 00000000   000000000     000     000000000  000      000  0000000      000     
+    # 000        000   000     000     000   000  000      000       000     000     
+    # 000        000   000     000     000   000  0000000  000  0000000      000     
+    
+    ▸ pathlist
+    
+        slash.logErrors = false
+        slash.pathlist ''                  ▸ []
+        slash.logErrors = true
+        
+        slash.pathlist '/some/path.txt'    ▸ ['/' '/some' '/some/path.txt']
+
+        slash.pathlist '/'                 ▸ ['/']
+        slash.pathlist '.'                 ▸ ['.']
+                
+        slash.pathlist '/c/Slash'          ▸ ['/' '/c' '/c/Slash']
+        slash.pathlist '\\d\\Slash'        ▸ ['/' '/d' '/d/Slash']
+
+        slash.pathlist '~'                 ▸ ['~']
+        slash.pathlist '~/p/in/../home'    ▸ ['~' '~/p' '~/p/home']
+
+        if slash.win()
+            
+            slash.pathlist 'C:\\Back\\Slash\\' ▸ ['C:/' 'C:/Back' 'C:/Back/Slash']
+            slash.pathlist 'C:/Slash'          ▸ ['C:/' 'C:/Slash']
+                    
+    # 000   000   0000000   00     00  00000000  
+    # 0000  000  000   000  000   000  000       
+    # 000 0 000  000000000  000000000  0000000   
+    # 000  0000  000   000  000 0 000  000       
+    # 000   000  000   000  000   000  00000000  
+    
+    ▸ name
+        
+        slash.name '/some/path.txt'        ▸ 'path'
+            
+    # 00000000  000  000      00000000  
+    # 000       000  000      000       
+    # 000000    000  000      0000000   
+    # 000       000  000      000       
+    # 000       000  0000000  00000000  
+    
+    ▸ file
+        
+        slash.file '/some/path.txt'        ▸ 'path.txt'
+        slash.file 'file:///files.css'     ▸ 'files.css'
+
+    # 00000000  000   000  000000000  
+    # 000        000 000      000     
+    # 0000000     00000       000     
+    # 000        000 000      000     
+    # 00000000  000   000     000     
+    
+    ▸ ext
+    
+        slash.ext './none'            ▸ ''
+        slash.ext './some.ext'        ▸ 'ext'
+        slash.ext './some.more.ext'   ▸ 'ext'
+        
+    # 00000000   00000000  00     00   0000000   000   000  00000000  00000000  000   000  000000000  
+    # 000   000  000       000   000  000   000  000   000  000       000        000 000      000     
+    # 0000000    0000000   000000000  000   000   000 000   0000000   0000000     00000       000     
+    # 000   000  000       000 0 000  000   000     000     000       000        000 000      000     
+    # 000   000  00000000  000   000   0000000       0      00000000  00000000  000   000     000     
+    
+    ▸ removeExt
+    
+        slash.removeExt './none'            ▸ './none'
+        slash.removeExt './some.ext'        ▸ './some'
+        slash.removeExt './some.more.ext'   ▸ './some.more'
+        
+        slash.removeExt '../none'           ▸ '../none'
+        slash.removeExt '../some.ext'       ▸ '../some'
+        slash.removeExt '../some.more.ext'  ▸ '../some.more'
+        
+        slash.removeExt 'none'              ▸ 'none'
+        slash.removeExt 'some.ext'          ▸ 'some'
+        slash.removeExt 'some.more.ext'     ▸ 'some.more'
+
+    #  0000000  00000000   000      000  000000000  00000000  000   000  000000000  
+    # 000       000   000  000      000     000     000        000 000      000     
+    # 0000000   00000000   000      000     000     0000000     00000       000     
+    #      000  000        000      000     000     000        000 000      000     
+    # 0000000   000        0000000  000     000     00000000  000   000     000     
+    
+    ▸ splitExt
+    
+        slash.splitExt './none'             ▸ ['./none' '']
+        slash.splitExt './some.ext'         ▸ ['./some' 'ext']
+        slash.splitExt './some.more.ext'    ▸ ['./some.more' 'ext']
+
+        slash.splitExt '/none'              ▸ ['/none' '']
+        slash.splitExt '/some.ext'          ▸ ['/some' 'ext']
+        slash.splitExt '/some.more.ext'     ▸ ['/some.more' 'ext']
+        
+        slash.splitExt 'none'               ▸ ['none' '']
+        slash.splitExt 'some.ext'           ▸ ['some' 'ext']
+        slash.splitExt 'some.more.ext'      ▸ ['some.more' 'ext']
+        
+    #  0000000  000   000   0000000   00000000   00000000  000   000  000000000  
+    # 000       000 0 000  000   000  000   000  000        000 000      000     
+    # 0000000   000000000  000000000  00000000   0000000     00000       000     
+    #      000  000   000  000   000  000        000        000 000      000     
+    # 0000000   00     00  000   000  000        00000000  000   000     000     
+    
+    ▸ swapExt
+    
+        slash.swapExt './some' 'new'            ▸ './some.new'
+        slash.swapExt './some.ext' 'new'        ▸ './some.new'
+        slash.swapExt './some.more.ext' 'new'   ▸ './some.more.new'
+        
+        slash.swapExt '/some' 'new'             ▸ '/some.new'
+        slash.swapExt '/some.ext' 'new'         ▸ '/some.new'
+        slash.swapExt '/some.more.ext' 'new'    ▸ '/some.more.new'
+        
+        slash.swapExt 'some' 'new'              ▸ 'some.new'
+        slash.swapExt 'some.ext' 'new'          ▸ 'some.new'
+        slash.swapExt 'some.more.ext' 'new'     ▸ 'some.more.new'
+       
+    # 000   000   0000000   00     00  00000000  
+    # 000   000  000   000  000   000  000       
+    # 000000000  000   000  000000000  0000000   
+    # 000   000  000   000  000 0 000  000       
+    # 000   000   0000000   000   000  00000000  
+    
+    ▸ home
+        
+        if slash.win()
+            home = slash.path process.env['HOMEDRIVE'] + process.env['HOMEPATH']
+        else
+            home = process.env['HOME']
+            
+        slash.home()                ▸ home
+        slash.tilde home            ▸ '~'
+        slash.tilde home + '/sub'   ▸ '~/sub'
+        slash.untilde '~/sub'       ▸ home + '/sub'
+
+    # 000   000  000   000  00000000  000   000  000   000  
+    # 000   000  0000  000  000       0000  000  000   000  
+    # 000   000  000 0 000  0000000   000 0 000   000 000   
+    # 000   000  000  0000  000       000  0000     000     
+    #  0000000   000   000  00000000  000   000      0      
+    
+    ▸ unenv
+        
+        slash.unenv 'C:/$Recycle.bin'   ▸ 'C:/$Recycle.bin'
+        slash.unenv '$HOME/test'        ▸ slash.path(process.env['HOME']) + '/test'
+
+    # 000   000  000   000   0000000  000       0000000    0000000  000   000  
+    # 000   000  0000  000  000       000      000   000  000       000   000  
+    # 000   000  000 0 000  0000000   000      000000000  0000000   000000000  
+    # 000   000  000  0000       000  000      000   000       000  000   000  
+    #  0000000   000   000  0000000   0000000  000   000  0000000   000   000  
+    
+    ▸ unslash
+        
+        if not slash.win()
+            slash.unslash '/c/test'     ▸ '/c/test'
+        else
+            slash.unslash '/c/test'     ▸ 'C:\\test'
+        
+    # 00000000   00000000  000       0000000   000000000  000  000   000  00000000  
+    # 000   000  000       000      000   000     000     000  000   000  000       
+    # 0000000    0000000   000      000000000     000     000   000 000   0000000   
+    # 000   000  000       000      000   000     000     000     000     000       
+    # 000   000  00000000  0000000  000   000     000     000      0      00000000  
+    
+    ▸ relative
+    
+        slash.relative '\\test\\some\\path.txt' '\\test\\some\\other\\path' ▸ '../../path.txt'
+        slash.relative '/Users/kodi/s/konrad/app/js/coffee.js' '/Users/kodi/s/konrad' ▸ 'app/js/coffee.js'
+        slash.relative '/some/path/on.c' '/path/on.d' ▸ '../../some/path/on.c'
+        slash.relative '\\some\\path\\on.c' '\\path\\on.d' ▸ '../../some/path/on.c'
+        slash.relative '\\some\\path' '/some/path' ▸ '.'
+        slash.relative '/Users/kodi/s/kakao/kakao.app/js/bin/kode/returner.js' '/Users/kodi/s/kakao/kakao.app/js/bin/kode/test' ▸ '../returner.js'
+        
+        if slash.win()
+            slash.relative 'C:\\test\\some\\path.txt' 'C:\\test\\some\\other\\path' ▸ '../../path.txt'
+            slash.relative 'C:/Users/kodi/s/konrad/app/js/coffee.js' 'C:/Users/kodi/s/konrad' ▸ 'app/js/coffee.js'
+            slash.relative 'C:\\some\\path' 'C:/some/path' ▸ '.'
+            slash.relative 'C:/some/path/on.c' 'D:/path/on.d' ▸ 'C:/some/path/on.c'
+            slash.relative 'C:\\some\\path\\on.c' 'D:\\path\\on.d' ▸ 'C:/some/path/on.c'
+                            
+    #  0000000  00000000   000      000  000000000  
+    # 000       000   000  000      000     000     
+    # 0000000   00000000   000      000     000     
+    #      000  000        000      000     000     
+    # 0000000   000        0000000  000     000     
+    
+    ▸ split
+        
+        slash.split '/c/users/home/'      ▸ ['c' 'users' 'home']
+        slash.split "d/users/home"        ▸ ['d' 'users' 'home']
+        slash.split "c:/some/path"        ▸ ['c:' 'some' 'path']
+        
+        slash.split '~/home/path'         ▸ ['~' 'home' 'path']
+        slash.split 'd:\\some\\path\\'    ▸ ['d:' 'some' 'path'] # this breaks klor highlight!
+            
+    #  0000000  00000000   000      000  000000000  0000000    00000000   000  000   000  00000000  
+    # 000       000   000  000      000     000     000   000  000   000  000  000   000  000       
+    # 0000000   00000000   000      000     000     000   000  0000000    000   000 000   0000000   
+    #      000  000        000      000     000     000   000  000   000  000     000     000       
+    # 0000000   000        0000000  000     000     0000000    000   000  000      0      00000000  
+    
+    ▸ splitDrive
+        
+        slash.splitDrive '/some/path'       ▸ ['/some/path' '']
+        slash.splitDrive 'c:/some/path'     ▸ ['/some/path' 'c']
+        slash.splitDrive 'c:\\some\\path'   ▸ ['/some/path' 'c']
+        slash.splitDrive 'c:\\'             ▸ ['/' 'c']
+        slash.splitDrive 'c:'               ▸ ['/' 'c']
+        
+    #  0000000  00000000   000      000  000000000  00000000  000  000      00000000  000      000  000   000  00000000  
+    # 000       000   000  000      000     000     000       000  000      000       000      000  0000  000  000       
+    # 0000000   00000000   000      000     000     000000    000  000      0000000   000      000  000 0 000  0000000   
+    #      000  000        000      000     000     000       000  000      000       000      000  000  0000  000       
+    # 0000000   000        0000000  000     000     000       000  0000000  00000000  0000000  000  000   000  00000000  
+    
+    ▸ splitFileLine
+
+        slash.splitFileLine '/some/path'            ▸ ['/some/path' 1 0]
+        slash.splitFileLine '/some/path:123'        ▸ ['/some/path' 123 0]
+        slash.splitFileLine '/some/path:123:15'     ▸ ['/some/path' 123 15]
+        slash.splitFileLine 'c:/some/path:123'      ▸ ['c:/some/path' 123 0]
+        slash.splitFileLine 'c:/some/path:123:15'   ▸ ['c:/some/path' 123 15]
+
+    #  0000000  00000000   000      000  000000000  00000000  000  000      00000000  00000000    0000000    0000000  
+    # 000       000   000  000      000     000     000       000  000      000       000   000  000   000  000       
+    # 0000000   00000000   000      000     000     000000    000  000      0000000   00000000   000   000  0000000   
+    #      000  000        000      000     000     000       000  000      000       000        000   000       000  
+    # 0000000   000        0000000  000     000     000       000  0000000  00000000  000         0000000   0000000   
+    
+    ▸ splitFilePos
+
+        slash.splitFilePos '/some/path'             ▸ ['/some/path' [0  0]]
+        slash.splitFilePos '/some/path:123'         ▸ ['/some/path' [0  122]]
+        slash.splitFilePos '/some/path:123:15'      ▸ ['/some/path' [15 122]]
+        slash.splitFilePos 'c:/some/path:123'       ▸ ['c:/some/path' [0  122]]
+        slash.splitFilePos 'c:/some/path:123:15'    ▸ ['c:/some/path' [15 122]]
+
+    #       000   0000000   000  000   000  00000000  000  000      00000000  00000000    0000000    0000000  
+    #       000  000   000  000  0000  000  000       000  000      000       000   000  000   000  000       
+    #       000  000   000  000  000 0 000  000000    000  000      0000000   00000000   000   000  0000000   
+    # 000   000  000   000  000  000  0000  000       000  000      000       000        000   000       000  
+    #  0000000    0000000   000  000   000  000       000  0000000  00000000  000         0000000   0000000   
+    
+    ▸ joinFilePos
+
+        slash.joinFilePos '/some/path' [0 0]         ▸ '/some/path'
+        slash.joinFilePos '/some/path' [1 0]         ▸ '/some/path:1:1'
+        slash.joinFilePos '/some/path' [0 1]         ▸ '/some/path:2'
+        slash.joinFilePos '/some/path' [1 1]         ▸ '/some/path:2:1'
+        slash.joinFilePos '/some/path' [0 4]         ▸ '/some/path:5'
+        slash.joinFilePos '/some/path' [1 5]         ▸ '/some/path:6:1'
+        slash.joinFilePos '/some/path:23:45' [1 5]   ▸ '/some/path:6:1'
+        slash.joinFilePos '/some/path:23' [1 5]      ▸ '/some/path:6:1'
+        slash.joinFilePos '/some/path'               ▸ '/some/path'
+        slash.joinFilePos '/some/path' []            ▸ '/some/path'
+        
+    #       000   0000000   000  000   000  00000000  000  000      00000000  000      000  000   000  00000000  
+    #       000  000   000  000  0000  000  000       000  000      000       000      000  0000  000  000       
+    #       000  000   000  000  000 0 000  000000    000  000      0000000   000      000  000 0 000  0000000   
+    # 000   000  000   000  000  000  0000  000       000  000      000       000      000  000  0000  000       
+    #  0000000    0000000   000  000   000  000       000  0000000  00000000  0000000  000  000   000  00000000  
+    
+    ▸ joinFileLine
+
+        slash.joinFileLine '/some/path' 1         ▸ '/some/path:1'
+        slash.joinFileLine '/some/path' 4 0       ▸ '/some/path:4'
+        slash.joinFileLine '/some/path' 5 1       ▸ '/some/path:5:1'
+        slash.joinFileLine '/some/path:23:45' 5 1 ▸ '/some/path:5:1'
+        slash.joinFileLine '/some/path:23' 5 1    ▸ '/some/path:5:1'
+        slash.joinFileLine '/some/path'           ▸ '/some/path'
+        slash.joinFileLine '/some/path' 0         ▸ '/some/path'
+        
+    #  0000000   0000000   00     00  00000000  00000000  000  000      00000000  00000000    0000000    0000000  
+    # 000       000   000  000   000  000       000       000  000      000       000   000  000   000  000       
+    # 0000000   000000000  000000000  0000000   000000    000  000      0000000   00000000   000   000  0000000   
+    #      000  000   000  000 0 000  000       000       000  000      000       000        000   000       000  
+    # 0000000   000   000  000   000  00000000  000       000  0000000  00000000  000         0000000   0000000   
+    
+    ▸ sameFilePos
+    
+        slash.sameFilePos '/some/other/path:1' '/some/path:1'   ▸ false
+        slash.sameFilePos '/some/path:1'       '/some/path:2'   ▸ false
+        slash.sameFilePos '/some/path:1:2'     '/some/path:1:3' ▸ false
+        slash.sameFilePos '/some/path:1:2'     '/some/path:1'   ▸ false
+        slash.sameFilePos '/some/path:1:2'     '/some/path'     ▸ false
+
+        slash.sameFilePos '/some/path:1:3'     '/some/path:1:3' ▸ true
+        slash.sameFilePos '/some/path:1:0'     '/some/path:1:0' ▸ true
+        slash.sameFilePos '/some/path:1:0'     '/some/path:1'   ▸ true
+        slash.sameFilePos '/some/path:1:0'     '/some/path'     ▸ true
+        
+    ▸ sameFileLine
+
+        slash.sameFileLine '/some/other/path:1' '/some/path:1'   ▸ false
+        slash.sameFileLine '/some/path:1'       '/some/path:2'   ▸ false
+        slash.sameFileLine '/some/path:2:2'     '/some/path'     ▸ false
+    
+        slash.sameFileLine '/some/path:1:3'     '/some/path:1:3' ▸ true
+        slash.sameFileLine '/some/path:1:4'     '/some/path:1:0' ▸ true
+        slash.sameFileLine '/some/path:1:5'     '/some/path:1'   ▸ true
+        slash.sameFileLine '/some/path:1:6'     '/some/path'     ▸ true
+    
+    ▸ hasFilePos
+    
+        slash.hasFilePos 'some/path'      ▸ false
+        slash.hasFilePos 'some/path:1'    ▸ false
+        slash.hasFilePos 'some/path:1:0'  ▸ false
+        
+        slash.hasFilePos 'some/path:1:1'  ▸ true
+        slash.hasFilePos 'some/path:2'    ▸ true
+        slash.hasFilePos 'some/path:2:0'  ▸ true
+        slash.hasFilePos 'some/path:2:2'  ▸ true
+        
+    # 000   0000000  00000000   00000000  000       0000000   000000000  000  000   000  00000000  
+    # 000  000       000   000  000       000      000   000     000     000  000   000  000       
+    # 000  0000000   0000000    0000000   000      000000000     000     000   000 000   0000000   
+    # 000       000  000   000  000       000      000   000     000     000     000     000       
+    # 000  0000000   000   000  00000000  0000000  000   000     000     000      0      00000000  
+    
+    ▸ isRelative
+        
+        slash.isRelative ◆dir                 ▸ false
+        slash.isRelative '.'                  ▸ true
+        slash.isRelative '..'                 ▸ true
+        slash.isRelative '.././bla../../fark' ▸ true
+        slash.isRelative '..\\blafark'        ▸ true
+
+        if slash.win()
+            slash.isRelative 'C:\\blafark'        ▸ false
+            slash.isRelative 'C:\\'               ▸ false
+            slash.isRelative 'C:/'                ▸ false
+            slash.isRelative 'C:'                 ▸ false
+        
+    #  0000000   0000000   000   000  000  000000000  000  0000000  00000000  
+    # 000       000   000  0000  000  000     000     000     000   000       
+    # 0000000   000000000  000 0 000  000     000     000    000    0000000   
+    #      000  000   000  000  0000  000     000     000   000     000       
+    # 0000000   000   000  000   000  000     000     000  0000000  00000000  
+    
+    ▸ sanitize
+        
+        (slash.sanitize 'a.b\n') ▸ 'a.b'
+        (slash.sanitize '\n\n c . d  \n\n\n') ▸ ' c . d  '
+        
+    #  0000000   0000000   000   000  000000000   0000000   000  000   000   0000000  
+    # 000       000   000  0000  000     000     000   000  000  0000  000  000       
+    # 000       000   000  000 0 000     000     000000000  000  000 0 000  0000000   
+    # 000       000   000  000  0000     000     000   000  000  000  0000       000  
+    #  0000000   0000000   000   000     000     000   000  000  000   000  0000000   
+    
+    ▸ contains
+    
+        slash.contains '/c/users/home/' 'users'     ▸ true
+        slash.contains '/home' 'hom'                ▸ false
+        slash.contains '/abc.def/ghi.jkl' 'abc'     ▸ false
+        slash.contains '/abc.def/ghi.jkl' 'def'     ▸ false
+        slash.contains '/abc.def/ghi.jkl' 'ghi'     ▸ false
+        slash.contains '/abc.def/ghi.jkl' 'jkl'     ▸ false
+        slash.contains '/abc.def/ghi.jkl' 'abc.def' ▸ true
+        slash.contains '/abc.def/ghi.jkl' 'ghi.jkl' ▸ true
+        
+                    
+      

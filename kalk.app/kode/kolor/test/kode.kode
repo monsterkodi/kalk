@@ -1,0 +1,511 @@
+###
+000   000   0000000   0000000    00000000
+000  000   000   000  000   000  000     
+0000000    000   000  000   000  0000000 
+000  000   000   000  000   000  000     
+000   000   0000000   0000000    00000000
+###
+
+use ./util ▪ inc ranges lang
+
+lang 'kode'
+
+▸ kode
+
+    #  0000000  000       0000000    0000000   0000000  
+    # 000       000      000   000  000       000       
+    # 000       000      000000000  0000000   0000000   
+    # 000       000      000   000       000       000  
+    #  0000000  0000000  000   000  0000000   0000000   
+    
+    ▸ class
+    
+        rgs = ranges "class Macro extends Command"
+        inc rgs, 0  'class'     ▸ 'keyword'
+        inc rgs, 6  'Macro'     ▸ 'class'
+        inc rgs, 12 'extends'   ▸ 'keyword'
+        inc rgs, 20 'Command'   ▸ 'class'
+    
+    # 00000000   00000000    0000000   00000000   00000000  00000000   000000000  000   000  
+    # 000   000  000   000  000   000  000   000  000       000   000     000      000 000   
+    # 00000000   0000000    000   000  00000000   0000000   0000000       000       00000    
+    # 000        000   000  000   000  000        000       000   000     000        000     
+    # 000        000   000   0000000   000        00000000  000   000     000        000     
+    
+    ▸ property
+        
+        rgs = ranges "exist?.prop"
+        inc rgs, 7 'prop'       ▸ 'property'
+                            
+        rgs = ranges "obj.value = obj.another.value"
+        inc rgs, 0  "obj"       ▸ 'obj'
+        inc rgs, 4  "value"     ▸ 'property'
+        inc rgs, 12 "obj"       ▸ 'obj'
+        inc rgs, 16 "another"   ▸ 'property'
+        inc rgs, 24 "value"     ▸ 'property'
+            
+        rgs = ranges "if someObject.someProp"
+        inc rgs, 0 "if"         ▸ 'keyword'
+        inc rgs, 3 "someObject" ▸ 'obj'
+        inc rgs, 13 "."         ▸ 'punct property'
+        inc rgs, 14 "someProp"  ▸ 'property'
+    
+    # 000       0000000    0000000   000   0000000  
+    # 000      000   000  000        000  000       
+    # 000      000   000  000  0000  000  000       
+    # 000      000   000  000   000  000  000       
+    # 0000000   0000000    0000000   000   0000000  
+    
+    ▸ logic
+        
+        rgs = ranges "a and b"
+        inc rgs, 0 "a"          ▸ 'text'
+        inc rgs, 2 "and"        ▸ 'keyword'
+    
+        rgs = ranges "if a then b"
+        inc rgs, 0 "if"         ▸ 'keyword'
+        inc rgs, 3 "a"          ▸ 'text'
+        inc rgs, 5 "then"       ▸ 'keyword'
+        inc rgs, 10 "b"         ▸ 'text'
+    
+        rgs = ranges "switch a"
+        inc rgs, 0 "switch"     ▸ 'keyword'
+        
+    # 0000000    000   0000000  000000000  000   0000000   000   000   0000000   00000000   000   000  
+    # 000   000  000  000          000     000  000   000  0000  000  000   000  000   000   000 000   
+    # 000   000  000  000          000     000  000   000  000 0 000  000000000  0000000      00000    
+    # 000   000  000  000          000     000  000   000  000  0000  000   000  000   000     000     
+    # 0000000    000   0000000     000     000   0000000   000   000  000   000  000   000     000     
+    
+    ▸ dictionary
+        
+        rgs = ranges " a: b"
+        inc rgs, 1 "a"          ▸ 'dictionary key'
+        inc rgs, 2 ":"          ▸ 'punct dictionary'
+            
+    #  0000000   00000000   00000000    0000000   000   000  
+    # 000   000  000   000  000   000  000   000   000 000   
+    # 000000000  0000000    0000000    000000000    00000    
+    # 000   000  000   000  000   000  000   000     000     
+    # 000   000  000   000  000   000  000   000     000     
+    
+    ▸ array
+    
+        rgs = ranges "a[0].prop"
+        inc rgs, 3 ']'          ▸ 'punct'
+        
+        rgs = ranges "[ f ]"
+        inc rgs, 2 'f'          ▸ 'text'
+    
+        rgs = ranges "[ f , f ]"
+        inc rgs, 2 'f'          ▸ 'text'
+        
+    # 00000000    0000000   000   000   0000000   00000000  
+    # 000   000  000   000  0000  000  000        000       
+    # 0000000    000000000  000 0 000  000  0000  0000000   
+    # 000   000  000   000  000  0000  000   000  000       
+    # 000   000  000   000  000   000   0000000   00000000  
+    
+    ▸ range
+        
+        rgs = ranges "a[...2]"
+        inc rgs, 2 '...'        ▸ 'punct range ligature'
+    
+        rgs = ranges "a[ -1 .. ]"
+        inc rgs, 6 '..'         ▸ 'punct range ligature'
+    
+        rgs = ranges "a[1..n]"
+        inc rgs, 3 '..'         ▸ 'punct range ligature'
+    
+        rgs = ranges "a[ .... ]"
+        inc rgs, 3 '...'        ▸ 'punct ligature'
+        inc rgs, 6 '.'          ▸ 'punct'
+        
+        rgs = ranges "@f [1]"
+        inc rgs, 0 "@"          ▸ 'punct function call'
+        inc rgs, 1 "f"          ▸ 'function call'
+    
+        rgs = ranges "@f = 1"
+        inc rgs, 0 "@"          ▸ 'punct this'
+        inc rgs, 1 "f"          ▸ 'text this'
+        
+    # 000   000  000   000  00     00  0000000    00000000  00000000   
+    # 0000  000  000   000  000   000  000   000  000       000   000  
+    # 000 0 000  000   000  000000000  0000000    0000000   0000000    
+    # 000  0000  000   000  000 0 000  000   000  000       000   000  
+    # 000   000   0000000   000   000  0000000    00000000  000   000  
+    
+    ▸ number
+    
+        rgs = ranges "1 'a'"
+        inc rgs, 0 "1"          ▸ 'number'
+        
+        rgs = ranges "@height/2 + @height/6"
+        inc rgs, 0 '@'          ▸ 'punct this'
+        inc rgs, 1 'height'     ▸ 'text this'
+        inc rgs, 8 "2"          ▸ 'number'
+                
+    # 00000000  000   000  000   000   0000000  000000000  000   0000000   000   000  
+    # 000       000   000  0000  000  000          000     000  000   000  0000  000  
+    # 000000    000   000  000 0 000  000          000     000  000   000  000 0 000  
+    # 000       000   000  000  0000  000          000     000  000   000  000  0000  
+    # 000        0000000   000   000   0000000     000     000   0000000   000   000  
+    
+    ▸ function
+    
+        rgs = ranges "obj.prop.call 1"
+        inc rgs, 0 'obj'        ▸ 'obj'
+        inc rgs, 4 'prop'       ▸ 'property'
+        inc rgs, 9 'call'       ▸ 'function call'
+        
+        rgs = ranges "dolate: => "
+        inc rgs, 8 '=>'          ▸ 'punct function bound tail ligature'
+    
+        rgs = ranges "dolate: -> "
+        inc rgs, 8 '->'          ▸ 'punct function tail ligature'
+    
+        rgs = ranges "async ○->"
+        inc rgs, 6 '○'          ▸ 'punct function async'
+        inc rgs, 7 '->'         ▸ 'punct function tail ligature'
+                
+        rgs = ranges "@a @b 'c'"
+        inc rgs, 0 '@'          ▸ 'punct function call'
+        inc rgs, 1 'a'          ▸ 'function call'
+        inc rgs, 3 '@'          ▸ 'punct function call'
+        inc rgs, 4 'b'          ▸ 'function call'
+        
+        rgs = ranges "@a 3 @b '5'"
+        inc rgs, 0 '@'          ▸ 'punct function call'
+        inc rgs, 1 'a'          ▸ 'function call'
+    
+        rgs = ranges "fff 1"
+        inc rgs, 0 "fff"        ▸ 'function call'
+                
+        rgs = ranges "f 'a'"
+        inc rgs, 0 "f"          ▸ 'function call'
+        
+        rgs = ranges "ff 'b'"
+        inc rgs, 0 "ff"         ▸ 'function call'
+    
+        rgs = ranges "ffff -1"
+        inc rgs, 0 "ffff"       ▸ 'function call'
+    
+        rgs = ranges "f [1]"
+        inc rgs, 0 "f"          ▸ 'function call'
+        
+        rgs = ranges "fffff {1}"
+        inc rgs, 0 "fffff"      ▸ 'function call'
+    
+        rgs = ranges "i ++a"
+        inc rgs, 0 'i'          ▸ 'function call'
+        
+        rgs = ranges "i +4"
+        inc rgs, 0 'i'          ▸ 'function call'
+    
+        rgs = ranges "i -4"
+        inc rgs, 0 'i'          ▸ 'function call'
+        
+        rgs = ranges "pos= (item, p) -> "
+        inc rgs, 0 "pos"        ▸ 'function'
+        
+    #  0000000   00000000    0000000    0000000  
+    # 000   000  000   000  000        000       
+    # 000000000  0000000    000  0000  0000000   
+    # 000   000  000   000  000   000       000  
+    # 000   000  000   000   0000000   0000000   
+    
+    ▸ args
+    
+        rgs = ranges "f = a b ->"
+        inc rgs, 4 'a'              ▸ 'function argument'
+        inc rgs, 6 'b'              ▸ 'function argument'
+        inc rgs, 8 '->'             ▸ 'punct function tail ligature'
+
+    ▸ args
+    
+        rgs = ranges "    f: a b ->"
+        inc rgs, 7 'a'              ▸ 'function argument'
+        inc rgs, 9 'b'              ▸ 'function argument'
+        inc rgs, 11 '->'            ▸ 'punct function tail ligature'
+
+    ▸ args
+    
+        rgs = ranges "    f: a b ○->"
+        inc rgs, 7 'a'              ▸ 'function argument'
+        inc rgs, 9 'b'              ▸ 'function argument'
+        inc rgs, 11 '○'             ▸ 'punct function async'
+        inc rgs, 12 '->'            ▸ 'punct function tail ligature'
+        
+    # 000   000   0000000          0000000   0000000   000      000      
+    # 0000  000  000   000        000       000   000  000      000      
+    # 000 0 000  000   000        000       000000000  000      000      
+    # 000  0000  000   000        000       000   000  000      000      
+    # 000   000   0000000          0000000  000   000  0000000  0000000  
+    
+    ▸ no call
+        
+        rgs = ranges "i != false"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i += 1"
+        inc rgs, 0 'i'              ▸ 'text'
+        
+        rgs = ranges "i -= 1"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i *= 1"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i /= 1"
+        inc rgs, 0 'i'              ▸ 'text'
+        
+        rgs = ranges "i ? false"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i < 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i > 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i + 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i - 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i * 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i / 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i % 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i = 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+        rgs = ranges "i == 3"
+        inc rgs, 0 'i'              ▸ 'text'
+    
+    # 000      000   0000000    0000000   000000000  000   000  00000000   00000000  
+    # 000      000  000        000   000     000     000   000  000   000  000       
+    # 000      000  000  0000  000000000     000     000   000  0000000    0000000   
+    # 000      000  000   000  000   000     000     000   000  000   000  000       
+    # 0000000  000   0000000   000   000     000      0000000   000   000  00000000  
+    
+    ▸ ligature
+        
+        rgs = ranges " @: ->"
+        inc rgs, 1 "@"  ▸ 'method'
+        inc rgs, 2 ":"  ▸ 'punct method'
+        inc rgs, 4 "->" ▸ 'punct function tail ligature'
+    
+        rgs = ranges " @:->a"
+        inc rgs, 1 "@"  ▸ 'method'
+        inc rgs, 2 ":"  ▸ 'punct method'
+        inc rgs, 3 "->" ▸ 'punct function tail ligature'
+    
+    # 000   000  00000000  000   000  000   000   0000000   00000000   0000000    
+    # 000  000   000        000 000   000 0 000  000   000  000   000  000   000  
+    # 0000000    0000000     00000    000000000  000   000  0000000    000   000  
+    # 000  000   000          000     000   000  000   000  000   000  000   000  
+    # 000   000  00000000     000     00     00   0000000   000   000  0000000    
+    
+    ▸ keyword
+        
+        rgs = ranges "empty noon valid "
+        inc rgs, 0 "empty"  ▸ 'keyword'
+        inc rgs, 6 "noon"   ▸ 'keyword'
+        inc rgs, 11 "valid" ▸ 'keyword'
+    
+        rgs = ranges "min max clamp first last"
+        inc rgs, 0  "min"   ▸ 'keyword'
+        inc rgs, 4  "max"   ▸ 'keyword'
+        inc rgs, 14 "first" ▸ 'keyword'
+        inc rgs, 20 "last"  ▸ 'keyword'
+        
+    # 000000000  00000000   0000000  000000000   0000000  
+    #    000     000       000          000     000       
+    #    000     0000000   0000000      000     0000000   
+    #    000     000            000     000          000  
+    #    000     00000000  0000000      000     0000000   
+    
+    ▸ tests
+        
+        rgs = ranges "▸ some text"
+        inc rgs, 0 "▸"      ▸ 'punct keyword'
+        inc rgs, 2 "some"   ▸ 'section'
+        inc rgs, 7 "text"   ▸ 'section'
+    
+        rgs = ranges "    ▸ some text"
+        inc rgs, 4 "▸"      ▸ 'punct keyword'
+        inc rgs, 6 "some"   ▸ 'section'
+        inc rgs, 11 "text"  ▸ 'section'
+    
+        rgs = ranges "    some ▸ test"
+        inc rgs, 9 "▸"      ▸ 'punct keyword'
+        inc rgs, 11 "test"  ▸ 'text'
+    
+    # 000000000  000   000  00000000  000   000  
+    #    000     000   000  000       0000  000  
+    #    000     000000000  0000000   000 0 000  
+    #    000     000   000  000       000  0000  
+    #    000     000   000  00000000  000   000  
+    
+    ▸ then
+        
+        rgs = ranges "➜"
+        inc rgs, 0 "➜"      ▸ 'punct keyword'
+        
+    # 000   0000000  
+    # 000  000       
+    # 000  0000000   
+    # 000       000  
+    # 000  0000000   
+    
+    ▸ is
+        
+        rgs = ranges "a is str"
+        inc rgs, 2 "is"     ▸ 'keyword'
+        inc rgs, 5 "str"    ▸ 'keyword'
+    
+        rgs = ranges "a is num"
+        inc rgs, 5 "num"    ▸ 'keyword'
+        
+        rgs = ranges "a is obj"
+        inc rgs, 5 "obj"    ▸ 'keyword'
+        
+        rgs = ranges "a is arr"
+        inc rgs, 5 "arr"    ▸ 'keyword'
+        
+        rgs = ranges "a is func"
+        inc rgs, 5 "func"   ▸ 'keyword'
+        
+        rgs = ranges "a is elem"
+        inc rgs, 5 "elem"   ▸ 'keyword'
+        
+    # 0000000    000  00000000   
+    # 000   000  000  000   000  
+    # 000   000  000  0000000    
+    # 000   000  000  000   000  
+    # 0000000    000  000   000  
+    
+    ▸ dir
+    
+        rgs = ranges "◆dir"
+        inc rgs, 0 "◆"    ▸ 'punct keyword'
+        inc rgs, 1 "dir"  ▸ 'keyword'
+    
+        rgs = ranges "◆Dir"
+        inc rgs, 0 "◆"     ▸ 'punct'
+        inc rgs, 1 "Dir"   ▸ 'text'
+        
+    # 00000000  000  000      00000000  
+    # 000       000  000      000       
+    # 000000    000  000      0000000   
+    # 000       000  000      000       
+    # 000       000  0000000  00000000  
+    
+    ▸ file
+        
+        rgs = ranges "◆file"
+        inc rgs, 0 "◆"     ▸ 'punct keyword'
+        inc rgs, 1 "file"  ▸ 'keyword'
+    
+        rgs = ranges "◆files"
+        inc rgs, 0 "◆"     ▸ 'punct'
+        inc rgs, 1 "files"  ▸ 'text'
+        
+    # 000   000   0000000  00000000  
+    # 000   000  000       000       
+    # 000   000  0000000   0000000   
+    # 000   000       000  000       
+    #  0000000   0000000   00000000  
+    
+    ▸ use
+    
+        rgs = ranges "use fs"
+        inc rgs, 0 "use"    ▸ 'keyword require'
+        inc rgs, 4 "fs"     ▸ 'require'
+    
+        rgs = ranges "use ../mod"
+        inc rgs, 0 "use"    ▸ 'keyword require'
+        inc rgs, 4 "."      ▸ 'punct require'
+        inc rgs, 5 "."      ▸ 'punct require'
+        inc rgs, 6 "/"      ▸ 'punct require'
+        inc rgs, 7 "mod"    ▸ 'text require string'
+    
+        rgs = ranges "use ./dir/mod"
+        inc rgs, 0 "use"    ▸ 'keyword require'
+        inc rgs, 4 "."      ▸ 'punct require'
+        inc rgs, 5 "/"      ▸ 'punct require'
+        inc rgs, 6 "dir"    ▸ 'text require'
+        inc rgs, 9 "/"      ▸ 'punct require'
+        inc rgs, 10 "mod"   ▸ 'text require string'
+        
+        rgs = ranges "use: (n) ->"
+        inc rgs, 0 "use"    ▸ 'method'
+        inc rgs, 3 ":"      ▸ 'punct method'
+        
+        rgs = ranges "use ◆ A bC d"
+        inc rgs, 0 "use"    ▸ 'keyword require'
+        inc rgs, 4 "◆"      ▸ 'punct require'
+        inc rgs, 6 "A"      ▸ 'text require string'
+        inc rgs, 8 "bC"     ▸ 'text require string'
+        inc rgs, 11 "d"     ▸ 'text require string'
+    
+    # 000   000   0000000          0000000   0000000   00     00  00     00   0000000   
+    # 0000  000  000   000        000       000   000  000   000  000   000  000   000  
+    # 000 0 000  000   000        000       000   000  000000000  000000000  000000000  
+    # 000  0000  000   000        000       000   000  000 0 000  000 0 000  000   000  
+    # 000   000   0000000          0000000   0000000   000   000  000   000  000   000  
+    
+    ▸ no comma
+        
+        rgs = ranges "[1 'x' a:1 c:d]"
+        inc rgs, 1  "1"     ▸ 'number'
+        inc rgs, 4  "x"     ▸ 'string single'
+        inc rgs, 7  "a"     ▸ 'dictionary key'
+        inc rgs, 11 "c"     ▸ 'dictionary key'
+    
+    # 00     00  00000000  000000000  000   000   0000000   0000000    
+    # 000   000  000          000     000   000  000   000  000   000  
+    # 000000000  0000000      000     000000000  000   000  000   000  
+    # 000 0 000  000          000     000   000  000   000  000   000  
+    # 000   000  00000000     000     000   000   0000000   0000000    
+    
+    ▸ method
+        
+        rgs = ranges " a: =>"
+        inc rgs, 1 "a"      ▸ 'method'
+        inc rgs, 2 ":"      ▸ 'punct method'
+        inc rgs, 4 "=>"     ▸ 'punct function bound tail ligature'
+        
+        rgs = ranges " a: ->"
+        inc rgs, 1 "a"      ▸ 'method'
+        inc rgs, 2 ":"      ▸ 'punct method'
+        inc rgs, 4 "->"     ▸ 'punct function tail ligature'
+        
+        rgs = ranges "mthd:  (arg)    => @member memarg"
+        inc rgs, 0  'mthd'  ▸ 'method'
+        inc rgs, 4  ':'     ▸ 'punct method'
+        inc rgs, 16 '=>'    ▸ 'punct function bound tail ligature'
+        
+        rgs = ranges "@mthd: (arg) ->"
+        inc rgs, 0 '@'      ▸ 'punct method class'
+        inc rgs, 1 'mthd'   ▸ 'method class'
+    
+    # 00000000   00000000  000000000  000   000  00000000   000   000  
+    # 000   000  000          000     000   000  000   000  0000  000  
+    # 0000000    0000000      000     000   000  0000000    000 0 000  
+    # 000   000  000          000     000   000  000   000  000  0000  
+    # 000   000  00000000     000      0000000   000   000  000   000  
+    
+    ▸ return
+    
+        rgs = ranges "⮐ 1"
+        inc rgs, 0 "⮐"      ▸ 'punct keyword return'
+    
+    

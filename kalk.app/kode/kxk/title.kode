@@ -1,0 +1,263 @@
+###
+    000000000  000  000000000  000      00000000
+       000     000     000     000      000     
+       000     000     000     000      0000000 
+       000     000     000     000      000     
+       000     000     000     0000000  00000000
+       
+    a title bar with 
+        - an application icon
+        - a collapsable menu
+        - minimize, maximize and close buttons        
+###
+
+use ./dom ▪ $ stopEvent elem
+use ◆ sds menu keyinfo slash post noon
+                                
+function Title
+    
+    @: (@opt) ->
+        
+        @opt ?= {}
+        
+        pkg = @opt.pkg
+        
+        @elem =$ @opt.elem ? "#titlebar"
+        
+        @elem.classList.add 'focus'
+        
+        return if not @elem
+        
+        post.on 'titlebar'      @onTitlebar
+        post.on 'menuAction'    @onMenuAction
+        post.on 'window.blur'   @onWindowBlur
+        post.on 'window.focus'  @onWindowFocus
+        post.on 'prefsLoaded' =>
+            if not window.prefs.get 'menu'
+                @hideMenu()
+
+        @elem.addEventListener 'dblclick' (event) -> # maximize window on double click in title bar
+            stopEvent event 
+            post.emit 'menuAction' 'Maximize'
+                
+        @winicon = elem class: 'winicon' dblclick: (event) -> stopEvent event
+        
+        if @opt.icon
+            @winicon.appendChild elem 'img' src:@opt.icon 
+        else 
+            @winicon.appendChild elem 'div' class:'noicon'
+        
+        @elem.appendChild @winicon
+        @winicon.addEventListener 'click' -> post.emit 'menuAction' 'Open Menu'   
+        
+        @title = elem class:'titlebar-title app-drag-region' id:'title'
+        @elem.appendChild @title
+        
+        @setTitle @opt
+                
+        # — ◻ 🞩
+        
+        @minimize = elem class: 'winbutton minimize gray'
+        
+        @minimize.innerHTML = """
+            <svg width="100%" height="100%" viewBox="-10 -8 30 30">
+                <line x1="-1" y1="5" x2="11" y2="5"></line>
+            </svg>
+        """
+        
+        @elem.appendChild @minimize
+        @minimize.addEventListener 'click' -> post.emit 'menuAction' 'Minimize'
+        
+        @maximize = elem class: 'winbutton maximize gray'
+        
+        @maximize.innerHTML = """
+            <svg width="100%" height="100%" viewBox="-10 -9 30 30">
+              <rect width="11" height="11" style="fill-opacity: 0;"></rect>
+            </svg>
+        """
+        @elem.appendChild @maximize
+        @maximize.addEventListener 'click' -> post.emit 'menuAction' 'Maximize'
+
+        @close = elem class: 'winbutton close'
+        
+        @close.innerHTML = """
+            <svg width="100%" height="100%" viewBox="-10 -9 30 30">
+                <line x1="0" y1="0" x2="10" y2="11"></line>
+                <line x1="10" y1="0" x2="0" y2="11"></line>
+            </svg>
+        """
+        
+        @elem.appendChild @close
+        @close.addEventListener 'click' -> post.emit 'menuAction' 'Close'
+
+        @topframe = elem class: 'topframe'
+        @elem.appendChild @topframe
+        
+        @initMenu()
+       
+    pushElem: (elem) ->
+        
+        @elem.insertBefore elem, @minimize
+            
+    showTitle: -> @title.style.display = 'initial'
+    hideTitle: -> @title.style.display = 'none'
+    
+    onWindowFocus: => 
+        
+        @elem.classList.remove 'blur'
+        @elem.classList.add 'focus'
+
+    onWindowBlur: => 
+        
+        @elem.classList.remove 'focus'
+        @elem.classList.add 'blur'
+        
+    #  0000000  00000000  000000000  000000000  000  000000000  000      00000000  
+    # 000       000          000        000     000     000     000      000       
+    # 0000000   0000000      000        000     000     000     000      0000000   
+    #      000  000          000        000     000     000     000      000       
+    # 0000000   00000000     000        000     000     000     0000000  00000000  
+    
+    setTitle: (opt) ->
+        
+        html = ""
+        
+        parts = opt.title ? []
+        
+        if opt.pkg
+            if opt.pkg.name and 'name' in parts
+                html += "<span class='titlebar-name'>#{opt.pkg.name}</span>"
+            
+            if opt.pkg.version and 'version' in parts
+                html += "<span class='titlebar-dot'>#{opt.pkg.version}</span>"
+                
+            if opt.pkg.path and 'path' in parts
+                html += "<span class='titlebar-dot'> ► </span>"
+                html += "<span class='titlebar-name'>#{opt.pkg.path}</span>"
+            
+        @title.innerHTML = html
+                    
+    onTitlebar: (action) =>
+        
+        switch action
+            'showTitle'   ➜ @showTitle()
+            'hideTitle'   ➜ @hideTitle()
+            'showMenu'    ➜ @showMenu()
+            'hideMenu'    ➜ @hideMenu()
+            'toggleMenu'  ➜ @toggleMenu()
+            
+    # 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
+    # 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
+    # 000000000  0000000   000 0 000  000   000  000000000  000          000     000  000   000  000 0 000  
+    # 000 0 000  000       000  0000  000   000  000   000  000          000     000  000   000  000  0000  
+    # 000   000  00000000  000   000   0000000   000   000   0000000     000     000   0000000   000   000  
+    
+    onMenuAction: (action) =>
+                
+        switch action.toLowerCase()
+             
+            'toggle menu' ➜ @toggleMenu()
+            'open menu'   ➜ @openMenu()
+            'show menu'   ➜ @showMenu()
+            'hide menu'   ➜ @hideMenu()
+
+    # 000  000   000  000  000000000  00     00  00000000  000   000  000   000  
+    # 000  0000  000  000     000     000   000  000       0000  000  000   000  
+    # 000  000 0 000  000     000     000000000  0000000   000 0 000  000   000  
+    # 000  000  0000  000     000     000 0 000  000       000  0000  000   000  
+    # 000  000   000  000     000     000   000  00000000  000   000   0000000   
+    
+    initMenu: ○->
+                    
+        return [] if not @opt.menu
+                
+        if empty @templateCache
+            tc =○ noon.load @opt.menu 
+            if valid tc            
+                @templateCache = @makeTemplate tc
+                @initFromCache()
+            else
+                error 'title.initMenu - empty template?' @opt.menu
+        else
+            @initFromCache()
+            
+    initFromCache: ->
+        
+        delete window.kakao.menuTemplate
+        post.emit 'menu.init' @templateCache
+        if window.kakao.menuTemplate ➜ @templateCache = window.kakao.menuTemplate
+        @menu = new menu items:@templateCache
+        @elem.insertBefore @menu.elem, @elem.firstChild.nextSibling
+                
+    makeTemplate: (obj) ->
+                
+        tmpl = []
+        for text,menuOrCombo of obj
+            tmpl.push if
+                empty menuOrCombo and text.startsWith '-'
+                    text: ''
+                menuOrCombo is num
+                    text:text
+                    combo:kstr menuOrCombo
+                menuOrCombo is str
+                    text:text
+                    combo:keyinfo.convertCmdCtrl menuOrCombo
+                empty menuOrCombo
+                    text:text
+                    combo: ''
+                menuOrCombo.combo? or menuOrCombo.command? # needs better test!
+                    item = clone menuOrCombo
+                    item.text = text
+                    item
+                else
+                    text:text
+                    menu:@makeTemplate menuOrCombo
+        tmpl
+        
+    menuVisible: => @menu.elem.style.display != 'none'
+    showMenu:    => @menu.elem.style.display = 'inline-block'; @menu?.focus?(); prefs.set 'menu' true
+    hideMenu:    => @menu?.close(); @menu.elem.style.display = 'none'; prefs.set 'menu' false
+    toggleMenu:  => if @menuVisible() then @hideMenu() else @showMenu()
+    openMenu:    => if @menuVisible() then @hideMenu() else @showMenu(); @menu.open()
+
+    # 000   000  00000000  000   000
+    # 000  000   000        000 000
+    # 0000000    0000000     00000
+    # 000  000   000          000
+    # 000   000  00000000     000
+
+    handleKeyInfo: (modKeyComboEvent) ->
+
+        { mod, key, combo, event } = modKeyComboEvent
+        
+        # log "Title.handleKeyInfo mod #{mod} key #{key} combo #{combo}"
+        
+        if empty combo ➜ return 'unhandled'
+        
+        menu = @templateCache
+        
+        if empty menu ➜ return 'unhandled'
+        keypaths = sds.find.key menu, 'combo'
+        
+        for keypath in keypaths 
+            combos = sds.get(menu, keypath).split ' '
+            combos = combos.map (c) -> keyinfo.convertCmdCtrl c
+            if combo in combos
+                keypath.pop()
+                item = sds.get menu, keypath
+                action = item.action ? item.text
+                
+                trail = []
+                while keypath.length > 1
+                    keypath.pop()
+                    keypath.pop()
+                    trail.unshift sds.get(menu, keypath).text
+                trail = trail.join '▸'
+                
+                # log 'Title.handleKeyInfo post menuAction' action, trail
+                post.emit 'menuAction' action, trail
+                return action
+
+        'unhandled'
+            
+export Title

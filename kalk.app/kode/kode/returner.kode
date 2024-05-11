@@ -1,0 +1,174 @@
+###
+    00000000   00000000  000000000  000   000  00000000   000   000  00000000  00000000   
+    000   000  000          000     000   000  000   000  0000  000  000       000   000  
+    0000000    0000000      000     000   000  0000000    000 0 000  0000000   0000000    
+    000   000  000          000     000   000  000   000  000  0000  000       000   000  
+    000   000  00000000     000      0000000   000   000  000   000  00000000  000   000  
+
+    inserts implicit return statements
+###
+
+use ./print
+
+class Returner
+
+    @: (@kode) ->
+
+        @verbose = @kode.args.verbose
+        @debug   = @kode.args.debug
+        
+    #  0000000   0000000   000      000      00000000   0000000  000000000  
+    # 000       000   000  000      000      000       000          000     
+    # 000       000   000  000      000      0000000   000          000     
+    # 000       000   000  000      000      000       000          000     
+    #  0000000   0000000   0000000  0000000  00000000   0000000     000     
+    
+    collect: (tl) -> @scope tl
+
+    #  0000000   0000000   0000000   00000000   00000000  
+    # 000       000       000   000  000   000  000       
+    # 0000000   000       000   000  00000000   0000000   
+    #      000  000       000   000  000        000       
+    # 0000000    0000000   0000000   000        00000000  
+    
+    scope: (body) ->
+
+        if body?.exps?.length
+            @exp e for e in body.exps
+        body
+        
+    # 00000000  000   000  000   000   0000000  
+    # 000       000   000  0000  000  000       
+    # 000000    000   000  000 0 000  000       
+    # 000       000   000  000  0000  000       
+    # 000        0000000   000   000   0000000  
+    
+    func: (f) ->
+        
+        @exp f.args if f.args
+        
+        if f.body?.exps?.length
+
+            if f.name?.text not in ['@' 'constructor']
+                
+                lst = f.body.exps[-1]
+                
+                for e in f.body.exps
+                    if e.text == '●'
+                        @profile = e
+                        break
+
+                @insert f.body.exps
+                
+                delete @profile
+                
+            @scope f.body 
+        
+    # 000  00000000  
+    # 000  000       
+    # 000  000000    
+    # 000  000       
+    # 000  000       
+    
+    if: (e) ->
+        
+        e.returns = true
+        @insert e.then
+        for ei in e.elifs
+            @insert ei.elif.then if ei.elif.then
+        
+        @insert e.else if e.else
+
+    # 000000000  00000000   000   000  
+    #    000     000   000   000 000   
+    #    000     0000000      00000    
+    #    000     000   000     000     
+    #    000     000   000     000     
+    
+    try: (e) ->
+        
+        @insert e.exps
+        @insert e.catch.exps if valid e.catch.exps
+        @insert e.finally    if valid e.finally
+        
+    #  0000000  000   000  000  000000000   0000000  000   000  
+    # 000       000 0 000  000     000     000       000   000  
+    # 0000000   000000000  000     000     000       000000000  
+    #      000  000   000  000     000     000       000   000  
+    # 0000000   00     00  000     000      0000000  000   000  
+    
+    switch: (e) ->
+        
+        for w in e.whens
+            @insert w.when.then if valid w.when.then
+
+        @insert e.else if valid e.else
+        
+    # 000  000   000   0000000  00000000  00000000   000000000  
+    # 000  0000  000  000       000       000   000     000     
+    # 000  000 0 000  0000000   0000000   0000000       000     
+    # 000  000  0000       000  000       000   000     000     
+    # 000  000   000  0000000   00000000  000   000     000     
+    
+    insert: (e) ->
+
+        if e is Array
+            lst = e[-1]
+            if 
+                lst.return ➜ ⮐ @profilend e, -1
+                lst.while  ➜ ⮐ @profilend e
+                lst.for    ➜ ⮐ @profilend e
+                lst.if     ➜ ⮐ @if lst.if
+                lst.try    ➜ ⮐ @try lst.try
+                lst.switch ➜ ⮐ @switch lst.switch
+            
+            if not (lst.call?.callee?.text in ['log' 'warn' 'error' 'throw'])
+                e.push
+                    return:
+                        ret: type:'keyword' text:'return'
+                        val: e.pop()
+                @profilend e, -1
+            else
+                @profilend e
+            
+    profilend: (e, offset=0) ->
+        
+        if @profile
+            
+            c = type: 'profilend' 
+                text: '●▪'
+                id:   @profile.id
+
+            if offset
+                e.splice offset, 0 c
+            else
+                e.push c
+                        
+    # 00000000  000   000  00000000   
+    # 000        000 000   000   000  
+    # 0000000     00000    00000000   
+    # 000        000 000   000        
+    # 00000000  000   000  000        
+    
+    exp: (e) ->
+
+        ⮐ if not e
+            
+        if  
+            e.type      ➜ ⮐
+            e is Array  ➜ @exp v for v in e if e.length
+            e is Object
+            
+                if e.func
+                    @func e.func
+                else
+                    for key,val of e
+                        if val
+                            if val.type 
+                                @exp val
+                            else
+                                @exp v for k,v of val
+        
+    verb: -> if @debug ➜ console.log.apply console.log, arguments 
+
+export Returner

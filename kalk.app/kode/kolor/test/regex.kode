@@ -1,0 +1,138 @@
+###
+00000000   00000000   0000000   00000000  000   000
+000   000  000       000        000        000 000 
+0000000    0000000   000  0000  0000000     00000  
+000   000  000       000   000  000        000 000 
+000   000  00000000   0000000   00000000  000   000
+###
+
+use ./util ▪ ranges inc lang
+
+lang 'kode'
+
+▸ regex
+    
+    # 00000000   00000000   0000000   00000000  000   000  00000000   
+    # 000   000  000       000        000        000 000   000   000  
+    # 0000000    0000000   000  0000  0000000     00000    00000000   
+    # 000   000  000       000   000  000        000 000   000        
+    # 000   000  00000000   0000000   00000000  000   000  000        
+    
+    ▸ regexp
+        
+        rgs = ranges "r=/a/"
+        inc rgs, 2 '/'          ▸  'punct regexp start'
+        inc rgs, 3 'a'          ▸  'text regexp'
+        inc rgs, 4 '/'          ▸  'punct regexp end'
+                
+        rgs = ranges "/(a|.*|\s\d\w\S\W$|^\s+)/"
+        inc rgs, 0 '/'          ▸  'punct regexp start'
+        inc rgs, 2 'a'          ▸  'text regexp'
+            
+        rgs = ranges "/^#include/"
+        inc rgs, 0 '/'          ▸  'punct regexp start'
+        inc rgs, 2 "#"          ▸  'punct regexp'
+        inc rgs, 3 "include"    ▸  'text regexp'
+    
+        rgs = ranges "/\\'hello\\'/ "
+        inc rgs, 0 '/'          ▸  'punct regexp start'
+        inc rgs, 1 "\\"         ▸  'punct escape regexp'
+        inc rgs, 2 "'"          ▸  'punct regexp'
+        inc rgs, 3 "hello"      ▸  'text regexp'
+    
+        rgs = ranges "f a /b - c/gi"
+        inc rgs, 4 '/'          ▸  'punct regexp start'
+        inc rgs, 5 'b'          ▸  'text regexp'
+        inc rgs, 10 '/'         ▸  'punct regexp end'
+        
+        rgs = ranges "w=l.split /[\\s\\/]/ ; bla"
+        inc rgs, 10 '/'         ▸  'punct regexp start'
+        inc rgs, 14 '\\'        ▸  'punct escape regexp'
+        inc rgs, 17 '/'         ▸  'punct regexp end'
+        inc rgs, 19 ';'         ▸  'punct minor'
+        
+        rgs = ranges "a = 1 / 2"
+        inc rgs, 6 '/'          ▸ 'punct'
+        inc rgs, 8 '2'          ▸ 'number'
+    
+        rgs = ranges "(1+1) / 2"
+        inc rgs, 6 '/'          ▸ 'punct'
+        inc rgs, 8 '2'          ▸ 'number'
+    
+        rgs = ranges "a[10] / 2"
+        inc rgs, 6 '/'          ▸ 'punct'
+        inc rgs, 8 '2'          ▸ 'number'
+    
+        rgs = ranges "if / aa /.test s"
+        inc rgs, 3 '/'          ▸ 'punct regexp start'
+        inc rgs, 8 '/'          ▸ 'punct regexp end'
+        inc rgs, 9 '.'          ▸ 'punct property'
+        inc rgs, 10 'test'      ▸ 'function call'
+        inc rgs, 15 's'         ▸ 'text'
+        
+        rgs = ranges "if / 😡 /.test s"
+        inc rgs, 3 '/'          ▸ 'punct regexp start'
+        inc rgs, 8 '/'          ▸ 'punct regexp end'
+        inc rgs, 9 '.'          ▸ 'punct property'
+        inc rgs, 10 'test'      ▸ 'function call'
+        inc rgs, 15 's'         ▸ 'text'
+                
+    # 000   000   0000000         00000000   00000000   0000000   00000000  000   000  00000000   
+    # 0000  000  000   000        000   000  000       000        000        000 000   000   000  
+    # 000 0 000  000   000        0000000    0000000   000  0000  0000000     00000    00000000   
+    # 000  0000  000   000        000   000  000       000   000  000        000 000   000        
+    # 000   000   0000000         000   000  00000000   0000000   00000000  000   000  000        
+    
+    ▸ no regexp
+        
+        rgs = ranges 'a / b - c / d' 
+        inc rgs, 2 '/' ▸ 'punct'
+    
+        rgs = ranges 'f a/b, c/d'
+        inc rgs, 3 '/' ▸ 'punct'
+        
+        rgs = ranges "m = '/'"
+        inc rgs, 5 '/' ▸ 'string single'
+    
+        rgs = ranges "m a, '/''/'"
+        inc rgs, 6 '/' ▸ 'string single'
+        
+        # rgs = ranges """\"m = '/'\""""
+        # inc rgs, 6 '/' 'punct regexp start'
+        
+        rgs = ranges "s = '/some\\path/file.txt:12'"
+        inc rgs, 5 '/' ▸ 'string single'
+        inc rgs, 15 '/' ▸ 'string single'
+        
+        rgs = ranges "num /= 10"
+        inc rgs, 4 '/'  ▸ 'punct'
+        inc rgs, 7 '10' ▸ 'number'
+        
+        rgs = ranges "4 / 2 / 1"
+        inc rgs, 2 '/' ▸ 'punct'
+        inc rgs, 6 '/' ▸ 'punct'
+        
+        rgs = ranges "4/2/1"
+        inc rgs, 1 '/' ▸ 'punct'
+        inc rgs, 3 '/' ▸ 'punct'
+        
+        rgs = ranges "4/ 2 / 1"
+        inc rgs, 1 '/' ▸ 'punct'
+        inc rgs, 5 '/' ▸ 'punct'
+        
+        rgs = ranges "4 /2 / 1"
+        inc rgs, 2 '/' ▸ 'punct'
+        inc rgs, 5 '/' ▸ 'punct'
+        
+        rgs = ranges "4 / 2/ 1"
+        inc rgs, 2 '/' ▸ 'punct'
+        inc rgs, 5 '/' ▸ 'punct'
+        
+        rgs = ranges "4 / 2 /1"
+        inc rgs, 2 '/' ▸ 'punct'
+        inc rgs, 6 '/' ▸ 'punct'
+        
+        rgs = ranges "4 /2/ 1"
+        inc rgs, 2 '/' ▸ 'punct'
+        inc rgs, 4 '/' ▸ 'punct'
+        

@@ -1,0 +1,175 @@
+###
+    000   000  000   000  00000000   0000000    
+    000  000   0000  000  000   000  000   000  
+    0000000    000 0 000  0000000    000   000  
+    000  000   000  0000  000   000  000   000  
+    000   000  000   000  000   000  0000000    
+
+    transpiles kode, noon, styl and pug files
+###
+
+use ../kode/kode
+use ../kxk/slash ▪ tilde
+use ../kxk ◆ fs pug styl noon
+
+kodeDir = slash.path ◆dir, '/../../kode'
+pygDir  = slash.path ◆dir, '/../../pyg'
+jsDir   = slash.path ◆dir, '/../../js'
+
+# 00000000   000   000  000      00000000   0000000  
+# 000   000  000   000  000      000       000       
+# 0000000    000   000  000      0000000   0000000   
+# 000   000  000   000  000      000            000  
+# 000   000   0000000   0000000  00000000  0000000   
+
+rules =
+    
+    kode: 
+        tgtExt:  'js'
+        srcDir:  kodeDir
+        tgtDir:  jsDir
+        compile: (srcText, srcFile) -> k0de = new kode header:false; k0de.compile srcText, srcFile
+    styl:
+        tgtExt:  'css'
+        srcDir:  pygDir
+        tgtDir:  jsDir + '/css'
+        compile: (srcText, srcFile) -> styl srcText
+    pug:
+        tgtExt:  'html'
+        srcDir:  pygDir
+        tgtDir:  jsDir
+        compile: (srcText, srcFile) -> pug srcText
+    noon:
+        tgtExt:  'json'
+        srcDir:  kodeDir
+        tgtDir:  jsDir
+        compile: (srcText, srcFile) -> JSON.stringify noon.parse(srcText), null, '  '
+        
+    ignore: [
+        'kolor/lang.noon'
+        'ko/help.noon'
+    ]
+    
+#  0000000    0000000   000000000  000   000  00000000  00000000   
+# 000        000   000     000     000   000  000       000   000  
+# 000  0000  000000000     000     000000000  0000000   0000000    
+# 000   000  000   000     000     000   000  000       000   000  
+#  0000000   000   000     000     000   000  00000000  000   000  
+
+gatherFiles = ○->
+    
+    list  =○ fs.list kodeDir
+    list  = list.concat ○ fs.list pygDir
+    list  = list.filter (item) -> item.type == 'file'
+    
+    files = list.map (item) -> item.path
+    files = files.filter (file) -> 
+        for ignore in rules.ignore
+            if file.endsWith ignore
+                return false
+        true
+        
+srcForFile = (file) ->
+    
+    srcFile = file
+    if slash.isRelative srcFile
+        srcFile = slash.path process.cwd(), srcFile
+    srcFile
+    
+tgtForSrc = (srcFile, rule) ->
+    
+    slash.swapExt srcFile.replace(rule.srcDir, rule.tgtDir), rule.tgtExt
+    
+# 000   000  000   000  00000000   0000000    
+# 000  000   0000  000  000   000  000   000  
+# 0000000    000 0 000  0000000    000   000  
+# 000  000   000  0000  000   000  000   000  
+# 000   000  000   000  000   000  0000000    
+
+knrd = (files = [], opt = {}) ○->
+       
+    if files is str
+        if slash.ext(files) in ['kode']
+            files = [files]
+        else
+            files = []
+    if files is arr
+        if slash.ext(files[0]) not in ['kode']
+            files = []
+        
+    # log 'knrd' files, opt
+    
+    opt.rerunWhenDirty ?= true
+    opt.verbose ?= false
+    log 'opt' opt if opt.debug
+    log 'files' files if opt.debug
+    
+    # ● 🔨
+            
+    if empty files
+        
+        files =○ gatherFiles()
+        
+    log '🔨 ' files.length if not opt.quiet
+    
+    transpiled = 0
+        
+    for file in files
+        
+        skip = false
+        for ignore in rules.ignore
+            if file.endsWith ignore
+                log w2('✘  '), w3 tilde file if opt.verbose
+                skip = true
+                break
+        if skip ➜ continue
+        
+        if rule = rules[slash.ext file]
+            
+            srcFile = srcForFile file
+            tgtFile = tgtForSrc  srcFile, rule
+            
+            srcText =○ fs.read srcFile
+            tgtText =○ fs.read tgtFile
+            compText = rule.compile srcText, srcFile
+            
+            log 'tgtText'  tgtFile, tgtText if opt.debug and opt.verbose
+            log 'compText' compText         if opt.debug and opt.verbose
+                
+            if empty compText
+                log y5('✘ '), r5(tilde srcFile), r4('transpiles to empty!')
+            else
+                log g2('🔧'), m3 tilde srcFile if opt.verbose
+                if tgtText != compText
+                    transpiled++
+                    ○ fs.write tgtFile, compText
+                    log b5('✔ '), g5 tilde tgtFile
+        null
+            
+    if opt.rerunWhenDirty and transpiled
+        
+        knrd files, rerunWhenDirty:false
+        
+# 000  000   000  00000000   0000000   
+# 000  0000  000  000       000   000  
+# 000  000 0 000  000000    000   000  
+# 000  000  0000  000       000   000  
+# 000  000   000  000        0000000   
+
+knrd.info = ○->
+    
+    files =○ gatherFiles()
+    for file in files
+        if rule = rules[slash.ext file]
+            
+            srcFile = srcForFile file
+            tgtFile = tgtForSrc  srcFile, rule
+            
+            srcInfo =○ fs.info srcFile
+            tgtInfo =○ fs.info tgtFile
+            
+            log y5 srcFile, srcInfo 
+            log m4 tgtFile, tgtInfo
+    []
+    
+export knrd

@@ -1,0 +1,143 @@
+###
+ 0000000  000000000   0000000   00000000   00000000  
+000          000     000   000  000   000  000       
+0000000      000     000   000  0000000    0000000   
+     000     000     000   000  000   000  000       
+0000000      000      0000000   000   000  00000000  
+
+    key value store with delayed saving to .app/.stash folder
+    syncs changes between windows
+###
+
+use ◆ noon events slash post ffs sds
+use ./util ▪ isEqual defaults
+
+function Store extends events
+
+    @stores: {}
+
+    @: name opt={} ->
+
+        super()
+        
+        @name = name
+        opt.separator ?= '|'
+        opt.timeout   ?= 4000
+        
+        return error 'no name for store?' if not @name
+
+        @sep  = opt.separator
+        
+        @file = slash.path kakao.bundle.path, "/.stash/#{@name}.noon"
+        
+        # log 'Store.file' @file
+        
+        post.on 'store' (name, action, argl...) =>
+            ⮐ if @name != name
+            switch action
+                'data' ➜ @data = argl[0]
+                'set'  ➜ sds.set @data, @keypath(argl[0]), argl[1]
+                'get'  ➜ sds.get @data, @keypath(argl[0]), argl[1]
+                'del'  ➜ sds.del @data, @keypath(argl[0])
+                
+        @load().then =>
+        
+            defaults @data, opt.defaults
+            
+            # log "store #{@name}Loaded" @data
+            post.emit "#{@name}Loaded"
+        
+    keypath: key => key.split @sep
+    
+    #  0000000   00000000  000000000
+    # 000        000          000   
+    # 000  0000  0000000      000   
+    # 000   000  000          000   
+    #  0000000   00000000     000   
+        
+    get: key value =>
+        
+        return clone(value) if not key?.split?
+        clone sds.get @data, @keypath(key), value
+         
+    #  0000000  00000000  000000000  
+    # 000       000          000     
+    # 0000000   0000000      000     
+    #      000  000          000     
+    # 0000000   00000000     000     
+    
+    set: key value =>
+        
+        # log "Store[#{@name}].set" key, value
+
+        ⮐ if not key is str
+        ⮐ if isEqual @get(key), value
+        ⮐ if @get(key) == value
+
+        @data ?= {}
+        sds.set @data, @keypath(key), value
+        @delayedSave()
+        post.toWins 'store' @name, 'set' key, value
+                    
+    del: key => 
+    
+        ⮐ if not @data
+        sds.del @data, @keypath key
+        @delayedSave()
+        post.toWins 'store' @name, 'del' key
+        
+    delayedSave: =>
+        
+        clearTimeout @timer
+        @timer = setTimeout (=> @save()), @timeout
+                
+    clear: =>
+        
+        @data = {}
+        
+        clearTimeout @timer if @timer
+        post.toWins 'store' @name, 'data' {}
+        
+    # 000       0000000    0000000   0000000    
+    # 000      000   000  000   000  000   000  
+    # 000      000   000  000000000  000   000  
+    # 000      000   000  000   000  000   000  
+    # 0000000   0000000   000   000  0000000    
+    
+    reload: =>
+
+        @load().then -> post.toWins 'store' @name, 'data' @data
+    
+    load: ○=>
+        
+        try
+            @data =○ noon.load @file
+        catch err
+            error "store.save -- can't load '#{@file}':" err
+            {}
+        
+    #  0000000   0000000   000   000  00000000
+    # 000       000   000  000   000  000     
+    # 0000000   000000000   000 000   0000000 
+    #      000  000   000     000     000     
+    # 0000000   000   000      0      00000000
+
+    save: ○=>
+        
+        ⮐ if not @file
+        ⮐ if empty @data
+
+        clearTimeout @timer
+        @timer = null
+
+        try
+            text = noon.stringify(@data, {indent: 2, maxalign: 8})+'\n'
+            # ●▸ write
+            ○ ffs.write @file, text
+            # ●▪ write
+            # log "store '#{@name}' saved:\n" text
+            # log "store '#{@name}' saved"
+        catch err
+            error "store.save -- can't save to '#{@file}:" err
+        
+export Store

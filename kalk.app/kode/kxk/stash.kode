@@ -1,0 +1,114 @@
+###
+ 0000000  000000000   0000000    0000000  000   000  
+000          000     000   000  000       000   000  
+0000000      000     000000000  0000000   000000000  
+     000     000     000   000       000  000   000  
+0000000      000     000   000  0000000   000   000  
+###
+
+# simple key value store with delayed saving to .app/.stash folder
+# stores state in separate files per window 
+# does not sync between windows
+ 
+use ◆ noon post slash sds kstr ffs
+use ./util ▪ defaults isEqual
+
+function Stash
+    
+    @: (@name, opt) ->
+
+        return error 'stash.constructor -- no name?' if not @name
+        
+        @sep     = opt?.separator ? '|'
+        @timer   = null
+        @file    = slash.path kakao.bundle.path, "/.stash/#{@name}.noon"
+        @timeout = opt?.timeout ? 500
+        @changes = []
+        
+        @data = {}
+        @data = defaults @data, opt.defaults if opt?.defaults?
+        @load()
+
+    keypath: (key) -> key.split @sep
+    
+    #  0000000   00000000  000000000
+    # 000        000          000   
+    # 000  0000  0000000      000   
+    # 000   000  000          000   
+    #  0000000   00000000     000   
+        
+    get: (key, value) ->
+        
+        error 'stash.get -- invalid key', key if not key is str
+        return value if not key is str
+        sds.get @data, @keypath(key), value
+         
+    #  0000000  00000000  000000000  
+    # 000       000          000     
+    # 0000000   0000000      000     
+    #      000  000          000     
+    # 0000000   00000000     000     
+    
+    set: (key, value) ->
+        
+        return error 'stash.set -- invalid key', key if not key is str
+        
+        if not isEqual value, sds.get @data, @keypath(key)
+
+            sds.set @data, @keypath(key), value
+
+            if not isEqual value, sds.get @data, @keypath(key)
+                warn 'sds.set fail?' key, value, @data
+                
+            clearTimeout @timer if @timer
+            @timer = setTimeout @save, @timeout
+                    
+    del: (key) -> @set key
+    
+    isEmpty: -> empty @data
+    
+    clear: ->
+        
+        @data = {}
+        clearTimeout @timer
+        @timer = null
+        ffs.remove @file
+        
+    # 000       0000000    0000000   0000000    
+    # 000      000   000  000   000  000   000  
+    # 000      000   000  000000000  000   000  
+    # 000      000   000  000   000  000   000  
+    # 0000000   0000000   000   000  0000000    
+    
+    load: (file) ○->
+        
+        file ?= @file
+        data =○ noon.load file
+
+        if valid data
+            @data = data
+            post.emit 'stashLoaded'
+        @data
+            
+    #  0000000   0000000   000   000  00000000
+    # 000       000   000  000   000  000     
+    # 0000000   000000000   000 000   0000000 
+    #      000  000   000     000     000     
+    # 0000000   000   000      0      00000000
+
+    save: =>
+        
+        clearTimeout @timer
+        @timer = null
+        
+        ⮐ if not @file
+        
+        try
+            text = noon.stringify @data
+            ffs.write(@file, text).then (file) ->
+
+        catch err
+            error "stash.save -- can't save to '#{@file}': #{err}"
+        true
+        
+export Stash

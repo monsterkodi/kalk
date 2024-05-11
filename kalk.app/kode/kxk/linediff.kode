@@ -1,0 +1,61 @@
+###
+000      000  000   000  00000000  0000000    000  00000000  00000000  
+000      000  0000  000  000       000   000  000  000       000       
+000      000  000 0 000  0000000   000   000  000  000000    000000    
+000      000  000  0000  000       000   000  000  000       000       
+0000000  000  000   000  00000000  0000000    000  000       000       
+###
+
+use ◆ kstr
+use ./util ▪ isEqual
+
+lineDiff = (oldLine, newLine) ->
+    
+    changes = []
+    
+    if oldLine != newLine
+        
+        oldFillet = kstr.fillet oldLine
+        newFillet = kstr.fillet newLine
+        
+        while fillet = newFillet.shift()
+            
+            if oldFillet.length and oldFillet[0].match == fillet.match
+                oldFillet.shift()
+            else
+                oldMatches = oldFillet.map (f) -> f.match
+                if fillet.match in oldMatches
+                    while oldMatch = oldMatches.shift()
+                        oldFillet.shift()
+                        if oldMatch == fillet.match
+                            break
+                    continue
+                changes.push index:fillet.index, length:fillet.length
+                newMatches = newFillet.map (f) -> f.match
+                while oldFillet.length and oldFillet[0].match not in newMatches
+                    oldFillet.shift()
+
+        if changes.length > 1
+            for i in changes.length-1..1
+                if changes[i-1].index + changes[i-1].length == changes[i].index
+                    changes[i-1].length += changes[i].length
+                    changes.pop()
+                                
+    changes
+
+# 0000000     0000000   00000000   000  000   000   0000000   
+# 000   000  000   000  000   000  000  0000  000  000        
+# 0000000    000   000  0000000    000  000 0 000  000  0000  
+# 000   000  000   000  000   000  000  000  0000  000   000  
+# 0000000     0000000   000   000  000  000   000   0000000   
+
+lineDiff.isBoring = (oldLine, newLine) ->
+    
+    changes = lineDiff oldLine, newLine
+    return true if empty changes
+    for change in changes
+        if valid trim newLine.slice change.index, change.index+change.length
+            return false
+    true
+    
+export lineDiff

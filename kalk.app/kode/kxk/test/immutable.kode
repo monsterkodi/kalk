@@ -1,0 +1,81 @@
+###
+000000000  00000000   0000000  000000000        000  00     00  00     00  000   000  000000000   0000000   0000000    000      00000000
+   000     000       000          000           000  000   000  000   000  000   000     000     000   000  000   000  000      000     
+   000     0000000   0000000      000           000  000000000  000000000  000   000     000     000000000  0000000    000      0000000 
+   000     000            000     000           000  000 0 000  000 0 000  000   000     000     000   000  000   000  000      000     
+   000     00000000  0000000      000           000  000   000  000   000   0000000      000     000   000  0000000    0000000  00000000
+###
+
+use .. ◆ immutable
+
+▸ immutable
+
+    imm = null
+
+    #  0000000  000  00     00  00000000   000      00000000  
+    # 000       000  000   000  000   000  000      000       
+    # 0000000   000  000000000  00000000   000      0000000   
+    #      000  000  000 0 000  000        000      000       
+    # 0000000   000  000   000  000        0000000  00000000  
+    
+    ▸ simple
+    
+        imm = immutable
+                arr: []
+                obj: {}
+                int: 0
+                str: 'hello'
+                
+        imm.arr ▸ []
+        imm.obj ▸ {}
+        imm.int ▸ 0
+        imm.str ▸ 'hello'
+        immutable.isImmutable imm ▸ true
+                
+        nxt = imm.set 'arr' [1 2]
+        immutable.isImmutable nxt ▸ true
+        
+        imm.arr ▸ []
+        
+        nxt.arr ▸ [1 2]
+        nxt.obj ▸ {}
+        nxt.int ▸ 0
+        nxt.str ▸ 'hello'
+        
+        ma = nxt.arr.asMutable deep:true
+        immutable.isImmutable ma ▸ false
+        
+        ma.push 3
+        
+        nx2 = nxt.set 'arr' ma
+        nx2.arr ▸ [1 2 3]
+        
+    # 000000000  000   000  00000000    0000000   000   000   0000000  
+    #    000     000   000  000   000  000   000  000 0 000  000       
+    #    000     000000000  0000000    000   000  000000000  0000000   
+    #    000     000   000  000   000  000   000  000   000       000  
+    #    000     000   000  000   000   0000000   00     00  0000000   
+    
+    ▸ throws
+
+        try
+            imm['blah'] = 1
+            true ▸ false
+        catch err
+            "#{err}".indexOf('Cannot add property blah, object is not extensible') >= 0 ▸ true
+    
+        try
+            imm.arr.push 'world'
+            true ▸ false
+        catch err
+            "#{err}".indexOf('The push method cannot be invoked on an Immutable data structure.') >= 0 ▸ true
+            
+        try
+            imm.int += 1
+            true ▸ false
+        catch err
+            "#{err}".indexOf("Cannot assign to read only property 'int' of object") >= 0 ▸ true
+            
+    
+    
+        

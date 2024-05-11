@@ -1,0 +1,38 @@
+###
+000000000  00000000   0000000  000000000        000   000  000000000  000  000       0000000  
+   000     000       000          000           000   000     000     000  000      000       
+   000     0000000   0000000      000           000   000     000     000  000      0000000   
+   000     000            000     000           000   000     000     000  000           000  
+   000     00000000  0000000      000            0000000      000     000  0000000  0000000   
+###
+
+use ../kode
+
+kde = -> new kode header:false
+kdd = -> new kode header:false debug:true verbose:true
+
+export 
+            
+    ast:(c,p) -> kde().astr c, no
+    
+    ke: (c)   -> 
+        try
+            kde().eval(c)
+        catch err
+            log c
+            log err
+            
+    kc: (c,f) -> 
+        k = kde().compile c, f
+        if k.startsWith '// monsterkodi/kode'   then k = k[k.indexOf('\n')+2..]
+        if k.startsWith 'var _k_'               then k = k[k.indexOf('\n')+2..]
+        if k.startsWith 'var '                  then k = k[k.indexOf('\n')+2..]
+        k
+
+    kd: (c,f) -> 
+        k = kdd().compile c, f
+        if k.startsWith '// monsterkodi/kode'   then k = k[k.indexOf('\n')+2..]
+        if k.startsWith 'var _k_'               then k = k[k.indexOf('\n')+2..]
+        if k.startsWith 'var '                  then k = k[k.indexOf('\n')+2..]
+        k
+        

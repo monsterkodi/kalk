@@ -1,0 +1,119 @@
+###
+000   000   0000000   000       0000000   00000000    0000000  000000000  00000000   000  000   000   0000000    0000000
+000  000   000   000  000      000   000  000   000  000          000     000   000  000  0000  000  000        000     
+0000000    000   000  000      000   000  0000000    0000000      000     0000000    000  000 0 000  000  0000  0000000 
+000  000   000   000  000      000   000  000   000       000     000     000   000  000  000  0000  000   000       000
+000   000   0000000   0000000   0000000   000   000  0000000      000     000   000  000  000   000   0000000   0000000 
+###
+
+use ./util ▪ inc ranges
+
+#  0000000  000000000  00000000   000  000   000   0000000    0000000  
+# 000          000     000   000  000  0000  000  000        000       
+# 0000000      000     0000000    000  000 0 000  000  0000  0000000   
+#      000     000     000   000  000  000  0000  000   000       000  
+# 0000000      000     000   000  000  000   000   0000000   0000000   
+
+▸ strings
+    
+    rgs = ranges "slash = require 'kslash'"
+    inc rgs, 16 "'"         ▸ 'punct require'
+    inc rgs, 17 "kslash"    ▸ 'text require'
+    inc rgs, 23 "'"         ▸ 'punct require'
+    
+    rgs = ranges 'a="\'X\'"'
+    inc rgs, 2 '"'          ▸ 'punct string double'
+    inc rgs, 3 "'"          ▸ 'string double'
+    inc rgs, 4 "X"          ▸ 'string double'
+    inc rgs, 6 '"'          ▸ 'punct string double'
+
+    rgs = ranges 'a=\'"X"\'' 'coffee'
+    inc rgs, 2 "'"          ▸ 'punct string single'
+    inc rgs, 3 '"'          ▸ 'string single'
+    inc rgs, 4 'X'          ▸ 'string single'
+    inc rgs, 6 "'"          ▸ 'punct string single'
+        
+    rgs = ranges 'a="  \'X\'  Y  " '
+    inc rgs, 2 '"'          ▸ 'punct string double'
+    inc rgs, 5 "'"          ▸ 'string double'
+    inc rgs, 6 "X"          ▸ 'string double'
+    inc rgs, 7 "'"          ▸ 'string double'
+    inc rgs, 13 '"'         ▸ 'punct string double'
+                    
+    rgs = ranges 'a="";b=" ";c="X"'
+    for i in [2 3 7 9 13 15]
+        inc rgs, i, '"'     ▸ 'punct string double'
+    inc rgs, 14 'X'         ▸ 'string double'
+            
+    rgs = ranges "a='';b=' ';c='Y'"
+    for i in [2 3 7 9 13 15]
+        inc rgs, i, "'"     ▸ 'punct string single'
+    inc rgs, 14 'Y'         ▸ 'string single'
+    
+    rgs = ranges '"s = \'/some\\path/file.txt:10\'"'
+    inc rgs, 5 "'"          ▸ 'string double'
+    inc rgs, 17 "file"      ▸ 'string double'
+    inc rgs, 21 "."         ▸ 'string double'
+    inc rgs, 22 "txt"       ▸ 'string double'
+    inc rgs, 26 "10"        ▸ 'string double'
+    inc rgs, 28 "'"         ▸ 'string double'
+    inc rgs, 29 '"'         ▸ 'punct string double'
+    
+    rgs = ranges "when '\"\"\"' then 'string double triple'"
+    inc rgs, 6 '"'          ▸ 'string single'
+    inc rgs, 7 '"'          ▸ 'string single'
+    inc rgs, 8 '"'          ▸ 'string single'
+           
+    ▸ interpolation
+        
+        rgs = ranges '"#{xxx}"'
+        inc rgs, 0 '"'          ▸ 'punct string double'
+        inc rgs, 1 "#"          ▸ 'punct string interpolation start'
+        inc rgs, 2 "{"          ▸ 'punct string interpolation start'
+        inc rgs, 3 'xxx'        ▸ 'text'
+        inc rgs, 6 "}"          ▸ 'punct string interpolation end'
+        inc rgs, 7 '"'          ▸ 'punct string double'
+    
+        rgs = ranges '"#{666}"'
+        inc rgs, 0 '"'          ▸ 'punct string double'
+        inc rgs, 3 '666'        ▸ 'number'
+        inc rgs, 7 '"'          ▸ 'punct string double'
+    
+        rgs = ranges '"""#{777}"""'
+        inc rgs, 0  '"'         ▸ 'punct string double triple'
+        inc rgs, 1  '"'         ▸ 'punct string double triple'
+        inc rgs, 2  '"'         ▸ 'punct string double triple'
+        inc rgs, 3  '#'         ▸ 'punct string interpolation start'
+        inc rgs, 4  '{'         ▸ 'punct string interpolation start'
+        inc rgs, 5  '777'       ▸ 'number'
+        inc rgs, 8  '}'         ▸ 'punct string interpolation end'
+        inc rgs, 9  '"'         ▸ 'punct string double triple'
+        inc rgs, 10 '"'         ▸ 'punct string double triple'
+        inc rgs, 11 '"'         ▸ 'punct string double triple'
+        
+        rgs = ranges '"#{__dirname}/../"'
+        inc rgs, 12, '}'        ▸ 'punct string interpolation end'
+        inc rgs, 13, '/'        ▸ 'string double'
+            
+        rgs = ranges "p = 'c:\\\\path\\\\'; 1"
+        inc rgs, 4  "'"         ▸ 'punct string single'
+        inc rgs, 5  "c"         ▸ 'string single'
+        inc rgs, 6  ":"         ▸ 'string single'
+        inc rgs, 7  "\\"        ▸ 'string single'
+        inc rgs, 8  "\\"        ▸ 'string single'
+        inc rgs, 9  "path"      ▸ 'string single'
+        inc rgs, 13  "\\"       ▸ 'string single'
+        inc rgs, 14  "\\"       ▸ 'string single'
+        inc rgs, 15  "'"        ▸ 'punct string single'
+        inc rgs, 16  ";"        ▸ 'punct minor'
+        inc rgs, 18  "1"        ▸ 'number'
+        
+        rgs = ranges 'a="\\"X\\""'
+        inc rgs, 2 '"'          ▸ 'punct string double'
+        inc rgs, 3 '\\'         ▸ 'string double'
+        inc rgs, 4 '"'          ▸ 'string double'
+        inc rgs, 5 'X'          ▸ 'string double'
+        inc rgs, 6 '\\'         ▸ 'string double'
+        inc rgs, 7 '"'          ▸ 'string double'
+        inc rgs, 8 '"'          ▸ 'punct string double'
+        

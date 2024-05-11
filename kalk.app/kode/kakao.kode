@@ -1,0 +1,61 @@
+###
+    000   000   0000000   000   000   0000000    0000000 
+    000  000   000   000  000  000   000   000  000   000
+    0000000    000000000  0000000    000000000  000   000
+    000  000   000   000  000  000   000   000  000   000
+    000   000  000   000  000   000  000   000   0000000 
+
+    handles application initialization
+    handles sending and receiving messages to/from the application process
+    provides shortcuts to internal modules
+    sets itself in the global window scope
+###
+
+use ./kxk ▪ sleep post ffs
+use ◆ bundle 
+
+function Kakao
+
+    @init: cb ○->
+        
+        while not window.bundlePath # wait for valid bundle path
+            ○ sleep 100
+        bundle.path = window.bundlePath
+        ○ window.kakao.preInit() if window.kakao.preInit is func # preload modules if necessary
+        cb bundle.path # ... the application is ready to run
+        
+    # sends a message (fire and forget) to the application process with optional args.
+    
+    @send: (route, args...) ->
+        
+        window.webkit.messageHandlers.kakao.postMessage route:route, args:args
+
+    # sends a message to the application process. returns a promise for the result value. 
+    
+    @request: (route, args...) ->
+
+        window.webkit.messageHandlers.kakao_request.postMessage route:route, args:args
+        
+    # receives a message from the application process and posts it in this window
+        
+    @receive: msg ->
+
+        if msg is str
+            post.emit msg
+        else if msg is obj
+            post.emit.apply null, [msg.name].concat msg.args
+            
+    # some redirections to make working with kakao modules a little simpler ...
+            
+    @bundle: bundle  # provides paths and urls relative to the application folder
+    @ffs:    ffs     # fake fs
+
+# this is slightly evil: instead of exporting Kakao only the request function is exported
+# with the other functions attached to it. makes requesting stuff a bit more convenient.
+    
+kakao = -> Kakao.request.apply null, arguments
+for k,v of Kakao ➜ kakao[k] = v
+    
+window.kakao = kakao # make kakao available in the global window scope
+
+export kakao

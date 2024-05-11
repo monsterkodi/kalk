@@ -1,0 +1,67 @@
+###
+     0000000    0000000   000   000  0000000   0000000 
+    000        000   000  0000  000     000   000   000
+    000  0000  000   000  000 0 000    000    000   000
+    000   000  000   000  000  0000   000     000   000
+     0000000    0000000   000   000  0000000   0000000 
+    
+    splits a string into lines and returns a tree of 
+    whitespace indentation blocks:
+
+    A
+       B  
+         C
+    D
+    
+    ▸
+    
+    [
+        line: 'A' indent: 0 blck: 
+        [
+            line:'B' indent: 3 blck: 
+            [
+                line:'C' indent: 5
+            ]
+        ]
+    , 
+        line: 'D' indent: 0
+    ]
+###
+
+use ◆ kstr
+
+gonzo = (str) ->
+    
+    lines = str.split '\n'
+    
+    stack = [indent:-1 blck:[]]
+    
+    while line = lines.shift()
+        
+        top    = last stack 
+        indent = 0
+        
+        while line[indent] == ' ' ➜ indent++
+        line = line[indent..]
+        
+        if lst = last top.blck
+            if indent > lst.indent
+                lst.blck ?= []
+                lst.blck.push line:line, indent:indent
+                stack.push lst
+                continue
+
+        if indent > top.indent
+            top.blck ?= []
+            top.blck.push line:line, indent:indent
+            continue
+
+        while indent <= top.indent and stack.length > 1
+            stack.pop()
+            top = last stack
+
+        top.blck.push line:line, indent:indent
+            
+    stack[0].blck
+
+export gonzo

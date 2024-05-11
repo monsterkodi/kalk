@@ -1,0 +1,59 @@
+###
+000  000   000  00000000   000   000  000000000
+000  0000  000  000   000  000   000     000   
+000  000 0 000  00000000   000   000     000   
+000  000  0000  000        000   000     000   
+000  000   000  000         0000000      000   
+###
+
+use ../kxk ▪ $ elem ffs post
+use ◆ calc color text
+
+class Input
+
+    @: ->
+        
+        @view = $ "#input"
+        @plain = ''
+        
+        post.on 'resize' @onResize
+        post.on 'button' @onButton
+        post.on 'menuAction' (action) => if action == 'Clear' then @clear()
+        @input = elem class:'input-text' 'tab-index': 1
+        @view.appendChild elem class:'input-frame' child:@input
+                
+    appendText: text -> @setText @text() + text
+    textLength:      -> @text().length
+    clear:           => @setText(''); delete @forceBracket
+    onResize:        => @setText @plain
+    
+    text:  -> @plain
+    setText:  @plain ->
+        
+        if (text.balance(@plain) == 1) and not @forceBracket
+            @input.innerHTML = color text.clean @plain
+        else
+            @input.innerHTML = color @plain
+            
+        br = @input.getBoundingClientRect()
+        cw = 55
+        if @plain.length > br.width/cw
+            fs = 90*br.width / (cw*@plain.length)
+        else
+            fs = 90
+            
+        post.emit 'inputText' @plain
+            
+        @input.style.fontSize = "#{fs}px"
+        
+    onButton: key =>
+        
+        switch key
+            'ƒ' ➜ post.emit 'keys' 'functions'
+            'ℵ' ➜ post.emit 'keys' 'numbers'
+            'c' ➜ @clear()
+                ➜
+                    if key in '()' ➜ @forceBracket = true
+                    @setText calc.textKey @text(), key
+
+export Input

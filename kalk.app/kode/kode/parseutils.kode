@@ -1,0 +1,354 @@
+###
+00000000    0000000   00000000    0000000  00000000  000   000  000000000  000  000       0000000
+000   000  000   000  000   000  000       000       000   000     000     000  000      000     
+00000000   000000000  0000000    0000000   0000000   000   000     000     000  000      0000000 
+000        000   000  000   000       000  000       000   000     000     000  000           000
+000        000   000  000   000  0000000   00000000   0000000      000     000  0000000  0000000 
+###
+
+use ./print
+
+function ParseUtils
+
+    #  0000000   0000000   000      000       0000000    0000000   0000000  000   0000000   000   000  
+    # 000       000   000  000      000      000   000  000       000       000  000        0000  000  
+    # 000       000000000  000      000      000000000  0000000   0000000   000  000  0000  000 0 000  
+    # 000       000   000  000      000      000   000       000       000  000  000   000  000  0000  
+    #  0000000  000   000  0000000  0000000  000   000  0000000   0000000   000   0000000   000   000  
+    
+    prepareCallAssign: (rhs) ->
+        
+        if rhs?.switch
+            rhs =
+                call:
+                    callee:
+                        parens:
+                            exps:   [
+                                        func:
+                                            arrow:
+                                                text: '=>'
+                                            body:
+                                                vars: []
+                                                exps: [rhs]
+                                    ]
+
+        if rhs?.if
+            if @ifSuitableForInline rhs
+                rhs.if.inline = true    
+            else
+                rhs =
+                    call:
+                        callee:
+                            parens:
+                                exps:   [
+                                            func:
+                                                arrow:
+                                                    text: '=>'
+                                                body:
+                                                    vars: []
+                                                    exps: [rhs]
+                                        ]
+        rhs
+
+    #  0000000  000   000  000  00000000  000000000   0000000  000       0000000    0000000  00000000  
+    # 000       000   000  000  000          000     000       000      000   000  000       000       
+    # 0000000   000000000  000  000000       000     000       000      000   000  0000000   0000000   
+    #      000  000   000  000  000          000     000       000      000   000       000  000       
+    # 0000000   000   000  000  000          000      0000000  0000000   0000000   0000000   00000000  
+    
+    # rules in parser should use this instead of calling shiftNewline directly
+    
+    shiftClose: (rule, text, tokens) ->
+        
+        if tokens[0]?.text == text
+            return tokens.shift() 
+
+        if tokens[0]?.type == 'nl' and tokens[1]?.text == text
+            @shiftNewline rule, tokens
+            return tokens.shift()
+            
+        error "parse.shiftClose: '#{rule}' expected closing '#{text}'"
+        print.tokens "shiftClose missing close '#{text}'" tokens if @debug
+        null
+        
+    #  0000000  000   000  000  00000000  000000000  000   000  00000000  000   000  000      000  000   000  00000000  
+    # 000       000   000  000  000          000     0000  000  000       000 0 000  000      000  0000  000  000       
+    # 0000000   000000000  000  000000       000     000 0 000  0000000   000000000  000      000  000 0 000  0000000   
+    #      000  000   000  000  000          000     000  0000  000       000   000  000      000  000  0000  000       
+    # 0000000   000   000  000  000          000     000   000  00000000  00     00  0000000  000  000   000  00000000  
+    
+    # this should be the only method to remove newlines from the tokens
+    # it is very important to keep the newlines as a recursion breaker until the last possible moment
+    # using this method makes it much easier to determine when one gets swallwed too early
+    
+    shiftNewline: (rule, tokens) ->
+        
+        if @debug then log M3 y5 " ◂ #{w1 rule}" 
+        tokens.shift()
+        
+    shiftNewlineTok: (rule, tokens, tok, cond) ->
+        
+        if tokens[0]?.type == 'nl' and cond
+           if tokens[1]?.col == tok?.col
+               @shiftNewline rule, tokens
+        
+    # 000   000   0000000   00     00  00000000  00     00  00000000  000000000  000   000   0000000   0000000     0000000  
+    # 0000  000  000   000  000   000  000       000   000  000          000     000   000  000   000  000   000  000       
+    # 000 0 000  000000000  000000000  0000000   000000000  0000000      000     000000000  000   000  000   000  0000000   
+    # 000  0000  000   000  000 0 000  000       000 0 000  000          000     000   000  000   000  000   000       000  
+    # 000   000  000   000  000   000  00000000  000   000  00000000     000     000   000   0000000   0000000    0000000   
+
+    # adds name tokens to functions that are values in class objects
+    
+    nameMethods: (mthds) ->
+ 
+        if mthds?.length
+            for m in mthds
+                if name = m.keyval?.key?.text
+                    if m.keyval.val?.func?
+                        m.keyval.val.func.name = type:'name' text:name
+        mthds
+        
+    # 000000000  000   000  00000000  000   000 
+    #    000     000   000  000       0000  000 
+    #    000     000000000  0000000   000 0 000 
+    #    000     000   000  000       000  0000 
+    #    000     000   000  00000000  000   000 
+    
+    # eats either tokens to the right of 'then' tokens
+    # or of the next block
+    
+    then: (id, tokens) ->
+        
+        if tokens[0]?.text == 'then'
+            
+            tokens.shift()
+            if tokens[0]?.type in ['block' 'nl']
+                @verb 'empty then!'
+                thn = []
+            else
+                @push 'then'
+                thn = @exps id, tokens, 'nl'
+                @pop 'then'
+            
+        else if tokens[0]?.type == 'block'
+            
+            block = tokens.shift()
+            @push 'then'
+            thn = @exps id, block.tokens
+            @pop 'then'
+            
+            if block.tokens.length
+                print.tokens 'then: dangling block tokens' tokens if @debug
+                while block.tokens.length
+                    @verb 'unshift' block.tokens[-1]
+                    tokens.unshift block.tokens.pop()
+                    
+                print.tokens 'then after unshifting dangling block tokens' tokens if @debug
+                
+        else
+            @verb "no then and no block after #{id}!"
+            # warn "'#{id}' expected then or block"
+        
+        thn
+        
+    # 0000000    000       0000000    0000000  000   000  
+    # 000   000  000      000   000  000       000  000   
+    # 0000000    000      000   000  000       0000000    
+    # 000   000  000      000   000  000       000  000   
+    # 0000000    0000000   0000000    0000000  000   000  
+    
+    # either eats block tokens
+    # or until next newline
+    # used for things that doesn't expect 'then' when continued in same line
+    #   - function body
+    #   - call arguments
+    #   - try, catch, finally
+    #   - else
+    #   - return
+    
+    block: (id, tokens) ->
+        
+        # @verb 'block next token type' tokens[0]?.type 
+        
+        if tokens[0]?.type == 'block'
+            origTokens = tokens
+            block = tokens.shift()
+            tokens = block.tokens
+            nl = null
+        else 
+            nl = 'nl'
+
+        @push '▸'+id
+        exps = @exps id, tokens, nl
+        @pop '▸'+id
+
+        if block and block.tokens.length
+            print.tokens 'dangling block tokens' tokens if @debug
+            while block.tokens.length
+                @verb 'unshift' block.tokens[-1]
+                origTokens.unshift block.tokens.pop()
+                
+            print.tokens 'block after unshifting dangling block tokens' origTokens if @debug
+            
+        exps
+        
+    #  0000000  000   000  0000000    0000000    000       0000000    0000000  000   000   0000000  
+    # 000       000   000  000   000  000   000  000      000   000  000       000  000   000       
+    # 0000000   000   000  0000000    0000000    000      000   000  000       0000000    0000000   
+    #      000  000   000  000   000  000   000  000      000   000  000       000  000        000  
+    # 0000000    0000000   0000000    0000000    0000000   0000000    0000000  000   000  0000000   
+    
+    # helps to figure out blocked if and switch statements
+    # converts the list of block tokens into a list of token lists
+    # each list in the returned lists contains the tokens for one else(if) or when statement
+    
+    subBlocks: (tokens) ->
+        
+        subbs = [[]]
+        
+        if tokens[-1].type == 'block' and       # trailing block with disguised else
+           tokens[-1].tokens[0].text == 'then' 
+                elseTokens = tokens.pop().tokens    # remove, remember and
+                elseTokens[0].text = 'else'         # undisguise
+            
+        if tokens[0]?.text == 'then'            # block starts with then: only a disguised else 
+            tokens[0].text = 'else'                 # undisguise
+            return [tokens]                         # done
+            
+        while valid tokens                      
+            t = tokens.shift()                                     
+            if t.type == 'nl'                       # nl might seperate a subblock
+                if tokens[0]?.text in ')}]'             # no: it's a dangling close
+                    subbs[-1].push t
+                else    
+                    subbs.push []                       # yes: start another subblock
+                    if tokens[0]?.text == 'then'        # undisguise else
+                        tokens[0].text = 'else'             
+            else
+                subbs[-1].push t
+
+        subbs.push elseTokens if elseTokens
+                
+        subbs
+
+    #  0000000  000   000  000  000000000   0000000   0000000    000      00000000  
+    # 000       000   000  000     000     000   000  000   000  000      000       
+    # 0000000   000   000  000     000     000000000  0000000    000      0000000   
+    #      000  000   000  000     000     000   000  000   000  000      000       
+    # 0000000    0000000   000     000     000   000  0000000    0000000  00000000  
+    
+    isSuitableForImplicitCall: (e) ->
+        
+        (e.type not in @kode.literals) and
+        (e.type not in ['punct' 'comment' 'op' 'section' 'test' 'func']) and 
+        (e.text not in ['null' 'undefined' 'Infinity' 'NaN' 'if' 'then' 'else' 'for' 'while']) and 
+        not e.array and
+        not e.object and
+        not e.keyval and
+        not e.operation and
+        not e.incond and
+        not e.qmrkop
+        
+    ifSuitableForInline: (e) ->
+
+        if e.if
+            if e.if.then?.length > 1 ➜ ⮐ false
+            if e.if.then?[0].if      ➜ ⮐ false if not @ifSuitableForInline e.if.then[0]
+            if e.if.else?.length > 1 ➜ ⮐ false
+            if e.if.else?[0].if      ➜ ⮐ false if not @ifSuitableForInline e.if.else[0]
+            for ei in e.if.elifs
+                return false if not @ifSuitableForInline ei
+            return true
+        if e.elif
+            if e.elif.then?.length > 1 ➜ ⮐ false
+            if e.elif.then?[0].if      ➜ ⮐ false if not @ifSuitableForInline e.elif.then[0]
+            return true
+        false
+        
+    #  0000000   000      000       0000000   000   000   0000000  0000000    000       0000000    0000000  000   000  
+    # 000   000  000      000      000   000  000 0 000  000       000   000  000      000   000  000       000  000   
+    # 000000000  000      000      000   000  000000000  0000000   0000000    000      000   000  000       0000000    
+    # 000   000  000      000      000   000  000   000       000  000   000  000      000   000  000       000  000   
+    # 000   000  0000000  0000000   0000000   00     00  0000000   0000000    0000000   0000000    0000000  000   000  
+    
+    stackAllowsBlockArg: ->
+        
+        s = @stack.filter (s) -> s in ['if' 'for' 'while' 'then' 'class' 'function' '{' ':' 'switch' 'when' '▸body' 'try' 'catch']
+        ⮐ true if empty s
+        ⮐ true if s[-1] in ['then' '▸body']
+        false
+        
+    # 000   000   0000000   000000000  000   000  00000000  000   000   0000000   000   000  00000000   0000000   0000000    
+    # 0000  000  000   000     000     000   000  000       0000  000  000   000  000   000  000       000   000  000   000  
+    # 000 0 000  000   000     000     000000000  0000000   000 0 000  000000000  000000000  0000000   000000000  000   000  
+    # 000  0000  000   000     000     000   000  000       000  0000  000   000  000   000  000       000   000  000   000  
+    # 000   000   0000000      000     000   000  00000000  000   000  000   000  000   000  00000000  000   000  0000000    
+    
+    noThenAhead: (tokens) ->
+        
+        ⮐ false if tokens[1]?.type == 'block'
+        ti = 0
+        while ++ti < tokens.length
+            if tokens[ti].text == 'then'
+                if tokens[ti].col > tokens[ti-1].col + tokens[ti-1].text.length # if then is spaced
+                    ⮐ false 
+            ⮐ true  if tokens[ti].type in ['nl' 'block']
+        true
+
+    funcAhead: (tokens) ->
+        
+        ti = -1
+        while ++ti < tokens.length
+            ⮐ true  if tokens[ti].type == 'func'
+            ⮐ false if tokens[ti].text in ['('')'] # '.'
+            ⮐ false if tokens[ti].type in ['nl' 'block']
+            
+            if tokens[ti].text == '.'
+                if valid tokens[0...ti].filter (t) -> t.text == '='
+                    continue
+                else
+                    ⮐ false
+        false
+        
+    #  0000000  000   000  00000000   0000000   00000000     
+    # 000       000   000  000       000   000  000   000    
+    # 0000000   000000000  0000000   000000000  00000000     
+    #      000  000   000  000       000   000  000          
+    # 0000000   000   000  00000000  000   000  000          
+    
+    sheapPush: (type, text) ->
+        
+        @sheap.push type:type, text:text
+        print.sheap @sheap if @debug
+        
+    sheapPop: (m, t) ->
+        
+        popped = @sheap.pop()
+        if popped.text != t and popped.text != trim(t, "'") then error 'wrong pop?' popped.text, t
+        print.sheap @sheap, popped if @debug
+        
+    #  0000000  000000000   0000000    0000000  000   000  
+    # 000          000     000   000  000       000  000   
+    # 0000000      000     000000000  000       0000000    
+    #      000     000     000   000  000       000  000   
+    # 0000000      000     000   000   0000000  000   000  
+
+    push: (node) ->
+
+        print.stack @stack, node if @debug
+        @stack.push node
+        @sheapPush 'stack' node
+
+    pop: (n) ->
+        p = @stack.pop()
+        @sheapPop 'stack' p
+        if p != n
+            error "unexpected pop!" p, n
+            
+        if @debug
+            print.stack @stack, p, (s) -> W1 w1 s
+
+    verb: -> if @debug then console.log.apply console.log, arguments 
+
+export ParseUtils

@@ -1,0 +1,92 @@
+###
+000000000   0000000    0000000   000      000000000  000  00000000 
+   000     000   000  000   000  000         000     000  000   000
+   000     000   000  000   000  000         000     000  00000000 
+   000     000   000  000   000  000         000     000  000      
+   000      0000000    0000000   0000000     000     000  000      
+###
+
+use ./elem
+
+function Tooltip
+    
+    @: (@opt) ->
+        
+        return error "no elem for tooltip?" if not @opt?.elem
+        
+        @opt.delay ?= 700
+        @opt.html  ?= @opt.text
+        
+        @elem =  @opt.elem
+        @elem =$ @opt.elem if @opt.elem is str
+        @elem.tooltip = @      
+
+        @observer = new MutationObserver @mut
+        @observer.observe @elem.parentElement, childList:true
+        
+        @elem.addEventListener 'mouseenter' @onHover
+
+    mut: (mutationList, observer) =>
+
+        for mutation in mutationList
+            if mutation.type == "childList"
+                if @elem in mutation.removedNodes
+                    @del()
+                    return
+        
+    del: (event) => 
+        
+        ⮐ if @opt.keep
+        ⮐ if not @elem?
+        
+        if empty(event) or event?.target == @elem
+            @elem.removeEventListener  'mouseenter' @onLeave
+            delete @elem.tooltip
+            @onLeave()
+            @observer.disconnect()
+            delete @observer
+            @elem = null
+
+    onHover: (event) =>
+
+        ⮐ if not @elem?
+        ⮐ if @div?
+        
+        clearTimeout @timer
+        @timer = setTimeout @popup, @opt.delay
+        
+        @elem.addEventListener 'mouseleave' @onLeave
+        @elem.addEventListener 'mousedown'  @onLeave
+
+    popup: (event) =>
+        
+        ⮐ if not @elem?
+        ⮐ if @div?
+        
+        html = @opt.html is func ? @opt.html() : @opt.html
+        
+        @div = elem id:'tooltip' class:'tooltip' html:html
+        if @opt.parent
+            @opt.parent.appendChild @div
+        else
+            document.body.appendChild @div
+        bound = @opt.bound ? @elem
+        br = bound.getBoundingClientRect()
+        @div.style.transform = "scaleY(1)"
+        @div.style.opacity = '1'
+        @div.style.fontSize = "#{@opt.textSize}px" if @opt.textSize?
+        @div.style.left = "#{br.left + @opt.x}px" if @opt.x?
+        @div.style.top = "#{br.bottom + @opt.y}px" if @opt.y?
+        
+    onLeave: (event, e) =>
+        
+        if @elem?
+            @elem.removeEventListener  'mouseleave' @onLeave
+            @elem.removeEventListener  'mousedown'  @onLeave
+            
+        clearTimeout @timer
+        @timer = null
+        @div?.remove()
+        @div = null
+        
+export Tooltip

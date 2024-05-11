@@ -1,0 +1,54 @@
+###
+    0000000    000   000  000  000      0000000      
+    000   000  000   000  000  000      000   000    
+    0000000    000   000  000  000      000   000    
+    000   000  000   000  000  000      000   000    
+    0000000     0000000   000  0000000  0000000      
+
+    builds the application executable
+###
+
+CMD = "zig c++" # is awesome!
+
+OUT = "../../Contents/MacOS/kakao"
+
+LIB = "-framework WebKit -framework Cocoa -framework JavaScriptCore"
+FLG = "-arch arm64 -Os -Wno-nullability-completeness -Wno-objc-method-access"
+
+use child_process
+use ../kxk ◆ slash fs
+
+export ○->
+    
+    srcDir = slash.path ◆dir, '../../src'
+    
+    ○ fs.mkdir slash.dir slash.path ◆dir, OUT
+    
+    srcFiles =○ fs.list srcDir
+    srcFiles = srcFiles.filter (f) -> slash.ext(f.path) in ['cpp''mm']
+    
+    SRC = srcFiles.map((f)->f.file).join ' '
+
+    # the actual build command. 
+    # could be a one-liner in a shell script but that would be too simple :)
+        
+    cmd = "#{CMD} -I . #{SRC} #{LIB} #{FLG} -o #{OUT[3..]}"
+    
+    # log cmd
+    
+    cwd = srcDir
+    opt = shell:true cwd:cwd # build inside the kokoa.app/src folder
+    
+    new Promise (resolve, reject) ->
+    
+        child_process.exec cmd, opt, (err, stdout, stderr) -> 
+        
+            if err 
+                error 'ERROR' err
+                return reject err
+                
+            log stdout if valid stdout
+            log stderr if valid stderr
+            resolve()
+    
+    

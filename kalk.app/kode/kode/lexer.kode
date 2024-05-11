@@ -1,0 +1,390 @@
+###
+000      00000000  000   000  00000000  00000000
+000      000        000 000   000       000   000
+000      0000000     00000    0000000   0000000
+000      000        000 000   000       000   000
+0000000  00000000  000   000  00000000  000   000
+###
+
+use ../kxk ◆ noon kstr slash
+use ../kxk/util ▪ pullIf 
+
+Patterns = 
+    ws: "[ \\t]+"
+    nl: "[ \\t]*\\r?\\n"
+    comment: "\\#\\#\\#(?:.|\\n)*?\\#\\#\\#|\\#.*"
+    num: "0x[a-fA-F\\d]+|0o[0-7]+|0b[0-1]+|[0-9]+n|[0-9]+\\.[0-9]+|[0-9]+e[-\\+]?[0-9]+|[1-9][0-9]*|0|\\-?Infinity"
+    triple: "\"\"\"(?:.|\\n)*?\"\"\""
+    double: "\"(?:\\\\.|\\#\\{[^\\}]*}|[^\\n\\\\\"])*\""
+    single: "'(?:\\\\['\\\\]|[^\\n'])*'"
+    regex: "(?<!\\d\\s*)\\/(?:\\\\[\\/]|\\([^\\n\\s]*\\)|[^\\n\\s\\)])*\\/[gimsuy]*(?!\\s*\\d)"
+    dots: "(?<!\\.)\\.\\.\\.?(?!\\.)"
+    paren: "[\\(\\)\\[\\]\\{\\}]"
+    func: "(○->|○=>|->|=>)"
+    then: "➜"
+    this: "@"
+    test: "(?<!●)▸[\\s\\n]+"
+    profile: "●▸"
+    profilend: "●▪"
+    prof: "●"
+    await: "○"
+    assert: "▴"
+    down: "▾"
+    left: "◂"
+    right: "▸"
+    use: "▪"
+    square: "■"
+    diamond: "◆"
+    return: "⮐"
+    op: "(\\band\\b|\\bor\\b|\\bnot\\b|\\*\\*|\\+\\+|--|==|!=|>=|<=|\\+=|-=|\\*=|\\/=|\\|=|\\^=|\\?=|\\&=|%=|<<|>>|=|\\*|\\/|\\+|-|%|\\^|~|\\&|\\||<|>|\\beql\\b|\\bnew\\b|\\bis\\b|\\binstanceof\\b|\\bdelete\\b|\\bnoon\\b|\\bcopy\\b|\\bclone\\b)"
+    punct: "[,:;!&~\\|\\.\\?\\\\]"
+    bool: "(\\byes\\b|\\bno\\b|\\btrue\\b|\\bfalse\\b)"
+    keyword: [
+        "if"
+        "then"
+        "else"
+        "for"
+        "each"
+        "break"
+        "await"
+        "return"
+        "continue"
+        "switch"
+        "while"
+        "when"
+        "is"
+        "in"
+        "of"
+        "class"
+        "super"
+        "extends"
+        "try"
+        "catch"
+        "throw"
+        "finally"
+        "function"
+        "require"
+        "import"
+        "export"
+        "from"
+        "typeof"
+        "empty"
+        "valid"
+        "dbg"
+        "log"
+        "warn"
+        "error"
+        "clamp"
+        "int"
+        "float"
+        "first"
+        "last"
+        "lpad"
+        "rpad"
+        "trim"
+        "ltrim"
+        "rtrim"
+        "use"
+        "min"
+        "max"
+    ]
+    "var": "[▸a-zA-Z_$][a-zA-Z0-9_$]*"
+    
+class Lexer
+
+    @: (@kode) ->
+
+        @debug    = @kode.args.debug
+        @verbose  = @kode.args.verbose
+        @raw      = @kode.args.raw
+        @regs     = []
+        
+        for key,pat of Patterns
+            
+            if 
+                pat is 'string'
+                    @regs.push [key, new RegExp pat]
+                    
+                pat is Array
+                    
+                    pat = pat.map (p) -> kstr.escapeRegexp "#{p}"
+                    reg = '\\b(' + pat.join('|') + ')\\b'
+                    @regs.push [key, new RegExp reg]
+
+    # 000000000   0000000   000   000  00000000  000   000  000  0000000  00000000
+    #    000     000   000  000  000   000       0000  000  000     000   000
+    #    000     000   000  0000000    0000000   000 0 000  000    000    0000000
+    #    000     000   000  000  000   000       000  0000  000   000     000
+    #    000      0000000   000   000  00000000  000   000  000  0000000  00000000
+
+    ###
+        converts text into a list of token objects
+        token object:
+            type: string        # any of the keys in lexer.noon
+            text: string        # text of match
+            line: number        # line number
+            col:  number        # start index in line
+    ###
+
+    tokenize: (text) ->
+
+        linetokens = []
+        tokens = []
+        line = 1
+        col = 0
+        while text.length
+            before = text.length
+            for [key,reg] in @regs
+                match = text.match reg
+                if match?.index == 0
+
+                    value = if key == 'nl' then '' else match[0]
+                    
+                    # simple substitution ➜ then ⮐ return
+                    
+                    if key == 'then'   ➜ value = 'then';   key = 'keyword'
+                    if key == 'return' ➜ value = 'return'; key = 'keyword'
+                        
+                    if value == 'then' and tokens[-2]?.text == 'else' 
+                        # skip then after else
+                    else
+                        token = type:key, text:value, line:line, col:col
+                        tokens.push token
+                        linetokens.push token
+
+                    if  
+                        key == 'nl'
+                            
+                            col = 0
+                            linetokens = []
+                            line++
+                            
+                        key in ['comment''triple']
+                            
+                            lines = value.split '\n'
+                            line += lines.length-1
+                            if lines.length > 1 ➜ col = lines[-1].length
+                                                ➜ col += value.length
+
+                        key == 'test'
+                            if not tokens[-2]? or tokens[-2].type == 'nl' or tokens[-2].type == 'ws' and tokens[-3]?.type == 'nl'
+                                end = text.indexOf '\n'
+                                end = text.length if end < 0
+                                txt = trim text[1...end]
+                                tokens[-1].type = 'section'
+                                tokens[-1].text = txt
+                                if end >= text.length then text = '' else text = text[end..]
+                                break
+                            else
+                                tokens[-1].type = 'op'
+                                tokens[-1].text = trim tokens[-1].text, ' \n'
+                                
+                        key.startsWith('prof') and empty pullIf linetokens, (t) -> t.text != 'use'
+                        
+                            ni  = text.indexOf '\n'
+                            si  = text.indexOf ';'
+                            if  
+                                ni >= 0 and si >= 0 ➜ end = min ni, si 
+                                ni >= 0             ➜ end = ni
+                                si >= 0             ➜ end = si
+                                                    ➜ end = text.length
+                                                    
+                            txt = trim text[tokens[-1].text.length...end]
+                            tokens[-1].id = txt
+                            if end >= text.length then text = '' else text = text[end..]
+                            break
+                        ➜  
+                            col += value.length
+
+                    text = text[match[0].length..-1]
+                    break
+
+            after = text.length
+            if before == after
+                log "files" @kode.args.files
+                log "stray character ▸#{text[0]}◂ in line #{line} col #{col} text:\n" text
+                tokens.push type:'stray' text:text[0], line:line, col:col
+                text = text[1..-1]
+        tokens
+        
+    # 000000000  00000000   000  00000000   0000000    00000000  000   000  000000000  
+    #    000     000   000  000  000   000  000   000  000       0000  000     000     
+    #    000     0000000    000  00000000   000   000  0000000   000 0 000     000     
+    #    000     000   000  000  000        000   000  000       000  0000     000     
+    #    000     000   000  000  000        0000000    00000000  000   000     000     
+    
+    # left trims triple strings
+    
+    tripdent: (tokens) ->
+        
+        for tok in tokens
+            if tok.type == 'triple'
+                splt = tok.text[3...-3].split '\n'
+                if splt.length > 1
+                    if splt.length == 2
+                        if empty trim splt[1]
+                            tok.text = '"""' + splt[0] + '"""'
+                        else
+                            tok.text = '"""' + splt[0] + '\n' + kstr.lstrip(splt[1]) + '"""'
+                    else
+                        splt.shift() if trim(splt[0]) == '' and splt.length > 2
+                        splt.pop()   if trim(splt[-1]) == ''
+                        if splt.length == 1 then tok.text = '"""' + kstr.lstrip(splt[0]) + '"""'
+                        else
+                            minind = Math.min.apply 0 splt.map (s) -> if empty(trim(s)) then Infinity else kstr.lcnt s, ' '
+                            if Infinity > minind > 0 then splt = splt.map (s) -> s[minind..]
+                            tok.text = '"""' + splt.join('\n') + '"""'
+        tokens
+
+    # 000   000  000   000   0000000  000       0000000    0000000  000   000
+    # 000   000  0000  000  000       000      000   000  000       000   000
+    # 000   000  000 0 000  0000000   000      000000000  0000000   000000000
+    # 000   000  000  0000       000  000      000   000       000  000   000
+    #  0000000   000   000  0000000   0000000  000   000  0000000   000   000
+
+    # joins lines that end with '\'
+
+    unslash: (tokens) ->
+
+        newTokens = []
+
+        idx = 0
+        while idx < tokens.length
+            tok = tokens[idx]
+            if tok.text == '\\'
+                idx += 1
+                while tokens[idx] and tokens[idx].type in ['nl' 'ws']
+                    idx += 1
+            else
+                newTokens.push tok
+                idx += 1
+
+        newTokens
+        
+    # 00     00  00000000  00000000    0000000   00000000   0000000   00000000   
+    # 000   000  000       000   000  000        000       000   000  000   000  
+    # 000000000  0000000   0000000    000  0000  0000000   000   000  00000000   
+    # 000 0 000  000       000   000  000   000  000       000   000  000        
+    # 000   000  00000000  000   000   0000000   00000000   0000000   000        
+    
+    # joins lines that end with operators that operate on a left hand side
+    
+    mergeop: (tokens) ->
+
+        newTokens = []
+
+        idx = 0
+        while idx < tokens.length
+            tok = tokens[idx]
+            if tok.type == 'op' and tok.text not in ['--''++''=''clone''copy''delete''new''is''instanceof''noon''last''first']
+                newTokens.push tok
+                idx += 1
+                while tokens[idx].type in ['nl' 'ws']
+                    idx += 1
+            else
+                newTokens.push tok
+                idx += 1
+
+        newTokens
+        
+    # 000   000  000   000   0000000   0000000   00     00  00     00  00000000  000   000  000000000  
+    # 000   000  0000  000  000       000   000  000   000  000   000  000       0000  000     000     
+    # 000   000  000 0 000  000       000   000  000000000  000000000  0000000   000 0 000     000     
+    # 000   000  000  0000  000       000   000  000 0 000  000 0 000  000       000  0000     000     
+    #  0000000   000   000   0000000   0000000   000   000  000   000  00000000  000   000     000     
+    
+    # TODO: keep the swallowed tokens and reinsert them after parsing
+    
+    uncomment: (tokens) ->
+        
+        newTokens = []
+
+        idx = 0
+        while idx < tokens.length
+            tok = tokens[idx]
+            if tok.type == 'comment'
+                # if not (tokens[idx-1]?.type == 'nl' or tokens[idx-2]?.type == 'nl' and tokens[idx-1]?.type == 'ws')
+                idx += 1
+                continue
+
+            newTokens.push tok
+            idx += 1
+
+        newTokens
+        
+    # 0000000    000       0000000    0000000  000   000  000  00000000  000   000
+    # 000   000  000      000   000  000       000  000   000  000        000 000
+    # 0000000    000      000   000  000       0000000    000  000000      00000
+    # 000   000  000      000   000  000       000  000   000  000          000
+    # 0000000    0000000   0000000    0000000  000   000  000  000          000
+
+    ###
+        converts list of tokens into tree of blocks
+        block:
+            type:  'block'
+            tokens: array           # tokens of the block
+            indent: string          # indentation string
+            line:   number          # first line number
+            col:    number
+
+        ws tokens and empty lines are pruned from the tree
+        nl tokens are only kept between lines of the same block
+    ###
+
+    blockify: (tokens) ->
+
+        tokens = @tripdent  tokens
+        tokens = @unslash   tokens
+        tokens = @uncomment tokens
+        tokens = @mergeop   tokens
+
+        blocks = []
+
+        block = type:'block' tokens:[] indent:'' line:1 col:0
+        blocks.push block
+
+        outdentTo = (depth, line) ->
+            
+            while depth < block.indent.length
+                blocks.pop()
+                block = blocks[-1]
+
+        for idx in 0...tokens.length
+            
+            tok = tokens[idx]
+            
+            if 
+                tok.type == 'nl'
+
+                    nxt = tokens[idx+1]
+                    
+                    if nxt?.type in ['nl'] ➜ continue
+    
+                    if  
+                        nxt?.type == 'ws'
+    
+                            if tokens[idx+2]?.type == 'nl' or idx+1 >= tokens.length-1 ➜ continue
+        
+                            if 
+                                nxt.text.length > block.indent.length
+        
+                                    block = type:'block' tokens:[] line:nxt.line, indent:nxt.text, col:nxt.text.length
+                                    blocks[-1].tokens.push block
+                                    blocks.push block
+                                    continue
+        
+                                nxt.text.length < block.indent.length
+                                    
+                                    outdentTo nxt.text.length, nxt.line
+                            
+                        nxt
+                            if block.indent.length ➜ outdentTo 0, nxt.line
+
+                tok.type == 'ws'
+                    continue
+
+            block.tokens.push tok
+
+        blocks[0]
+        
+export Lexer

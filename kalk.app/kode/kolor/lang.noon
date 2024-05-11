@@ -1,0 +1,1045 @@
+
+#  0000000   0000000   00000000  00000000  00000000  00000000              000   0000000  
+# 000       000   000  000       000       000       000                   000  000       
+# 000       000   000  000000    000000    0000000   0000000               000  0000000   
+# 000       000   000  000       000       000       000             000   000       000  
+#  0000000   0000000   000       000       00000000  00000000         0000000   0000000   
+
+coffee kode js ts
+    
+    keyword
+        if
+        then 
+        else 
+        do
+        for
+        while
+        new
+        try
+        catch
+        throw
+        class
+        super
+        return
+        switch
+        break
+        continue
+        true
+        typeof
+        extends
+        instanceof
+        globalThis
+        __dirname
+        __filename
+        Infinity
+        
+    module
+        args
+        childp
+        console
+        document
+        drag
+        dom
+        elem
+        events
+        exports
+        ffs
+        fs
+        global
+        keyinfo
+        kpos
+        kstr
+        matchr
+        module
+        os
+        popup
+        post
+        prefs
+        process
+        setStyle
+        sds
+        slash
+        stash
+        store
+        stopEvent
+        tooltip
+        util
+        window
+        global
+
+    function call
+        err
+        error
+
+    nil
+        null
+        false
+        undefined
+        
+    require
+        require
+      
+#  0000000   0000000   00000000  00000000  00000000  00000000  
+# 000       000   000  000       000       000       000       
+# 000       000   000  000000    000000    0000000   0000000   
+# 000       000   000  000       000       000       000       
+#  0000000   0000000   000       000       00000000  00000000  
+
+coffee
+      
+    keyword
+        of
+        in
+        is
+        by
+        or
+        and
+        not
+        when
+        unless
+        yes
+        
+    nil
+        no
+
+# 000   000   0000000   0000000    00000000  
+# 000  000   000   000  000   000  000       
+# 0000000    000   000  000   000  0000000   
+# 000  000   000   000  000   000  000       
+# 000   000   0000000   0000000    00000000  
+
+kode
+      
+    keyword
+        in
+        is
+        of
+        or
+        and
+        not
+        yes
+        ok
+        when
+        empty
+        valid
+        noon
+        copy
+        clone
+        each
+        min
+        max
+        first
+        last
+        int
+        float
+        clamp
+        lpad
+        rpad
+        trim
+        ltrim
+        rtrim
+        function
+        
+    nil
+        no
+        fail
+        
+    require
+        use
+        
+#       000   0000000  
+#       000  000       
+#       000  0000000   
+# 000   000       000  
+#  0000000   0000000   
+
+js ts
+    keyword
+        as
+        of
+        any
+        let
+        var
+        case
+        this
+        from
+        const
+        async
+        await
+        static
+        import
+        delete
+        
+    keyword function
+        function
+        
+# 000000000   0000000  
+#    000     000       
+#    000     0000000   
+#    000          000  
+#    000     0000000   
+
+ts
+    keyword type
+        public
+        private
+        protected
+        abstract
+        get
+        set
+        number
+        string
+        boolean
+        interface
+        export 
+        declare 
+        type
+        void
+        
+#  0000000  000   000  000  00000000  000000000  
+# 000       000 0 000  000  000          000     
+# 0000000   000000000  000  000000       000     
+#      000  000   000  000  000          000     
+# 0000000   00     00  000  000          000     
+
+swift
+
+    keyword
+        if
+        then 
+        else 
+        do
+        in
+        as
+        for
+        while
+        new
+        try
+        catch
+        throw
+        class
+        return
+        switch
+        struct
+        break
+        continue
+        print
+        true
+        extension
+        subscript
+
+    keyword type
+        var
+        let
+        String
+        Bool
+        UInt
+        Int
+        Int64
+        Int32
+        UInt64
+        UInt32
+        mutating
+
+    function
+        func
+
+    nil
+        nil
+        false
+        
+    require
+        import
+        
+#       000   0000000   0000000   000   000        000   000   0000000    0000000   000   000  
+#       000  000       000   000  0000  000        0000  000  000   000  000   000  0000  000  
+#       000  0000000   000   000  000 0 000        000 0 000  000   000  000   000  000 0 000  
+# 000   000       000  000   000  000  0000        000  0000  000   000  000   000  000  0000  
+#  0000000   0000000    0000000   000   000        000   000   0000000    0000000   000   000  
+
+json noon yml yaml
+    keyword
+        true
+    nil
+        null
+        false
+        
+#  0000000  00000000   00000000 
+# 000       000   000  000   000
+# 000       00000000   00000000 
+# 000       000        000      
+#  0000000  000        000      
+
+cpp hpp cxx mm c h cs frag vert
+
+    define
+        ifdef
+        undef
+        ifndef
+        define
+        endif
+        include
+        pragma
+        uniform
+        precision
+        varying
+        attribute
+        
+    keyword
+        break
+        case
+        cast
+        cerr
+        class
+        const_cast
+        continue
+        cout
+        default
+        dynamic_cast
+        else
+        endl
+        enum
+        for 
+        friend
+        if
+        inline
+        namespace
+        private
+        public
+        reinterpret_cast
+        return
+        sizeof
+        static_cast
+        struct
+        switch
+        template
+        this
+        true
+        typedef
+        typename
+        using
+        virtual
+        while
+                        
+    keyword type                        
+        int
+        auto
+        void
+        bool
+        char
+        byte
+        long
+        float
+        double
+        unsigned
+        int8
+        int16
+        int32
+        uint8
+        uint16
+        uint32
+        int64
+        uint64
+        size_t
+        wchar_t
+        vec2
+        vec3
+        vec4
+        ivec2
+        ivec3
+        ivec4
+        mat2
+        mat3
+        mat4
+
+    punct
+        const
+        override
+        static
+        out
+        in
+        inout
+
+    nil
+        err
+        null
+        nullptr
+        NULL
+        false
+        error
+        NAME_None
+        
+    module
+        iTime
+        iDate
+        iFrame
+        iMouse
+        iChannel0
+        iChannel1
+        iChannel2
+        iChannel3
+        iTimeDelta
+        iFrameRate
+        iSampleRate
+        iResolution
+        iChannelTime
+        iChannelResolution
+        
+# 000   000  000000000  00     00  000      
+# 000   000     000     000   000  000      
+# 000000000     000     000000000  000      
+# 000   000     000     000 0 000  000      
+# 000   000     000     000   000  0000000  
+
+html htm pug md styl css scss sass
+
+    keyword
+        a
+        b
+        p
+        ul
+        li
+        br
+        tr
+        th
+        td
+        dt
+        hr
+        h1
+        h2
+        h3
+        h4
+        h5
+        div
+        nav
+        img
+        pre
+        map
+        area
+        html
+        head
+        meta
+        body 
+        span
+        link
+        input
+        button
+        section 
+        header
+        footer
+        script
+        style
+        table
+        title
+        blockquote
+        center
+        canvas
+        doctype
+        DOCTYPE
+        
+#  0000000  000   000   0000000   
+# 000       000   000  000        
+# 0000000    000 000   000  0000  
+#      000     000     000   000  
+# 0000000       0       0000000   
+
+html htm svg pug
+    
+    keyword
+        g
+        svg
+        path
+        rect
+        line
+        defs
+        text
+        title
+        tspan
+        circle
+        ellipse
+        polygon
+        polyline
+        pattern
+        filter
+        stop
+        radialgradient
+        lineargradient
+        
+    property
+        id
+        type
+        href
+        src
+        rel
+        lang
+        class
+        name
+        width
+        height
+        media
+        style
+        value
+        shape
+        coords
+        content
+        charset
+        viewbox
+        tabindex
+        onmouseover
+        onmouseout
+
+#  0000000  000000000  000   000  000              0000000   0000000   0000000  
+# 000          000      000 000   000             000       000       000       
+# 0000000      000       00000    000             000       0000000   0000000   
+#      000     000        000     000             000            000       000  
+# 0000000      000        000     0000000          0000000  0000000   0000000   
+
+styl css scss sass
+            
+    argument
+        absolute
+        all
+        antialiased
+        auto
+        block
+        bold
+        border
+        bottom
+        box
+        column
+        default
+        dotted
+        drag
+        ease
+        ew
+        fadein
+        flex
+        forwards
+        from
+        grab
+        grid
+        hidden
+        in
+        initial
+        inline
+        inset
+        italic
+        justify
+        larger
+        left
+        lr
+        middle
+        move
+        no
+        normal
+        nowrap
+        ns
+        out
+        pointer
+        relative
+        repeat
+        resize
+        right
+        round
+        row
+        scalex
+        scaley
+        scroll
+        smaller
+        solid
+        static
+        text
+        to
+        top
+        translate
+        translate3d
+        translatex
+        translatey
+        translatez
+        transparent
+        underline
+        uppercase
+        vertical
+        visible
+        
+    property color
+        red
+        green
+        blue
+        yellow
+        magenta
+        cyan
+        black
+        gray
+        white
+        orange
+        
+    keyword
+        abs
+        after
+        align
+        animation 
+        app
+        area
+        background
+        before
+        blend
+        border
+        bottom
+        box
+        caret
+        clip
+        color
+        column
+        content
+        corner
+        count 
+        cursor
+        dasharray
+        dashoffset
+        decoration
+        delay
+        direction
+        display
+        duration
+        events
+        family
+        fill
+        filter
+        flex
+        float
+        flow
+        font
+        function
+        grid
+        grow
+        height
+        image
+        index
+        iteration
+        left
+        line
+        linecap
+        linejoin
+        list
+        margin
+        max
+        min
+        mode
+        opacity
+        origin
+        origin
+        outline
+        overflow
+        padding
+        pointer
+        position
+        property
+        radius
+        region
+        repeat
+        resize
+        right
+        scrollbar
+        select
+        selection
+        shadow
+        shadow
+        shrink
+        size
+        sizing
+        smoothing
+        space
+        start
+        stroke
+        style
+        text
+        thumb
+        timing
+        top
+        track
+        transform
+        transition
+        type
+        user
+        vertical
+        webkit 
+        weight
+        white
+        width
+        word
+        writing
+        x
+        y
+        z
+        zoom
+        
+    function
+        rgb
+        rgba
+        drop
+        shadow
+        linear
+        gradient
+        
+    important
+        important
+        
+    property special
+        not
+        hover
+        focus
+        active
+        first
+        last
+        nth
+        child
+                
+    nil
+        none
+                
+# 00000000   000      000   0000000  000000000  
+# 000   000  000      000  000          000     
+# 00000000   000      000  0000000      000     
+# 000        000      000       000     000     
+# 000        0000000  000  0000000      000     
+
+plist
+    keyword
+        array
+        dict
+        key
+        string
+        plist
+      
+# 00000000   000   000  
+# 000   000   000 000   
+# 00000000     00000    
+# 000           000     
+# 000           000     
+
+py
+    keyword
+        class
+        else
+        try
+        except
+        print
+        pass
+        of
+        in
+        not
+        or
+        and
+        return
+        import
+        from
+        break
+        continue
+        global
+        range
+        len
+        def
+        if
+        elif
+        for
+        while
+        except
+        __init__
+        
+#  0000000  000   000  
+# 000       000   000  
+# 0000000   000000000  
+#      000  000   000  
+# 0000000   000   000  
+
+sh bash
+
+    keyword
+        case
+        cat
+        cd 
+        color-ls
+        colorcat
+        cp
+        dirname
+        do
+        done
+        echo
+        elif
+        else
+        esac
+        exit
+        fi
+        git
+        grep
+        head
+        if
+        in
+        konrad
+        krep
+        ls
+        mkdir
+        noon
+        npm
+        open
+        pwd
+        rm
+        sort
+        tail
+        then
+        while
+        
+    module
+        getopts
+        
+# 00000000  000   0000000  000   000  
+# 000       000  000       000   000  
+# 000000    000  0000000   000000000  
+# 000       000       000  000   000  
+# 000       000  0000000   000   000  
+
+fish
+
+    keyword
+        ~
+        if
+        else
+        end
+        then
+        and
+        env
+        printf
+        echo
+        exit
+        while
+        case
+        for
+        in
+        set
+        pwd
+        alias
+        test
+        function
+        source
+        return
+        set_color
+        
+# 000   0000000   0000000  
+# 000  000       000       
+# 000  0000000   0000000   
+# 000       000       000  
+# 000  0000000   0000000   
+
+iss
+    keyword
+        appid
+        appname
+        appversion
+        apppublisher
+        apppublisherurl
+        appsupporturl
+        appupdatesurl
+        defaultdirname
+        defaultgroupname
+        allownoicons
+        outputdir
+        outputbasefilename
+        setupiconfile
+        compression
+        solidcompression
+        wizardimagefile
+        wizardsmallimagefile
+    
+# 000  000   000  000  
+# 000  0000  000  000  
+# 000  000 0 000  000  
+# 000  000  0000  000  
+# 000  000   000  000  
+
+iss ini md
+
+    keyword            
+        true
+    nil
+        false
+        
+# 00     00  00     00  
+# 000   000  000   000  
+# 000000000  000000000  
+# 000 0 000  000 0 000  
+# 000   000  000   000  
+
+mm
+    method
+        defaultManager
+        
+    property
+        __block
+        nonatomic
+        readwrite
+        assign
+        retain
+        path        
+    keyword
+        id
+        in
+        self
+        super
+        alloc
+        init
+        count
+        length
+        release
+        array
+        dictionary
+        longValue
+        autorelease
+        isKindOfClass
+        generalPasteboard
+        sharedApplication
+        mainBundle
+        setObject
+        hasPrefix
+        hasSuffix
+        setString
+        forType
+        appendString
+        stringWithString
+        completionHandler
+        dataWithJSONObject
+        forKey
+        addObject
+        isDirectory
+        writeToFile
+        initWithData
+        valueForKey
+        objectForKey
+        objectAtIndex
+        trashItemAtURL
+        resultingItemURL
+        numberWithBool
+        moveItemAtPath
+        copyItemAtPath
+        toPath
+        nextObject
+        skipDescendants
+        floatValue
+        numberWithInt
+        numberWithLong
+        numberWithBool
+        numberWithFloat
+        fileURLWithPath
+        removeItemAtPath
+        enumeratorAtPath
+        fileExistsAtPath
+        dataUsingEncoding
+        isWritableFileAtPath
+        createDirectoryAtPath
+        withIntermediateDirectories
+        attributesOfItemAtPath
+        isReadableFileAtPath
+        addObjectsFromArray
+        substringFromIndex
+        pathWithComponents
+        pathExtension
+        performSelector
+        evaluateJavaScript
+        cStringUsingEncoding
+        characterSetWithCharactersInString
+        componentsSeparatedByCharactersInSet
+        arrayByAddingObject
+        arrayWithObject
+        arrayWithObjects
+        stringForType
+        stringWithFormat
+        stringByAppendingString
+        stringByStandardizingPath
+        stringByExpandingTildeInPath
+        stringByDeletingPathExtension
+        stringByAppendingPathComponent
+        stringWithContentsOfFile
+        componentsJoinedByString
+        isEqualToString
+        dictionaryWithObjectsAndKeys
+        options
+        encoding
+        attributes
+        configuration
+        delegate
+        YES
+        BOOL
+    define
+        end
+        import
+        synthesize
+        implementation
+        interface
+        property
+    nil
+        nil
+        NO
+        NSError
+        NSNotFound
+    module
+        Win
+        View
+        NSWindow
+        NSBundle
+        WKWebView
+        NSWorkspace
+        NSMutableSet
+        WKNavigation
+        NSURLRequest
+        NSPasteboard
+        NSFileManager
+        NSApplication
+        NSCharacterSet
+        NSNotification
+        WKContentWorld
+        WKScriptMessage
+        NSBitmapImageRep
+        WKWebsiteDataStore
+        NSJSONSerialization
+        NSImageDataBitmapRep
+        NSRunningApplication
+        NSDirectoryEnumerator
+        WKWebViewConfiguration
+        WKSnapshotConfiguration
+    type
+        NSSet
+        NSURL
+        NSObject
+        NSValue
+        CGRect
+        NSImage
+        NSPoint
+        NSDate
+        NSData
+        NSArray        
+        NSNumber
+        NSString
+        NSFileType
+        NSDictionary
+        NSMutableArray
+        NSMutableString
+        NSMutableDictionary
+        NSApplicationActivationPolicyRegular
+        WKInactiveSchedulingPolicyNone
+        NSWorkspaceOpenConfiguration
+        NSApplicationTerminateReply
+        NSJSONWritingPrettyPrinted
+        NSBitmapImageFileTypePNG
+        WKUserContentController
+        NSPasteboardTypeString
+        NSUTF8StringEncoding
+        NSFileTypeDirectory
+        NSTimeInterval
+        NSOrderedSame
+        NSAtomicWrite
+        NSUInteger
+        NSInteger
+        NSRect
+    
+        
+        

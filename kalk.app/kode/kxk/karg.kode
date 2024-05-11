@@ -1,0 +1,298 @@
+###
+000   000   0000000   00000000    0000000 
+000  000   000   000  000   000  000      
+0000000    000000000  0000000    000  0000
+000  000   000   000  000   000  000   000
+000   000  000   000  000   000   0000000 
+###
+
+use ◆ kstr klor noon
+
+klor.globalize()
+
+###
+00000000  000   000  00000000    0000000   000   000  0000000  
+000        000 000   000   000  000   000  0000  000  000   000
+0000000     00000    00000000   000000000  000 0 000  000   000
+000        000 000   000        000   000  000  0000  000   000
+00000000  000   000  000        000   000  000   000  0000000  
+###
+
+expand = (l) ->
+    
+    for a in l 
+        if match = /^\-(\w\w+)$/.exec a
+            a = match[1].split('').map (i) -> '-'+i
+            a.unshift l.indexOf(match.input), 1
+            l.splice.apply l, a
+            return expand l
+    l
+
+###
+00000000  00000000   00000000    0000000   00000000 
+000       000   000  000   000  000   000  000   000
+0000000   0000000    0000000    000   000  0000000  
+000       000   000  000   000  000   000  000   000
+00000000  000   000  000   000   0000000   000   000
+###
+
+error = (msg) ->
+    
+    s = dim r5 "[" + bold("ERROR") + "] "
+    s += r5 msg.trim().split('\n').join("\n        ")
+    log s
+
+###
+00000000    0000000   00000000    0000000  00000000
+000   000  000   000  000   000  000       000     
+00000000   000000000  0000000    0000000   0000000 
+000        000   000  000   000       000  000     
+000        000   000  000   000  0000000   00000000
+###
+
+# options: 
+#     ignoreArgs:  number of leading process.argv items to ignore (default=2)
+#     argv:        list of string arguments to use instead of process.argv
+#     dontExit:    don't exit process on -V/--version or -h/--help  (returns undefined instead)
+#     returnLog:   help/version output is returned instead of logged (implies dontExit)
+
+parse = (config, options={}) ->
+        
+    if typeof(config) == 'string'        
+        config = noon.parse config
+    else
+        config = Object.assign {}, config
+            
+    name   = Object.keys(config)[0] # the application/script name
+    result = {} # the object created from the provided arguments and the configuration
+    help   = {} # maps keys to help texts
+    short  = {} # maps keys to shortcut keys
+    long   = {} # maps shortcut keys to keys
+    param  = '' # name of non-option parameters
+    paramList = false
+   
+    cfg = config[name]
+    
+    cfg = cfg each (k,v) ->
+        
+        if v is 'string'
+            
+            o = {}
+            s = v.split /\s\s+/
+            if s.length > 1
+                o['?'] = s[0]
+                s = s[1..].join ' '
+            else
+                s = s[0]
+                if s[0] not in '*=-'
+                    o['?'] = s
+                    s = ''
+            s = s.split ' '
+
+            cvt = (s) ->
+                switch s
+                    'true''yes' ➜ true
+                    'false''no' ➜ false
+                                ➜ if s is num then parseFloat s else s
+            
+            while s.length
+                if
+                    s[0] == ''           ➜ s.shift()
+                    s[0] == '**'         ➜ o['**'] = true       s.shift()
+                    s[0] == '*'          ➜ o['*']  = true       s.shift()
+                    s[0] == '='          ➜ o['=']  = cvt s[1];  s.shift(); s.shift()
+                    s[0].startsWith '--' ➜ o['--'] = s[0][2..] or '-'; s.shift()
+                    s[0].startsWith '-'  ➜ o['-']  = s[0][1..] or '-'; s.shift()
+                                         ➜ o['='] += ' ' + s.shift() if o['=']?
+            [k,o]
+            
+        else [k,v]
+    
+    for k,v of cfg
+    
+        if 0 <= k.indexOf ' '
+            error """
+            wrong karg setup: #{bold "keys can't contain spaces!"}
+            broken key: #{bold y5 k}
+            """
+            process.exit 1
+        
+        if v['=']? then result[k] = v['=']
+        
+        sht = k[0]                   # default for short is first letter of key
+        lng = k                      # default for long  is key
+        sht = v['-']  if v['-']      # override short if specified
+        lng = v['--'] if v['--']     # override long if specified
+        sht = '' if sht in ['-']     # disable short if -
+        lng = '' if lng in ['-''--'] # disable long if -- 
+        
+        if Array.isArray v
+            if '*' in v
+                param = k
+            else if '**' in v
+                param = k
+                paramList = true
+                result[k] = []
+            else
+                short[k] = sht
+                long[k]  = lng
+        else
+            if '*' in Object.keys v
+                param = k
+            else if '**' in Object.keys v
+                param = k
+                paramList = true
+                result[k] = []
+            else
+                short[k] = sht
+                long[k]  = lng
+                help[k]  = v['?']
+                
+    long2key  = long  each (k,v) -> [v,k]
+    short2key = short each (k,v) -> [v,k]
+
+    ###
+     0000000   00000000   000000000  000   0000000   000   000   0000000
+    000   000  000   000     000     000  000   000  0000  000  000     
+    000   000  00000000      000     000  000   000  000 0 000  0000000 
+    000   000  000           000     000  000   000  000  0000       000
+     0000000   000           000     000   0000000   000   000  0000000 
+    ###
+    
+    optionsText = ""
+        
+    maxLong = 0
+    maxHelp = 0
+    
+    for k,v of cfg
+        
+        if long[k]? then maxLong = Math.max maxLong, long[k].length
+        if help[k]? then maxHelp = Math.max maxHelp, kstr.strip(help[k]).length
+                
+    for k,v of cfg
+        sht = short[k]
+        lng = long[k]
+        if help[k]?
+            df = switch result[k]
+                when false then r5 dim '✘'
+                when true  then g5 bold '✔'
+                else result[k]
+            shtHelp = if sht != '' then "#{w5 '-'}#{sht}" else '  '
+            lngHelp = if lng != '' then "#{w5 '--'}#{kstr.rpad lng, maxLong}" else '  ' + kstr.pad '' maxLong
+            optionsText += '\n'
+            optionsText += "    #{shtHelp} #{lngHelp}"
+            optionsText += w5 bold "  #{kstr.rpad help[k], maxHelp}"
+            optionsText += m5   "  #{df}" if df?
+
+    ###
+    000   000  00000000  000      00000000 
+    000   000  000       000      000   000
+    000000000  0000000   000      00000000 
+    000   000  000       000      000      
+    000   000  00000000  0000000  000      
+    ###
+    
+    helpText  = "\n#{w5 'usage:'}  #{bold name} "
+    helpText += "#{w5 '[ '}#{bold y5 param}#{paramList and w5(' ... ]') or w5(']')}"
+    helpText += '\n'
+    if cfg[param]?['?']
+        helpText += y5 bold "\n        #{param} #{w5 cfg[param]['?']}"
+        helpText += m5("  #{kstr.pad '', Math.max(0,maxHelp-strip(cfg[param]['?']).length)} #{cfg[param]['=']}") if cfg[param]['=']? and not paramList
+        helpText += '\n'
+            
+    if optionsText.length
+        helpText += w5 "\noptions:\n"
+        helpText += optionsText
+        helpText += '\n\n'
+    
+    short2key['h'] ?= 'help'
+    long2key['help'] ?= 'help'
+    
+    if config.version?
+        version = config.version
+        delete config.version
+        long2key['version'] ?= 'version' 
+        short2key['V'] ?= 'version'
+        
+    delete config[name]
+    if Object.keys(config).length # append remaining keys as help text
+        helpText += noon.stringify config, 
+            maxalign: 16
+            colors: 
+                key:     gray
+                string:  white
+        helpText += '\n'
+        
+    ###
+    00000000   00000000   0000000  000   000  000      000000000
+    000   000  000       000       000   000  000         000   
+    0000000    0000000   0000000   000   000  000         000   
+    000   000  000            000  000   000  000         000   
+    000   000  00000000  0000000    0000000   0000000     000   
+    ###
+
+    options.ignoreArgs ?= 2
+    
+    if options.argv
+        argv = options.argv
+    else
+        argv = process.argv.slice options.ignoreArgs
+        
+    expandedArgs = expand argv
+
+    addParam = (arg) ->
+        if paramList
+            result[param].push arg
+        else
+            result[param] = arg
+            
+    addIgnored = (arg) ->
+        if not result['__ignored'] then result['__ignored'] = []
+        result['__ignored'].push arg
+        
+    addParamOrIgnore = (arg) ->
+        if param
+            addParam arg
+        else
+            addIgnored arg
+                
+    while arg = expandedArgs.shift()
+        
+        org = arg
+        if arg.substr(0,2) == '--'
+            if not arg = long2key[arg.substr 2]
+                addIgnored org
+                continue
+        else if arg[0] == '-'
+            if not arg = short2key[arg.substr 1]
+                addIgnored org
+                continue
+        else 
+            addParamOrIgnore arg
+            continue
+            
+        if arg == 'help'
+            if options.returnLog then return helpText
+            log helpText
+            ⮐ if options.dontExit
+            process.exit 0
+        else if arg == 'version' and version?
+            if options.returnLog then return version
+            log version
+            ⮐ if options.dontExit
+            process.exit 0
+            
+        if 
+            result[arg] == false or result[arg] == true
+                result[arg] = not result[arg]
+            result[arg] is num
+                result[arg] = parseFloat expandedArgs.shift()
+            arg in Object.keys(short2key)
+                result[short2key[arg]] = expandedArgs.shift()
+            arg in Object.keys(long2key)
+                result[long2key[arg]] = expandedArgs.shift()
+            ➜
+                addParamOrIgnore arg
+    result
+
+export parse

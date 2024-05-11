@@ -1,0 +1,151 @@
+###
+000   000   0000000   000      000   000  
+000  000   000   000  000      000  000   
+0000000    000000000  000      0000000    
+000  000   000   000  000      000  000   
+000   000  000   000  0000000  000   000  
+###
+
+use ../kakao
+use ../kxk ▪ $ win post stopEvent
+use ◆ symbol keys input sheet 
+
+window.WIN_MIN_WIDTH  = 476
+window.WIN_MIN_HEIGHT = 596
+
+function Delegate extends win.Delegate
+    
+    @: ->
+        
+        @menuIcon   = kakao.bundle.img 'menu_kalk.png'
+        @menuNoon   = kakao.bundle.res 'menu_kalk.noon'
+        @aboutImage = kakao.bundle.img 'about_kalk.png'
+        
+        post.on 'menuAction' @onMenuAction
+        post.on 'calc'       @onCalc
+        
+    onWindowWillShow: ->
+    
+        document.body.style.display = 'inherit'
+
+    onWindowWithoutStash: ->  
+        
+        kakao 'win.setSize'    window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
+        kakao 'win.center'
+        
+    onWindowCreated: =>
+        
+        kakao 'win.setMinSize' window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
+        kakao 'win.setMaxSize' window.WIN_MIN_WIDTH, 6666
+        
+    onWindowResize: => post.emit 'resize'
+        
+    onCalc: calc =>
+        
+        window.input.setText calc
+        post.emit 'button' '='
+
+    # 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
+    # 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
+    # 000000000  0000000   000 0 000  000   000  000000000  000          000     000  000   000  000 0 000  
+    # 000 0 000  000       000  0000  000   000  000   000  000          000     000  000   000  000  0000  
+    # 000   000  00000000  000   000   0000000   000   000   0000000     000     000   0000000   000   000  
+
+    onMenuAction: action args =>
+
+        switch action
+            
+            'Cut'       ➜ ⮐ @cut()
+            'Copy'      ➜ ⮐ @cpy()
+            'Paste'     ➜ ⮐ @paste()
+            'Clear All' ➜ ⮐ post.emit('sheet' 'collapse') and post.emit('menuAction' 'Clear')
+            'Clear Log' ➜ ⮐ post.emit('sheet' 'clear')
+            'Save'      ➜ ⮐ post.toMain 'saveBuffer'
+            
+            'Sin' 'Cos' 
+            'Tan' 'aTan' 
+            'Log'       ➜ ⮐ post.emit 'button' action.toLowerCase()
+            'Exp'       ➜ ⮐ post.emit 'button' symbol.exp
+            'Deg2Rad'   ➜ ⮐ post.emit 'button' symbol.deg2rad
+            'E'         ➜ ⮐ post.emit 'button' symbol.euler
+            'PI'        ➜ ⮐ post.emit 'button' symbol.pi
+            'PHI'       ➜ ⮐ post.emit 'button' symbol.phi
+            'Plus'      ➜ ⮐ post.emit 'button' '+'
+            'Minus'     ➜ ⮐ post.emit 'button' '-'
+            'Multiply'  ➜ ⮐ post.emit 'button' '*'
+            'Divide'    ➜ ⮐ post.emit 'button' '/'
+            'Sqrt'      ➜ ⮐ post.emit 'button' symbol.sqrt
+            'Begin'     ➜ ⮐ post.emit 'button' symbol.open
+            'End'       ➜ ⮐ post.emit 'button' symbol.close
+            'Del'       ➜ ⮐ post.emit 'button' symbol.backspace
+            'Equals'    ➜ ⮐ post.emit 'button' '='
+
+        log 'onMenuAction' action, args
+        'unhandled'
+            
+    # 000   000  00000000  000   000        0000000     0000000   000   000  000   000  
+    # 000  000   000        000 000         000   000  000   000  000 0 000  0000  000  
+    # 0000000    0000000     00000          000   000  000   000  000000000  000 0 000  
+    # 000  000   000          000           000   000  000   000  000   000  000  0000  
+    # 000   000  00000000     000           0000000     0000000   00     00  000   000  
+    
+    onWindowKeyDown: win info =>
+        
+        ⮐ stopEvent(info.event) if 'unhandled' != window.keys.keyDown info
+        
+        switch info.combo
+            
+            'ctrl+v' ➜ ⮐ @paste()
+            'ctrl+c' ➜ ⮐ @cpy()
+            'ctrl+x' ➜ ⮐ @cut()
+            
+    onWindowKeyUp: win info =>
+        
+        window.keys.keyUp info
+        
+    onWindowBlur:  win      =>
+    onWindowFocus: win      =>
+    
+    #  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
+    # 000       000   000  000   000   000 000         000   000  000   000  000          000     000         
+    # 000       000   000  00000000     00000          00000000   000000000  0000000      000     0000000     
+    # 000       000   000  000           000           000        000   000       000     000     000         
+    #  0000000   0000000   000           000           000        000   000  0000000      000     00000000    
+        
+    currentSelection: =>
+        
+        selection = document.getSelection().toString()
+        ⮐ selection if valid selection
+        ''
+                
+    cpy: =>
+        
+        if selection = @currentSelection()
+            kakao 'clipboard.set' selection
+        else
+            kakao 'clipboard.set' window.input.text()
+    
+    cut: => 
+        
+        @cpy() 
+        if selection = @currentSelection()
+            document.getSelection().deleteFromDocument()
+        else
+            window.input.clear()
+            
+    paste: ○=>
+        
+        text =○ kakao 'clipboard.get'
+        log 'got clipboard text' text
+        
+        window.input.setText window.input.text()+text
+                
+kakao.init ->
+    
+    new win new Delegate
+    
+    window.sheet = new sheet
+    window.input = new input
+    window.keys  = new keys
+    @
+    

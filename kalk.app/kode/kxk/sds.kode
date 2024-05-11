@@ -1,0 +1,222 @@
+###
+     0000000  0000000     0000000
+    000       000   000  000     
+    0000000   000   000  0000000 
+         000  000   000       000
+    0000000   0000000    0000000 
+###
+
+regexp = (s) ->
+    s = String s
+    s = s.replace /([^.]+\|[^.]+)/g, '($1)'
+    s = s.replace /\./g, '\\.'
+    s = s.replace /\^/g, '\\^'
+    s = s.replace /\?/g, '[^.]'
+    s = s.replace /\*\*/g, '####'
+    s = s.replace /\*/g, '[^.]*'
+    s = s.replace /####/g, '.*'
+    new RegExp "^"+s+"$"
+
+
+#  0000000   0000000   000      000      00000000   0000000  000000000
+# 000       000   000  000      000      000       000          000   
+# 000       000   000  000      000      0000000   000          000   
+# 000       000   000  000      000      000       000          000   
+#  0000000   0000000   0000000  0000000  00000000   0000000     000   
+
+# accepts an object
+#         a filter (keypath, key, value) -> true        # false to exclude
+#         a map    (keypath, value) -> [keypath, value] # maps results
+#         
+# returns a list of lists
+#
+#         [
+#            [ keypath, value ]
+#              ...
+#         ]
+#
+# with keypath: a list of strings and integers
+#      value:   same as get(object, keypath)
+
+collect = (object, filter, map, count=-1, keyPath=[], result=[]) ->
+
+    filter ?= (p,k,v) -> true
+    map    ?= (p,v) -> [p,v]
+
+    switch object.constructor.name
+        
+        when "Array"
+            for i in [0...object.length]
+                v = object[i]
+                keyPath.push i
+                if filter keyPath, i,v
+                    result.push map [].concat(keyPath), v
+                    return result if count > 0 and result.length >= count
+                if v?.constructor.name in ["Array", "Object"]
+                    collect v, filter, map, count, keyPath, result
+                keyPath.pop()
+                
+        when "Object"
+            for k,v of object
+                keyPath.push k
+                if filter keyPath, k,v
+                    result.push map [].concat(keyPath), v
+                    return result if count > 0 and result.length >= count
+                if v?.constructor.name in ["Array", "Object"]
+                    collect v, filter, map, count, keyPath, result
+                keyPath.pop()
+    result
+
+# 00000000  000  000   000  0000000    
+# 000       000  0000  000  000   000  
+# 000000    000  000 0 000  000   000  
+# 000       000  000  0000  000   000  
+# 000       000  000   000  0000000    
+
+function find
+
+    # accept an object and a (key, path or value)
+    # return a list of keypaths for matching (key, path or value)
+
+    @key: (object, key) -> 
+        keyReg = @reg key 
+        @traverse object, (p,k,v) => @match k, keyReg
+
+    @path: (object, path) -> 
+        pthReg = @reg path
+        @traverse object, (p,k,v) => @matchPath p, pthReg
+
+    @value: (object, val) -> 
+        valReg = @reg val         
+        @traverse object, (p,k,v) => @match v, valReg
+
+    # accept an object, a (key or path) and a value
+    # return a list of keypaths for matching (key or path) and value combinations
+        
+    @keyValue: (object, key, val) -> 
+        keyReg = @reg key 
+        valReg = @reg val 
+        @traverse object, (p,k,v) => @match(k, keyReg) and @match(v, valReg)
+                        
+    @pathValue:(object, path, val) -> 
+        pthReg = @reg path
+        valReg = @reg val         
+        @traverse object, (p,k,v) => @matchPath(p, pthReg) and @match(v, valReg)
+        
+    @traverse: (object, func) -> collect object, func, (p,v) -> p
+    
+    # 00     00   0000000   000000000   0000000  000   000
+    # 000   000  000   000     000     000       000   000
+    # 000000000  000000000     000     000       000000000
+    # 000 0 000  000   000     000     000       000   000
+    # 000   000  000   000     000      0000000  000   000
+    
+    @matchPath: (a, r) -> @match a.join('.'), r
+        
+    @match: (a,r) ->
+        if not (a instanceof Array)
+            String(a).match(r)?.length
+        else
+            false
+
+    @reg: (s) -> regexp s
+    
+#  0000000   00000000  000000000
+# 000        000          000
+# 000  0000  0000000      000
+# 000   000  000          000
+#  0000000   00000000     000
+
+# accepts an object and a keypath as a list or string and a value
+# returns the value at keypath or undefined
+
+get = (object, keypath, defaultValue) ->
+
+    return defaultValue if not object
+    return defaultValue if not keypath?.length
+
+    keypath = keypath.split '.' if typeof(keypath) == 'string'
+
+    kp = [].concat keypath
+
+    while kp.length
+        object = object[kp.shift()]
+        return defaultValue if not object?
+
+    object
+    
+#  0000000  00000000  000000000
+# 000       000          000   
+# 0000000   0000000      000   
+#      000  000          000   
+# 0000000   00000000     000   
+
+# accepts an object, a keypath as an array or string and a value
+# returns the object with value set at keypath
+
+set = (object, keypath, value) ->
+    
+    keypath = keypath.split '.' if keypath is str
+    throw "invalid keypath: #{JSON.stringify keypath}" if not keypath is arr
+    
+    kp = clone keypath
+        
+    o = object
+        
+    while kp.length > 1
+        k = kp.shift()
+        if not o[k]?
+            if not Number.isNaN parseInt k
+                o = o[k] = []
+            else
+                o = o[k] = {}
+        else
+            o = o[k]
+            
+    if kp.length == 1 and o?
+        if value == undefined
+            delete o[kp[0]]
+        else
+            o[kp[0]] = value
+            if o[kp[0]] != value
+                throw "couldn't set value #{JSON.stringify value} for keypath #{keypath.join '.'} in #{JSON.stringify object}"
+    else
+        log 'no keypath?' kp, keypath
+    object
+
+###
+0000000    00000000  000      
+000   000  000       000      
+000   000  0000000   000      
+000   000  000       000      
+0000000    00000000  0000000  
+###
+
+# accepts an object and a keypath as an array or string
+# returns the object with value removed at keypath
+
+del = (object, keypath) ->
+    
+    keypath = keypath.split '.' if typeof(keypath) == 'string'
+    throw "invalid keypath: #{JSON.stringify keypath}" if not (keypath instanceof Array)
+    
+    kp = [].concat keypath
+    o = object
+    
+    while kp.length > 1
+        k = kp.shift()
+        o = o[k]
+        if not o then break
+            
+    if kp.length == 1 and o?
+        if o instanceof Array
+            o.splice parseInt kp[0]
+        else if o instanceof Object
+            delete o[kp[0]]
+    object
+    
+export 
+    find:find
+    get:get
+    set:set
+    del:del

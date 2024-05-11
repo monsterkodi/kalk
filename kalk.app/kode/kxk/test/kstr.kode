@@ -1,0 +1,243 @@
+###
+000000000  00000000   0000000  000000000          000   000   0000000  000000000  00000000 
+   000     000       000          000             000  000   000          000     000   000
+   000     0000000   0000000      000             0000000    0000000      000     0000000  
+   000     000            000     000             000  000        000     000     000   000
+   000     00000000  0000000      000     000000  000   000  0000000      000     000   000
+###
+
+use .. ◆ kstr
+
+▸ kstr
+
+    ▸ str
+    
+        kstr a:1 b:2 ▸ """a   1\nb   2"""
+        kstr [1 2 3] ▸ """1\n2\n3"""
+
+    ▸ encode
+     
+        kstr.encode(" hello / world !?")    ▸ '%20hello%20/%20world%20!?'
+        kstr.encode("</>")                  ▸ '%3C/%3E'
+
+    ▸ escapeRegexp
+        
+        kstr.escapeRegexp('a/b.txt') ▸ 'a\\/b\\.txt'
+        
+    #  0000000  000000000  00000000   000  00000000   
+    # 000          000     000   000  000  000   000  
+    # 0000000      000     0000000    000  00000000   
+    #      000     000     000   000  000  000        
+    # 0000000      000     000   000  000  000        
+    
+    ▸ lstrip
+        
+        kstr.lstrip()                       ▸ ''
+        kstr.lstrip('')                     ▸ ''
+        kstr.lstrip('   y')                 ▸ 'y'
+        kstr.lstrip(' ')                    ▸ ''
+        kstr.lstrip('x ' 'x')               ▸ ' '
+        kstr.lstrip(' yxy ' ' y')           ▸ 'xy '
+
+    ▸ rstrip
+        
+        kstr.rstrip()                       ▸ ''
+        kstr.rstrip('')                     ▸ ''
+        kstr.rstrip('   y' 'y')             ▸ '   '
+        kstr.rstrip(' ')                    ▸ ''
+        kstr.rstrip(' x' 'x')               ▸ ' '
+        kstr.rstrip(' yxy ' ' y')           ▸ ' yx'
+
+    ▸ strip
+        
+        kstr.strip()                        ▸ ''
+        kstr.strip('')                      ▸ ''
+        kstr.strip('abc')                   ▸ 'abc'
+        kstr.strip('123   y  123' '123')    ▸ '   y  '
+        kstr.strip(' x y z ' 'xyz ')        ▸ ''
+        kstr.strip('x x' 'x')               ▸ ' '
+        kstr.strip(' yxy ' ' y')            ▸ 'x'
+
+    ▸ trim
+        
+        kstr.trim('123   y  123' '123')     ▸ '   y  '
+        kstr.ltrim(' yxy ' ' y')            ▸ 'xy '
+        kstr.rtrim('   y' 'y')              ▸ '   '
+        
+    # 000       0000000  000   000  000000000  
+    # 000      000       0000  000     000     
+    # 000      000       000 0 000     000     
+    # 000      000       000  0000     000     
+    # 0000000   0000000  000   000     000     
+    
+    ▸ lcnt
+        
+        s = 'abc'
+        n = 123
+        kstr.lcnt()                      ▸ 0
+        kstr.lcnt(null, 'n')             ▸ 0
+        kstr.lcnt(undefined, 'u')        ▸ 0
+        kstr.lcnt(Infinity, 'Inf')       ▸ 0
+        kstr.lcnt({}, '{')               ▸ 0
+        kstr.lcnt([], '[')               ▸ 0
+        kstr.lcnt('' 1)                  ▸ 0
+        kstr.lcnt('ax' '')               ▸ 0
+        kstr.lcnt('' 'xy')               ▸ 0
+        kstr.lcnt('abc', Infinity)       ▸ 0
+        kstr.lcnt('abc' null)            ▸ 0
+        kstr.lcnt('abc' undefined)       ▸ 0
+        kstr.lcnt('abc' {})              ▸ 0
+        kstr.lcnt('abc' ['ab''b'])       ▸ 0
+        kstr.lcnt('abc' ['a''b'])        ▸ 2
+        kstr.lcnt(s, 'ac')               ▸ 1
+        kstr.lcnt(n, '13')               ▸ 1
+        kstr.lcnt(11202, '12')           ▸ 3
+        kstr.lcnt('   xx' ' ')           ▸ 3
+        kstr.lcnt('12345 blub' '1234')   ▸ 4
+
+    ▸ rcnt
+        
+        s = 'abc'
+        n = 123
+        kstr.rcnt()                      ▸ 0
+        kstr.rcnt(null, 'n')             ▸ 0
+        kstr.rcnt(undefined, 'u')        ▸ 0
+        kstr.rcnt(Infinity, 'Inf')       ▸ 0
+        kstr.rcnt({}, '{')               ▸ 0
+        kstr.rcnt([], '[')               ▸ 0
+        kstr.rcnt('' 1)                  ▸ 0
+        kstr.rcnt('ax' '')               ▸ 0
+        kstr.rcnt('' 'xy')               ▸ 0
+        kstr.rcnt('abc', Infinity)       ▸ 0
+        kstr.rcnt('abc' null)            ▸ 0
+        kstr.rcnt('abc' undefined)       ▸ 0
+        kstr.rcnt('abc' {})              ▸ 0
+        kstr.rcnt('abc' ['ab''b'])       ▸ 0
+        kstr.rcnt('abc' ['c''b'])        ▸ 2
+        kstr.rcnt(s, 'ac')               ▸ 1
+        kstr.rcnt(n, '23')               ▸ 2
+        kstr.rcnt(11202, '02')           ▸ 3
+        kstr.rcnt('xx   ' ' ')           ▸ 3
+        kstr.rcnt('12345 blub' 'blub')   ▸ 4
+        kstr.rcnt('A4──A5  ' ' ')        ▸ 2
+        
+    # 00000000    0000000   0000000    
+    # 000   000  000   000  000   000  
+    # 00000000   000000000  000   000  
+    # 000        000   000  000   000  
+    # 000        000   000  0000000    
+    
+    ▸ lpad
+        
+        kstr.lpad('' 4)        ▸ '    '
+        kstr.lpad('x' 4)       ▸ '   x'
+        kstr.lpad(' xxx ' 2)   ▸ ' xxx '
+
+    ▸ rpad
+        
+        kstr.rpad('' 4)        ▸ '    '
+        kstr.rpad('x' 4)       ▸ 'x   '
+        kstr.rpad(' xxx ' 2)   ▸ ' xxx '
+ 
+    #  0000000   000   000   0000000  000  
+    # 000   000  0000  000  000       000  
+    # 000000000  000 0 000  0000000   000  
+    # 000   000  000  0000       000  000  
+    # 000   000  000   000  0000000   000  
+    
+    ▸ ansi2html
+         
+        a2h = (s,r) -> kstr.ansi2html(s) ▸ r
+
+        a2h 'hello', 'hello'
+        a2h r5('red'), '<span style="color:#ff0000;">red</span>'
+        a2h """
+            #{r5('red')}
+            #{g5('green')}
+            """ """
+            <span style="color:#ff0000;">red</span>
+            <span style="color:#00ff00;">green</span>
+            """
+        a2h "#{r5('red')}#{g5('green')}", '<span style="color:#ff0000;">red</span><span style="color:#00ff00;">green</span>'
+        
+    ▸ stripAnsi
+         
+        (kstr.stripAnsi g5('green')) ▸ 'green'
+         
+    ▸ dissect
+         
+        ansi= new kstr.ansi
+        diss = ansi.dissect '[48;5;0m..[48;5;15m  [0m'
+        diss[0] ▸ '..  '
+        diss[1].length ▸ 2
+        diss[1][1].match ▸ '  '
+        diss[1][1].start ▸ 2
+        
+    # 000000000   0000000   0000000    
+    #    000     000   000  000   000  
+    #    000     000000000  0000000    
+    #    000     000   000  000   000  
+    #    000     000   000  0000000    
+    
+    ▸ detab
+        
+        kstr.detab('\t\t') ▸ '        '
+        kstr.detab('aa\tbb') ▸ 'aa  bb'
+       
+    # 000000000  000  00     00  00000000  
+    #    000     000  000   000  000       
+    #    000     000  000000000  0000000   
+    #    000     000  000 0 000  000       
+    #    000     000  000   000  00000000  
+    
+    ▸ time number
+        
+        kstr.time 1                     ▸ '1 ms'
+        kstr.time 1000                  ▸ '1 second'
+        kstr.time 1001                  ▸ '1 second'
+        kstr.time 1999                  ▸ '1 second'
+        kstr.time 2000                  ▸ '2 seconds'
+        kstr.time 2001                  ▸ '2 seconds'
+        kstr.time 59999                 ▸ '59 seconds'
+        kstr.time 60000                 ▸ '1 minute'
+        kstr.time 120001                ▸ '2 minutes'
+        kstr.time 1000*60*60            ▸ '1 hour'
+        kstr.time 1000*60*60*24         ▸ '1 day'
+        kstr.time 1000*60*60*48         ▸ '2 days'
+        kstr.time 1000*60*60*24*30      ▸ '1 month'
+        kstr.time 1000*60*60*24*60      ▸ '2 months'
+        kstr.time 1000*60*60*24*30*12   ▸ '1 year'
+        kstr.time 1000*60*60*24*30*24   ▸ '2 years'
+        
+    ▸ time bigint
+        
+        kstr.time BigInt 1              ▸ '1 ns'
+        kstr.time BigInt 1000           ▸ '1 μs'
+        kstr.time BigInt 1001           ▸ '1 μs'
+        kstr.time BigInt 6001           ▸ '6 μs'
+        kstr.time BigInt 1000000        ▸ '1 ms'
+        kstr.time BigInt 1000000000     ▸ '1 second'
+        kstr.time BigInt 2000000000     ▸ '2 seconds'
+        
+    # 00000000  000  000      000      00000000  000000000  
+    # 000       000  000      000      000          000     
+    # 000000    000  000      000      0000000      000     
+    # 000       000  000      000      000          000     
+    # 000       000  0000000  0000000  00000000     000     
+    
+    ▸ fillet
+    
+        kstr.fillet() ▸ []
+        kstr.fillet '' ▸ []
+        kstr.fillet ' ' ▸ []
+        kstr.fillet '\t' ▸ []
+        kstr.fillet '\n' ▸ []
+        kstr.fillet '\r' ▸ []
+        kstr.fillet '   ' ▸ []
+        kstr.fillet ' \n \t \r' ▸ []
+        kstr.fillet 'abc' ▸ [{match:'abc' index:0 length:3 word:true}]
+        kstr.fillet 'a b c' ▸ [{match:'a' index:0 length:1 word:true}, {match:'b' index:2 length:1 word:true}, {match:'c' index:4 length:1 word:true}]
+        kstr.fillet ' abc.def ' ▸ [{match:'abc' index:1 length:3 word:true}, {match:'.' index:4 length:1 word:false}, {match:'def' index:5 length:3 word:true}]
+        kstr.fillet ' a_c.,:__def ' ▸ [{match:'a_c' index:1 length:3 word:true}, {match:'.,:' index:4 length:3 word:false}, {match:'__def' index:7 length:5 word:true}]
+        kstr.fillet '1-2' ▸ [{match:'1' index:0 length:1 word:true}, {match:'-' index:1 length:1 word:false}, {match:'2' index:2 length:1 word:true}]
+        

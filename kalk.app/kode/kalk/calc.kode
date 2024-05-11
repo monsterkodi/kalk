@@ -1,0 +1,170 @@
+###
+ 0000000   0000000   000       0000000
+000       000   000  000      000     
+000       000000000  000      000     
+000       000   000  000      000     
+ 0000000  000   000  0000000   0000000
+###
+
+use ../kxk ▪ scooter kstr post
+use ◆ text
+
+class Calc
+    
+    #  0000000    0000000  000000000  000  000   000  00000000        000   000  00000000  000   000  
+    # 000   000  000          000     000  000   000  000             000  000   000        000 000   
+    # 000000000  000          000     000   000 000   0000000         0000000    0000000     00000    
+    # 000   000  000          000     000     000     000             000  000   000          000     
+    # 000   000   0000000     000     000      0      00000000        000   000  00000000     000     
+    
+    @activeKey: txt key ->
+        
+        clean   = empty txt
+        cOnst   = text.endsWithConstant   txt
+        value   = text.endsWithValue      txt
+        float   = text.endsWithFloat      txt
+        nuber   = text.endsWithNumber     txt
+        unfin   = text.endsWithUnfinished txt
+        open    = txt[-1] == symbol.open
+        close   = txt[-1] == symbol.close
+        deg2rad = txt[-1] == symbol.deg2rad
+        rad2deg = txt[-1] == symbol.rad2deg
+        dot     = txt[-1] == symbol.dot
+        apply   = not unfin and not clean 
+        
+        switch key
+            
+            symbol.func 
+            symbol.numbers      ➜ ⮐ true
+            
+            symbol.pi 
+            symbol.phi 
+            symbol.euler        ➜ ⮐ not cOnst and not deg2rad and not dot
+            
+            '1''2''3''4''5'
+            '6''7''8''9''0'     ➜ ⮐ not cOnst and not deg2rad
+            
+            'c'
+            symbol.backspace    ➜ ⮐ not clean
+            
+            'sin' 'cos' 'tan' 'atan' 'deg' 'rad' 'log' 
+
+                ⮐ false if dot or close
+                ⮐ true
+
+            '/' '*' '=' 
+            
+            symbol.pow          ➜ ⮐ apply
+            symbol.exp          
+            symbol.oneoverx
+            symbol.sqrt         ➜ ⮐ open or apply or clean or (unfin and not dot)
+            
+            symbol.rad2deg      ➜ ⮐ apply and not rad2deg
+            symbol.deg2rad      ➜ ⮐ apply and not deg2rad
+            
+            '+' '-'             ➜ ⮐ not text.endsWith txt, ['+' '-' '.']
+            '.'                 ➜ ⮐ nuber and not float
+            symbol.open         ➜ ⮐ not dot and not open and not cOnst and not close and not value
+            symbol.close
+                
+                ⮐ false if unfin or clean
+                ⮐ true if text.balance(txt) > 0
+                ⮐ false if close
+                # need better check here if it really makes sense to close?
+                for op in ['+' '-' '/' '*' '^']
+                    ⮐ true if op in txt
+                        
+                ⮐ false
+                ⮐ true
+                
+            ➜
+                log 'ever come here?' txt, key
+                if key in text.unfinished
+                    ⮐ apply
+                    
+        log 'fallthrough false?' txt, key
+        false
+
+    #  0000000   0000000   000       0000000  
+    # 000       000   000  000      000       
+    # 000       000000000  000      000       
+    # 000       000   000  000      000       
+    #  0000000  000   000  0000000   0000000  
+    
+    @calc: expr ->
+        
+        ⮐ '' if empty expr
+        
+        expr = text.close expr
+        expr = trim expr, ' \n'
+        
+        val = scooter expr
+                
+        post?.emit 'sheet' text:expr, val:val
+        
+        val
+                
+    # 000000000  00000000  000   000  000000000        000   000  00000000  000   000  
+    #    000     000        000 000      000           000  000   000        000 000   
+    #    000     0000000     00000       000           0000000    0000000     00000    
+    #    000     000        000 000      000           000  000   000          000     
+    #    000     00000000  000   000     000           000   000  00000000     000     
+    
+    @textKey: txt key ->
+        
+        ⮐ txt if not @activeKey txt, key
+        
+        txt   = '' if txt == 'NaN'
+             
+        clean = empty txt
+        cOnst = text.endsWithConstant   txt
+        value = text.endsWithValue      txt
+        float = text.endsWithFloat      txt
+        nuber = text.endsWithNumber     txt
+        unfin = text.endsWithUnfinished txt
+        open  = txt[-1] == symbol.open
+        
+        switch key
+            
+            symbol.backspace
+            
+                for f in ['sin' 'cos' 'tan' 'atan' 'deg' 'rad' 'log' 'NaN' symbol.sqrt]
+                    if txt.endsWith f
+                        ⮐ txt = txt[0..txt.length-f.length]
+                    if txt.endsWith f + '('
+                        ⮐ txt = txt[0..txt.length-f.length-1]
+            
+                txt = txt[0..-2]
+                        
+            symbol.sqrt, 'sin' 'cos' 'tan' 'atan' 'deg' 'rad' 'log'
+
+                if not empty(txt) and text.endsWithValue(txt) 
+                    txt = @calc key + '(' + txt
+                else if not text.endsWith(txt, ['.'])
+                    txt += key + '('
+                    
+            symbol.exp        ➜ if open or clean ➜ txt += symbol.euler+'^' else txt = @calc symbol.euler+'^(' + txt + ')'
+            '°'               ➜ txt += key 
+            '='               ➜ txt = @calc txt
+            symbol.oneoverx   ➜ if open or clean or unfin ➜ txt += '1/' else txt = @calc '1/(' + txt + ')'
+            '∡'               ➜ txt = @calc '∡(' + txt + ')'
+            '+' '-'           ➜ txt += key 
+            '.'               ➜ txt += key 
+            symbol.euler
+            symbol.phi
+            symbol.pi         ➜ txt += '*' if value; txt += key
+            
+            '('               ➜ txt += key 
+            ')'               ➜ txt += key 
+            ➜
+                if key in text.unfinished
+                    if not empty txt
+                        if not text.endsWithUnfinished(txt)
+                            txt += key
+                else if not text.endsWithConstant(txt)
+                    txt = text.removeZeroInfinity(txt) + key
+                    
+        # log 'txtKey' txt, key
+        txt
+        
+export Calc

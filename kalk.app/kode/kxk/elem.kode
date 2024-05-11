@@ -1,0 +1,99 @@
+###
+    00000000  000      00000000  00     00  
+    000       000      000       000   000  
+    0000000   000      0000000   000000000  
+    000       000      000       000 0 000  
+    00000000  0000000  00000000  000   000  
+###
+
+isElement = (value) -> value?.nodeType == 1 and not value is obj
+
+elem = (typ, opt) ->
+    
+    if typ and typeof(typ) == 'object'
+        opt = typ 
+        typ = opt.typ
+        
+    opt ?= {}   
+    typ ?= 'div'
+
+    e = document.createElement typ
+    
+    if opt.text is str or opt.text is num
+        e.textContent = opt.text
+        delete opt.text
+    
+    if opt.html? and opt.html is str
+        e.innerHTML = opt.html
+        delete opt.html
+    
+    if opt.child? and isElement opt.child
+        e.appendChild opt.child
+        delete opt.child
+        
+    if opt.children? and opt.children is Array
+        for c in opt.children
+            e.appendChild c if isElement c
+        delete opt.children
+        
+    if opt.parent? and isElement opt.parent
+        opt.parent.appendChild e
+        delete opt.parent
+        
+    for event in ['mousedown' 'mousemove' 'mouseup' 'click' 'dblclick']
+        if opt[event] and opt[event] is 'function'
+            e.addEventListener event, opt[event]
+            delete opt[event]
+            
+    for k in Object.keys opt
+        e.setAttribute k, opt[k]
+    e
+
+elem.containsPos = (div, pos) ->
+    
+    br = div.getBoundingClientRect()
+    br.left <= pos.x <= br.left+br.width and br.top <= pos.y <= br.top+br.height
+
+elem.childIndex = (e) -> Array.prototype.indexOf.call e.parentNode.childNodes, e 
+
+elem.upAttr = (element, attr) ->
+    
+    ⮐ null if not element?
+    a = element.getAttribute? attr
+    ⮐ a if a != null and a != ''
+    elem.upAttr element.parentNode, attr
+
+elem.upProp = (element, prop) ->
+    
+    ⮐ null if not element?
+    ⮐ element[prop] if element[prop]?
+    elem.upProp element.parentNode, prop
+    
+elem.upElem = (element, opt) ->
+    
+    ⮐ null if not element?
+    
+    element = element.target if element is Event
+    
+    ⮐ element if opt?.tag? and opt.tag == element.tagName
+    ⮐ element if opt?.prop? and element[opt.prop]?
+    ⮐ element if opt?.attr? and element.getAttribute?(opt.attr)?
+    ⮐ element if opt?.class? and element.classList?.contains opt.class
+    elem.upElem element.parentNode, opt
+
+elem.downElem = (element, opt) ->
+    
+    ⮐ null if not element?
+    ⮐ element if opt?.tag? and opt.tag == element.tagName
+    if opt?.prop? and element[opt.prop]?
+        ⮐ element if not opt?.value? or element[opt.prop] == opt.value
+    if opt?.attr? and element.getAttribute?(opt.attr)?
+        ⮐ element if not opt?.value? or element.getAttribute(opt.attr) == opt.value
+    for child in element.children
+        if found = elem.downElem child, opt
+            ⮐ found
+    
+elem.isElement = isElement
+
+export elem
+

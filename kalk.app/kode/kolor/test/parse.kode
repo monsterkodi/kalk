@@ -1,0 +1,136 @@
+###
+00000000    0000000   00000000    0000000  00000000
+000   000  000   000  000   000  000       000     
+00000000   000000000  0000000    0000000   0000000 
+000        000   000  000   000       000  000     
+000        000   000  000   000  0000000   00000000
+###
+
+use ../kolor
+
+ext = 'coffee'
+lang    = (l) -> ext = l
+parse   = (c,e) -> kolor.parse   c.split('\n'), e ? ext
+
+▸ parse
+    
+    #  0000000   0000000   00     00  00     00  00000000  000   000  000000000  
+    # 000       000   000  000   000  000   000  000       0000  000     000     
+    # 000       000   000  000000000  000000000  0000000   000 0 000     000     
+    # 000       000   000  000 0 000  000 0 000  000       000  0000     000     
+    #  0000000   0000000   000   000  000   000  00000000  000   000     000     
+    
+    ▸ comment
+     
+        lang 'coffee'
+        
+        parse("##") ▸ [{
+                        chunks: [ 
+                            {start:0 length:1 match:"#" turd:"##" clss:'punct comment'} 
+                            {start:1 length:1 match:"#" clss:'comment'} 
+                        ], chars:2 index:0 number:1 ext:'coffee' 
+                    }]
+    
+        parse(",#a") ▸ [{
+                        chunks: [ 
+                            {start:0 length:1 match:"," turd: ",#" clss:'punct minor'} 
+                            {start:1 length:1 match:"#" clss:'punct comment'} 
+                            {start:2 length:1 match:"a" clss:'comment'} 
+                        ], chars:3 index:0 number:1 ext:'coffee'
+                    }]
+                
+    # 00000000  000   000  000   000   0000000  000000000  000   0000000   000   000  
+    # 000       000   000  0000  000  000          000     000  000   000  0000  000  
+    # 000000    000   000  000 0 000  000          000     000  000   000  000 0 000  
+    # 000       000   000  000  0000  000          000     000  000   000  000  0000  
+    # 000        0000000   000   000   0000000     000     000   0000000   000   000  
+    
+    ▸ function
+    
+        parse('->') ▸ [{
+                        chunks: [ 
+                            {start:0 length:1 match:'-' turd: '->' clss:'punct function tail'} 
+                            {start:1 length:1 match:'>' clss:'punct function head'} 
+                        ],
+                        chars:2 index:0 number:1 ext:'coffee' 
+                    }]
+        parse('=>') ▸ [{
+                        chunks: [ 
+                            {start:0 length:1 match:'=' turd: '=>' clss:'punct function bound tail'} 
+                            {start:1 length:1 match:'>' clss:'punct function bound head'} 
+                        ]
+                        chars:2 index:0 number:1 ext:'coffee' 
+                    }]
+        parse('f=->1') ▸ [{
+                        chunks: [ 
+                            {start:0 length:1 match:'f' clss:'function'} 
+                            {start:1 length:1 match:'=' turd:'=->' clss:'punct function'     } 
+                            {start:2 length:1 match:'-' turd:'->' clss:'punct function tail' } 
+                            {start:3 length:1 match:'>' clss:'punct function head'} 
+                            {start:4 length:1 match:'1' clss:'number'} 
+                        ],
+                        chars:5 index:0 number:1 ext:'coffee' 
+                    }]
+                    
+    # 00     00  000  000   000  000  00     00   0000000   000      
+    # 000   000  000  0000  000  000  000   000  000   000  000      
+    # 000000000  000  000 0 000  000  000000000  000000000  000      
+    # 000 0 000  000  000  0000  000  000 0 000  000   000  000      
+    # 000   000  000  000   000  000  000   000  000   000  0000000  
+    
+    ▸ minimal
+                    
+        parse('1') ▸ [chunks:[{start:0 length:1 match:'1' clss:'number'}], chars:1 index:0 number:1 ext:'coffee' ]
+        parse('a') ▸ [chunks:[{start:0 length:1 match:'a' clss:'text'}],   chars:1 index:0 number:1 ext:'coffee' ]
+        parse('.') ▸ [chunks:[{start:0 length:1 match:'.' clss:'punct'}],  chars:1 index:0 number:1 ext:'coffee' ]
+    
+        parse('1.a') ▸ [{chunks:[ 
+                      {start:0  length:1 match:'1' clss:'number'} 
+                      {start:1  length:1 match:'.' clss:'punct property'} 
+                      {start:2  length:1 match:'a' clss:'property'} 
+                      ], chars:3 index:0 number:1 ext:'coffee' }]
+                      
+        parse('++a') ▸ [{chunks:[ 
+                      {start:0  length:1 match:'+' turd:'++' clss:'punct'} 
+                      {start:1  length:1 match:'+' clss:'punct'} 
+                      {start:2  length:1 match:'a' clss:'text'} 
+                      ], chars:3 index:0 number:1 ext:'coffee'}]
+                                            
+    #  0000000  00000000    0000000    0000000  00000000  
+    # 000       000   000  000   000  000       000       
+    # 0000000   00000000   000000000  000       0000000   
+    #      000  000        000   000  000       000       
+    # 0000000   000        000   000   0000000  00000000  
+    
+    ▸ space
+    
+        b = parse "x"
+        b[0].chunks[0].start ▸ 0
+    
+        b = parse " xx"
+        b[0].chunks[0].start ▸ 1
+        
+        b = parse "    xxx"
+        b[0].chunks[0].start ▸ 4
+    
+        b = parse "    x 1  , "
+        b[0].chunks[0].start ▸ 4
+        b[0].chunks[1].start ▸ 6
+        b[0].chunks[2].start ▸ 9
+        
+#  0000000   000       0000000   0000000     0000000   000      000  0000000  00000000  
+# 000        000      000   000  000   000  000   000  000      000     000   000       
+# 000  0000  000      000   000  0000000    000000000  000      000    000    0000000   
+# 000   000  000      000   000  000   000  000   000  000      000   000     000       
+#  0000000   0000000   0000000   0000000    000   000  0000000  000  0000000  00000000  
+
+▸ globalize
+
+    ▸ enable
+        kolor.klor.globalize()
+        global['red'] ▸ kolor.klor.red
+        global['red']('txt') ▸ kolor.klor.red 'txt'
+
+    ▸ disable  
+        kolor.klor.globalize false
+        global['red']('txt') ▸ 'txt'

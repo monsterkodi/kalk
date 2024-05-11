@@ -1,0 +1,11 @@
+pug   . replace  .. pyg/  js/
+styl  . replace  .. pyg/  js/css/
+noon  . replace  .. kode/ js/ .. js/bin/js/ js/bin/kode/ 
+kode  . replace  .. kode/ js/ .. js/bin/js/ js/bin/kode/ 
+
+ignore
+    .stash
+    kode/ko/help.noon
+    kode/kolor/lang.noon
+    Contents/Resources/menu_ko.noon
+        

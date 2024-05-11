@@ -1,0 +1,21 @@
+###
+    000   000  000   000  000   000
+    000  000    000 000   000  000 
+    0000000      00000    0000000  
+    000  000    000 000   000  000 
+    000   000  000   000  000   000
+###
+
+kxk = {}
+
+use ./kxk ◆ dom elem post drag slash stash store prefs matchr immutable linediff karg krzl pretty profile keyinfo tooltip events popup scheme kstr kermit scooter kpos util sds win os ffs noon
+for exp in "dom elem post drag slash stash store prefs matchr immutable linediff karg krzl pretty profile keyinfo tooltip events popup scheme kstr kermit scooter kpos util sds win os ffs noon".split(' ') ➜ kxk[exp] = eval exp
+    
+for exp in "$ setStyle getStyle stopEvent".split(' ') ➜ kxk[exp] = eval "dom.#{exp}" # export some dom functions
+    
+for exp,utl of util ➜ kxk[exp] = utl # export all utility functions
+    
+kxk.isElement = elem.isElement
+    
+export kxk
+    

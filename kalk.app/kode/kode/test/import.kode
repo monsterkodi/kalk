@@ -1,0 +1,45 @@
+###
+000  00     00  00000000    0000000   00000000   000000000  
+000  000   000  000   000  000   000  000   000     000     
+000  000000000  00000000   000   000  0000000       000     
+000  000 0 000  000        000   000  000   000     000     
+000  000   000  000         0000000   000   000     000     
+###
+
+use ./utils ▪ kc ke
+
+▸ import
+    
+    kc 'import noon from "noon"'                               ▸ 'import noon from "noon"'
+    kc 'import defaultExport from "module"'                    ▸ 'import defaultExport from "module"'                 
+    kc 'import * as name from "module"'                        ▸ 'import * as name from "module"'                     
+    kc 'import { export1 } from "module"'                      ▸ 'import { export1 } from "module"'                   
+    kc 'import { export1 as alias1 } from "module"'            ▸ 'import { export1 as alias1 } from "module"'         
+    kc 'import { default as alias } from "module"'             ▸ 'import { default as alias } from "module"'          
+    kc 'import { export1, export2 } from "module"'             ▸ 'import { export1 , export2 } from "module"'          
+    kc 'import { export1, export2 as alias2 } from "module"'   ▸ 'import { export1 , export2 as alias2 } from "module"'
+    kc 'import { "string name" as alias } from "module"'       ▸ 'import { "string name" as alias } from "module"'    
+    kc 'import defaultExport, { export1 } from "module"'       ▸ 'import defaultExport , { export1 } from "module"'    
+    kc 'import defaultExport, * as name from "module"'         ▸ 'import defaultExport , * as name from "module"'      
+    kc 'import("f").then((a) -> a())'                          ▸ """
+        import("f")
+        .
+        then(function (a)
+        {
+            return a()
+        })
+        """
+        
+    kc 'import.meta.url' ▸ 'import.meta.url'
+    kc 'import patterns from "./lexer.json" assert {type:"json"}' ▸ 'import patterns from "./lexer.json" assert { type : "json" }'
+    kc  """
+        import a from 'a'
+        import b from './b'
+        """ ▸
+        """
+        import a from 'a'
+        import b from './b'
+        """
+    
+    kc 'd = { import:1 }' ▸ 'd = {import:1}'
+        

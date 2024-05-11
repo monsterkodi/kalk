@@ -1,0 +1,103 @@
+###
+000   000   0000000    0000000   000   000
+0000  000  000   000  000   000  0000  000
+000 0 000  000   000  000   000  000 0 000
+000  0000  000   000  000   000  000  0000
+000   000   0000000    0000000   000   000
+###
+
+use ./util ▪ inc ranges lang
+
+lang 'noon'
+
+▸ noon
+        
+    rgs = ranges "    property  value"
+    inc rgs, 4 'property'   ▸ 'property'
+    inc rgs, 14 'value'     ▸ 'text'
+
+    rgs = ranges "top" 'noon'
+    inc rgs, 0 'top'        ▸ 'obj'
+
+    rgs = ranges "tip top"
+    inc rgs, 0 'tip'        ▸ 'obj'
+    inc rgs, 4 'top'        ▸ 'obj'
+    
+    rgs = ranges "top  prop"
+    inc rgs, 0 'top'        ▸ 'obj'
+    inc rgs, 5 'prop'       ▸ 'text'
+
+    rgs = ranges "version  ^0.1.2"
+    inc rgs, 0 'version'    ▸ 'obj'
+    inc rgs, 9 '^'          ▸ 'punct semver'
+    inc rgs, 10 '0'         ▸ 'semver'
+    
+    rgs = ranges "    some-package-name  1"
+    inc rgs, 4  'some'      ▸ 'property'
+    inc rgs, 9  'package'   ▸ 'property'
+    inc rgs, 17 'name'      ▸ 'property'
+
+    rgs = ranges "    some-package-name  ^1.2.3"
+    inc rgs, 4  'some'      ▸ 'property'
+    inc rgs, 9  'package'   ▸ 'property'
+    inc rgs, 17 'name'      ▸ 'property'
+    
+    rgs = ranges "top  prop  value"
+    inc rgs, 0  'top'       ▸ 'obj'
+    inc rgs, 5  'prop'      ▸ 'property'
+    inc rgs, 11 'value'     ▸ 'text'
+    
+    rgs = ranges "    http://domain.com"
+    inc rgs, 4 'http'       ▸ 'url protocol'
+    inc rgs, 8 ':'          ▸ 'punct url'
+    inc rgs, 9 '/'          ▸ 'punct url'
+    inc rgs, 10 '/'         ▸ 'punct url'
+    inc rgs, 11 'domain'    ▸ 'url domain'
+    inc rgs, 17 '.'         ▸ 'punct url tld'
+    inc rgs, 18 'com'       ▸ 'url tld'
+
+    rgs = ranges "    http://domain.com/dir/page.html"
+    inc rgs, 4 'http'       ▸ 'url protocol'
+    inc rgs, 8 ':'          ▸ 'punct url'
+    inc rgs, 9 '/'          ▸ 'punct url'
+    inc rgs, 10 '/'         ▸ 'punct url'
+    inc rgs, 11 'domain'    ▸ 'url domain'
+    inc rgs, 17 '.'         ▸ 'punct url tld'
+    inc rgs, 18 'com'       ▸ 'url tld'
+    inc rgs, 21 '/'         ▸ 'punct dir'
+    
+    rgs = ranges "    file.coffee"
+    inc rgs, 4 'file'       ▸ 'coffee file'
+    inc rgs, 8 '.'          ▸ 'punct coffee'
+    inc rgs, 9 'coffee'     ▸ 'coffee ext'
+
+    rgs = ranges "    /some/path"
+    inc rgs, 5 'some'       ▸ 'text dir'
+    inc rgs, 9 '/'          ▸ 'punct dir'
+    inc rgs, 10 'path'      ▸ 'text file'
+    
+    rgs = ranges '    /some\\path/file.txt:10'
+    inc rgs, 4  '/'         ▸ 'punct dir'
+    inc rgs, 5  'some'      ▸ 'text dir'
+    inc rgs, 9  '\\'        ▸ 'punct dir'
+    inc rgs, 19 '.'         ▸ 'punct txt'
+    inc rgs, 23 ':'         ▸ 'punct'
+    
+    rgs = ranges "    test  ./node_modules/.bin/mocha"
+    inc rgs, 4 'test'       ▸ 'property'
+    inc rgs, 10 '.'         ▸ 'punct dir'
+    inc rgs, 11 '/'         ▸ 'punct dir'
+    inc rgs, 12 'node_modules' ▸ 'text dir'
+    inc rgs, 24 '/'         ▸ 'punct dir'
+    inc rgs, 25 '.'         ▸ 'punct dir'
+    inc rgs, 26 'bin'       ▸ 'text dir'
+    inc rgs, 29 '/'         ▸ 'punct dir'
+    inc rgs, 30 'mocha'     ▸ 'text file'
+
+    ▸ comments
+    
+        rgs = ranges "   # bla blub"
+        inc rgs, 3 "#"      ▸ 'punct comment'
+        inc rgs, 5 "bla"    ▸ 'comment'
+        inc rgs, 9 "blub"   ▸ 'comment'
+        

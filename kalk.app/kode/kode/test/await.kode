@@ -1,0 +1,59 @@
+###
+ 0000000   000   000   0000000   000  000000000  
+000   000  000 0 000  000   000  000     000     
+000000000  000000000  000000000  000     000     
+000   000  000   000  000   000  000     000     
+000   000  00     00  000   000  000     000     
+###
+
+use ./utils ▪ kc ke
+    
+▸ await
+
+    kc 'await someFunctionCall()'      ▸ 'await someFunctionCall()'
+    kc 'await call(); await again()'   ▸ 'await call()\nawait again()'
+    kc 'await call 1; await again 2'   ▸ 'await call(1)\nawait again(2)'
+    
+    kc 'd = { await:1 }' ▸ 'd = {await:1}'
+    kc "d = { '○':2 }" ▸ "d = {'○':2}"
+    
+    kc 'd = await someFunc()' ▸ 'd = await someFunc()'
+    
+    kc '○ async 1' ▸ 'await async(1)'
+    kc '    ○ async 2' ▸ 'await async(2)'
+    kc '    ○async 3' ▸ 'await async(3)'
+    
+    kc 'list = list.concat ○ fs.list dir' ▸ """
+        list = list.concat(await fs.list(dir))
+        """
+
+    kc "if ○ fs.remove 'blah' ➜ 2" ▸ """
+        if (await fs.remove('blah'))
+        {
+            2
+        }
+        """
+        
+    kc 'd = ○ someFunc()' ▸ 'd = await someFunc()'
+    kc 'd =○ someFunc()' ▸ 'd = await someFunc()'
+    kc 'd = ○someFunc()' ▸ 'd = await someFunc()'
+    
+    kc 'if test ➜ ○ info()' ▸ """
+        if (test)
+        {
+            await info()
+        }
+        """
+    kc 'if test ➜ ○info()' ▸ """
+        if (test)
+        {
+            await info()
+        }
+        """
+    kc 'if test ➜○ info()' ▸ """
+        if (test)
+        {
+            await info()
+        }
+        """
+    

@@ -1,0 +1,8 @@
+lib/node_modules
+lib/test*
+lib/bin*.mjs
+lib/package.json
+.stash
+.konrad.json
+js/kode0
+js/kode1

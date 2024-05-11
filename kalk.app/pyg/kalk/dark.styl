@@ -1,0 +1,111 @@
+
+// 0000000     0000000   00000000   000   000  
+// 000   000  000   000  000   000  000  000   
+// 000   000  000000000  0000000    0000000    
+// 000   000  000   000  000   000  000  000   
+// 0000000    000   000  000   000  000   000  
+
+bgColor             = #131313
+keyColor            = #0b0b0b
+keyActiveColor      = #101010
+sheetColor          = #0f0f0f
+frameColor          = #080808
+inputColor          = #181818
+
+titleRedColor       = #f00
+titleColor          = #333
+scrollColor         = #444
+textBlurColor       = #666
+textActiveColor     = #999
+textFocusColor      = #fff
+
+#main
+#input
+    background          bgColor
+    
+#keys
+    background          bgColor
+    
+#sheet
+    border              2px solid keyColor
+    background          sheetColor
+        
+// 000  000   000  00000000   000   000  000000000  
+// 000  0000  000  000   000  000   000     000     
+// 000  000 0 000  00000000   000   000     000     
+// 000  000  0000  000        000   000     000     
+// 000  000   000  000         0000000      000     
+
+.input-frame
+    border              2px solid keyColor
+    background          inputColor
+    
+.input-text
+    color               textFocusColor
+  
+// 000   000  00000000  000   000  
+// 000  000   000        000 000   
+// 0000000    0000000     00000    
+// 000  000   000          000     
+// 000   000  00000000     000     
+
+.input-text span
+.sheet-line span
+.key
+    background          keyColor
+    border              none
+    white-space         pre
+    &.nan
+    &.clear
+    &.backspace
+        color           #800
+    &.numbers
+    &.digit
+        color           #88f
+    &.function
+        color           #f80
+    &.constant
+        color           #fc0
+    &.op0
+        color           #88f
+    &.op1
+        color           #66f
+    &.op2
+        color           #44f
+    &.bracket
+        color           #333
+    &.func
+    &.equals
+        color           #0a0
+    &.dot
+    &.exponent
+    &.complex
+        color           #44a
+    
+.key
+    z-index             1000
+    color               scrollColor
+    border              2px solid frameColor
+    &:active:not(.inactive)
+        background      keyActiveColor
+
+.key:hover:not(.inactive)
+    & .key-wrap
+        color           #ddf
+        text-shadow     0 0 30px rgba(175,175,255,0.8), 0 0 60px rgba(0,0,255,0.8)
+        
+    &.func .key-wrap
+    &.equals .key-wrap
+        color           #0f0
+        text-shadow     0 0 30px rgba(0,200,0,0.8), 0 0 60px rgba(0,155,0,0.8)
+        
+    &.clear .key-wrap
+    &.function .key-wrap
+    &.constant .key-wrap
+    &.backspace .key-wrap
+        color           #ff0
+        text-shadow     0 0 30px rgba(205,0,0,0.8), 0 0 60px rgba(105,0,0,0.8)
+    
+.key.inactive
+    color    bgColor
+    

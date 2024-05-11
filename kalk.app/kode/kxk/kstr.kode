@@ -1,0 +1,312 @@
+###
+    000   000   0000000  000000000  00000000
+    000  000   000          000     000   000
+    0000000    0000000      000     0000000
+    000  000        000     000     000   000
+    000   000  0000000      000     000   000
+    
+    a collection of string related functions
+###
+
+use ./ansi
+
+str = o -> # converts anything into a string in noon syntax 
+
+    ⮐ 'null' if not o?
+    # '\n' + noon o # why was this ever prefixed with a newline?
+    noon o
+        
+# the function above is exported as the default
+# all the functions below are attached to it
+    
+# 00000000  000  000      000      00000000  000000000   0000000  
+# 000       000  000      000      000          000     000       
+# 000000    000  000      000      0000000      000     0000000   
+# 000       000  000      000      000          000          000  
+# 000       000  0000000  0000000  00000000     000     0000000   
+
+###
+    converts a string into an array of objects.
+    the objects represent words or chunks of punctuation:
+
+    "hello world!" ▸
+    [
+        match: 'hello' length:5 index:0  word:true
+        match: 'world' length:5 index:6  word:true 
+        match: '!'     length:1 index:11 word:false 
+    ]
+###
+
+str.fillet = s wordCharacterSet='' ->
+    
+    fillets = []
+    
+    return fillets if not s is str
+    
+    for ci in 0...s.length
+        
+        ch = s[ci]
+        
+        if ch in ' \t\n\r'
+            fillets.push fillet if valid fillet
+            fillet = null
+            continue
+
+        isWord = /\w/.test(ch) or ch in wordCharacterSet
+        
+        if fillet?.word == isWord
+            fillet.match += ch
+            fillet.length++
+        else
+            fillets.push fillet if valid fillet
+            fillet = match:ch, index:ci, length:1 word:isWord
+            
+    fillets.push fillet if valid fillet
+    fillets
+
+# 000   000  000   000  00000000  000  000      000      00000000  000000000  
+# 000   000  0000  000  000       000  000      000      000          000     
+# 000   000  000 0 000  000000    000  000      000      0000000      000     
+# 000   000  000  0000  000       000  000      000      000          000     
+#  0000000   000   000  000       000  0000000  0000000  00000000     000     
+
+str.unfillet = fillets -> # converts an array of fillet objects into a string
+    
+    s = ''
+    for fillet in fillets
+        s = rpad fillet.index, s
+        s += fillet.match
+    trim s
+    
+# 0000000    000       0000000    0000000  000   000        00000000  000  000      000      00000000  000000000   0000000  
+# 000   000  000      000   000  000       000  000         000       000  000      000      000          000     000       
+# 0000000    000      000   000  000       0000000          000000    000  000      000      0000000      000     0000000   
+# 000   000  000      000   000  000       000  000         000       000  000      000      000          000          000  
+# 0000000    0000000   0000000    0000000  000   000        000       000  0000000  0000000  00000000     000     0000000   
+
+str.blockFillets = lineFillets -> # converts an array of fillet objects into a tree of block objects
+    
+    blocks = []
+    stack  = []
+    
+    for fillet,lineIndex in lineFillets
+        
+        continue if empty fillet
+        
+        indent = fillet[0]?.index
+        
+        block = 
+            line:   lineIndex
+            indent: indent
+            fillet: fillet
+            blocks: []
+            
+        if stackTop = last stack
+            if indent > stackTop.indent
+                stackTop.blocks.push block
+            else if indent == stackTop.indent
+                stack.pop()
+                if stackTop = last stack
+                    stackTop.blocks.push block
+                else
+                    blocks.push block
+            else # if indent < stackTop.indent
+                while valid(stack) and indent <= last(stack).indent
+                    stack.pop()
+                    
+                if stackTop = last stack
+                    stackTop.blocks.push block
+                else
+                    blocks.push block
+        else
+            blocks.push block
+            stack.pop()
+            
+        stack.push block
+        
+    blocks
+    
+#  0000000  00000000   000      000   0000000  00000000
+# 000       000   000  000      000  000       000
+# 0000000   00000000   000      000  000       0000000
+#      000  000        000      000  000       000
+# 0000000   000        0000000  000   0000000  00000000
+
+# like array splice, but not in place
+
+str.splice = s i c r='' -> s.slice(0, i) + r + s.slice(i + Math.abs(c))
+
+# 00000000  000   000   0000000   0000000   0000000    00000000
+# 000       0000  000  000       000   000  000   000  000
+# 0000000   000 0 000  000       000   000  000   000  0000000
+# 000       000  0000  000       000   000  000   000  000
+# 00000000  000   000   0000000   0000000   0000000    00000000
+
+str.encode = s spaces=true ->
+
+    if s
+        r = encodeURI s
+        if spaces
+            r = r.replace /\s/g, '&nbsp;'
+        r
+    else
+        ''
+
+ESCAPE_REGEXP = /[\-\\\^\$\*\+\?\.\(\)\|\[\]\{\}\/]/g
+
+str.escapeRegexp = s -> s.replace ESCAPE_REGEXP, '\\$&'
+str.escapeRegExp = s -> s.replace ESCAPE_REGEXP, '\\$&'
+
+#  0000000  000000000  00000000   000  00000000
+# 000          000     000   000  000  000   000
+# 0000000      000     0000000    000  00000000
+#      000     000     000   000  000  000
+# 0000000      000     000   000  000  000
+
+str.rstrip = s cs=' ' ->
+
+    s ?= ''
+    s = s[0...s.length-1] while s[-1] in cs
+    s
+
+str.lstrip = s cs=' ' ->
+
+    s ?= ''
+    s = s[1..] while s[0] in cs
+    s
+
+str.strip = s cs=' ' -> str.rstrip str.lstrip(s,cs), cs
+
+# 000000000  00000000   000  00     00
+#    000     000   000  000  000   000
+#    000     0000000    000  000000000
+#    000     000   000  000  000 0 000
+#    000     000   000  000  000   000
+
+str.trim  = str.strip
+str.ltrim = str.lstrip
+str.rtrim = str.rstrip
+
+#  0000000  000   000  000000000
+# 000       0000  000     000
+# 000       000 0 000     000
+# 000       000  0000     000
+#  0000000  000   000     000
+
+str.lcnt = s c ->
+    s ?= ''
+    if typeof s == 'number' and Number.isFinite s then s = String s
+    return 0 if typeof s != 'string'
+    c ?= ''
+    i = -1
+    while s[++i] in c then
+    i
+
+str.rcnt = s c ->
+    s ?= ''
+    if typeof s == 'number' and Number.isFinite s then s = String s
+    return 0 if typeof s != 'string'
+    c ?= ''
+    i = -1
+    while s[s.length-(++i)-1] in c then
+    i
+
+str.cnt = s c ->
+    m = s.match(new RegExp(c, 'g'))
+    m? ? m.length : 0
+
+# 00000000    0000000   0000000
+# 000   000  000   000  000   000
+# 00000000   000000000  000   000
+# 000        000   000  000   000
+# 000        000   000  0000000
+
+str.lpad = s l c=' ' ->
+    s = String s
+    while s.length < l then s = c + s
+    s
+
+str.rpad = s l c=' ' ->
+    s = String s
+    while s.length < l then s += c
+    s
+
+str.pad = str.rpad
+
+str.detab = s ->
+    s = String s
+    i = 0
+    while i < s.length
+        if s[i] == '\t'
+            s = s[...i] + (str.lpad '' 4-(i%4)) + s[i+1..]
+        i += 1
+    s
+
+# 000000000  000  00     00  00000000
+#    000     000  000   000  000
+#    000     000  000000000  0000000
+#    000     000  000 0 000  000
+#    000     000  000   000  00000000
+
+str.time = t ->
+    
+    switch typeof t
+        
+        'number'
+            
+            f = 1
+            o = ms:     1000
+                second: 60
+                minute: 60
+                hour:   24
+                day:    30
+                month:  12
+                year:   0
+                
+            for k in Object.keys o
+                
+                num = parseInt t/f
+                f *= o[k]
+                if k == 'year' or t < f
+                    k += 's' if k != 'ms' and num != 1
+                    return '' + num + ' ' + k
+        'bigint'
+            
+            thsnd = BigInt 1000
+            f = thsnd
+            for k in ['ns' 'μs' 'ms' 'second']
+                if k == 'seconds' or t < f
+                    num = parseInt thsnd * t / f
+                    k += 's' if k == 'second' and num != 1
+                    return '' + num + ' ' + k
+                f *= thsnd
+        ➜
+            String t
+
+# 000   000   0000000   000   000
+# 0000  000  000   000  000 0 000
+# 000 0 000  000   000  000000000
+# 000  0000  000   000  000   000
+# 000   000   0000000   00     00
+
+str.now = ->
+
+    now = new Date Date.now()
+    "#{str.lpad now.getHours(), 2 '0'}:#{str.lpad now.getMinutes(), 2 '0'}:#{str.lpad now.getSeconds(), 2 '0'}.#{str.lpad now.getMilliseconds(), 3 '0'}"
+
+#  0000000   000   000   0000000  000
+# 000   000  0000  000  000       000
+# 000000000  000 0 000  0000000   000
+# 000   000  000  0000       000  000
+# 000   000  000   000  0000000   000
+
+STRIPANSI = /\x1B[[(?);]{0,2}(;?\d)*./g
+str.stripAnsi = (s) ->
+    s.replace? STRIPANSI, ''
+
+str.ansi2html = s ->
+    ansi.html s
+
+str.ansi = ansi
+
+export str

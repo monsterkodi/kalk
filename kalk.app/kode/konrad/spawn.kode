@@ -1,0 +1,67 @@
+###
+ 0000000  00000000    0000000   000   000  000   000
+000       000   000  000   000  000 0 000  0000  000
+0000000   00000000   000000000  000000000  000 0 000
+     000  000        000   000  000   000  000  0000
+0000000   000        000   000  00     00  000   000
+###
+
+use ../kxk ◆ slash nfs
+
+bundle = path: slash.path ◆dir, '../..'
+
+export (args) ○->
+    
+    app = args[0]
+    
+    ⮐ error 'no app to spawn?' if empty app
+    
+    prt  = args[1]
+    prt ?= slash.untilde "~/s/#{app}"
+    
+    tgt  = slash.path prt, app + '.app'
+    
+    log b5('ꦌ'), y4(app), b3('▸ ' + prt + '/') + g4(slash.file tgt)
+    
+    prtExists = ○ nfs.dirExists prt
+    
+    ⮐ error "parent directory #{tgt} doesn't exist" if not prtExists
+    
+    if ○ nfs.exists tgt
+        ○ nfs.remove tgt
+    
+    log b3(''), b5(bundle.path), g3('▸'), g2(tgt)
+    
+    ○ nfs.copy bundle.path, tgt
+    
+    ○ nfs.copy slash.path(bundle.path, "pyg/#{app}.pug"), slash.path(tgt, 'pyg/index.pug')
+    ○ nfs.copy slash.path(bundle.path, "js/#{app}.html"), slash.path(tgt, 'js/index.html')
+    ○ nfs.copy slash.path(bundle.path, "Contents/Resources/img/#{app}.icns"), slash.path(tgt, 'Contents/Resources/img/app.icns')
+    
+    ○ nfs.remove slash.path tgt, '.stash'
+    ○ nfs.remove slash.path tgt, 'package.noon'
+    ○ nfs.remove slash.path tgt, 'package.js'
+    
+    ○ nfs.remove slash.path tgt, 'js/ko'
+    ○ nfs.remove slash.path tgt, 'kode/ko'
+    ○ nfs.remove slash.path tgt, 'pyg/ko'
+    ○ nfs.remove slash.path tgt, 'pyg/ko.pug'
+    ○ nfs.remove slash.path tgt, 'js/css/ko'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/img/ko.icns'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/img/ko.png'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/img/ko.pxm'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/img/menu_ko.png'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/menu_ko.noon'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/img/zen.png'
+    
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/devopicons.woff2'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/fa-regular-400.woff2'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/fa-solid-900.woff2'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/file-icons.woff2'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/fontawesome.woff2'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/mfixx.woff2'
+    ○ nfs.remove slash.path tgt, 'Contents/Resources/font/octicons.woff2'
+    
+    
+    
+

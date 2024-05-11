@@ -1,0 +1,234 @@
+###
+000000000  00000000   0000000  000000000  00000000  00000000 
+   000     000       000          000     000       000   000
+   000     0000000   0000000      000     0000000   0000000  
+   000     000            000     000     000       000   000
+   000     00000000  0000000      000     00000000  000   000
+###
+
+use ../kxk ◆ klor kstr slash fs
+use ./print
+
+klor.globalize()
+
+comps = 0
+succs = 0
+fails = []
+stack = []
+allfails = []
+allsuccs = 0
+
+class Tester
+
+    @: ->
+        
+    #  0000000  00000000   0000000  000000000  000   0000000   000   000  
+    # 000       000       000          000     000  000   000  0000  000  
+    # 0000000   0000000   000          000     000  000   000  000 0 000  
+    #      000  000       000          000     000  000   000  000  0000  
+    # 0000000   00000000   0000000     000     000   0000000   000   000  
+    
+    section: (t, f) =>
+
+        stack.push t
+        comps = 0
+        depth = stack.length
+        if @logSections != false
+            log W1 lpad(depth*3-1) + ' ' + global["g#{max 1, 8-2*depth}"] rpad(34-depth*3 t) + ' '
+        try
+            f()
+        catch err
+            log err
+            fails.push
+                stack: stack.concat [comps]
+                comps: comps
+                lhs:   "#{err}"
+                rhs:   ''
+            
+        stack.pop()
+        
+    #  0000000   0000000   00     00  00000000    0000000   00000000   00000000  
+    # 000       000   000  000   000  000   000  000   000  000   000  000       
+    # 000       000   000  000000000  00000000   000000000  0000000    0000000   
+    # 000       000   000  000 0 000  000        000   000  000   000  000       
+    #  0000000   0000000   000   000  000        000   000  000   000  00000000  
+    
+    sameObjects: (a, b, keystack) ->
+        
+        if 
+            Object.is a, b # simple types
+                
+                ⮐ true
+                
+            typeof a != typeof b # types differ
+                
+                ⮐ false
+            
+            a is arr and b is arr
+                
+                if a.length != b.length 
+                    ⮐ false
+                for i in 0...a.length
+                    if not @sameObjects a[i], b[i]
+                        ⮐ false
+                ⮐ true
+            
+            a is str and b is str
+                
+                if a != b
+                    log r5 @showSpace a
+                    log g3 @showSpace b
+                    ⮐ false 
+                ⮐ true
+            
+            a is obj and b is obj
+                
+                sameKeys = @sameObjects Object.keys(a), Object.keys(b)
+                sameVals = @sameObjects Object.values(a), Object.values(b)
+                # log 'sameKeys sameVals' sameKeys and sameVals
+                ⮐ sameKeys and sameVals
+        
+        a == b
+    
+    compare: (a, b) =>
+        
+        comps++
+                        
+        if typeof b == 'function'
+            if b(a)
+                succs++
+                return
+        
+        if @sameObjects a, b
+            succs++
+            return
+
+        ind = lpad (stack.length+1)*3
+            
+        log R1(black(ind + comps + ' ')) + ' ' + r5(@short a) + ' ' + R1(r4 ' ▸ ') + ' ' + g1(@short b)
+        
+        fails.push
+            stack: stack.concat [comps]
+            comps: comps
+            lhs:   a
+            rhs:   b
+            
+    # 000000000  00000000   0000000  000000000  
+    #    000     000       000          000     
+    #    000     0000000   0000000      000     
+    #    000     000            000     000     
+    #    000     00000000  0000000      000     
+    
+    test: (testModule) =>
+        
+        # return if not /\n\s*▸\s\w+/gm.test text
+        ⮐ if testModule?._test_ != true
+        
+        comps = 0
+        succs = 0
+        fails = []
+        stack = []
+                
+        global.compare = @compare
+        global.section = @section
+        
+        logModules = @logModules
+            
+        testModule each (k,v) ->
+
+            if v._section_
+                stack.push k
+                if logModules != false
+                    log G1 y8 ' ' + rpad(33 k) + ' '
+                try
+                    v()
+                catch err
+                    log err
+                    fails.push
+                        # stack: stack.concat [comps]
+                        comps: comps
+                        lhs:   "#{err}"
+                        rhs:   ''
+                stack.pop()
+                                        
+        allsuccs += succs
+        allfails = allfails.concat fails
+        
+        empty fails
+        
+    #  0000000  000   000  00     00  00     00   0000000   00000000   000  0000000  00000000  
+    # 000       000   000  000   000  000   000  000   000  000   000  000     000   000       
+    # 0000000   000   000  000000000  000000000  000000000  0000000    000    000    0000000   
+    #      000  000   000  000 0 000  000 0 000  000   000  000   000  000   000     000       
+    # 0000000    0000000   000   000  000   000  000   000  000   000  000  0000000  00000000  
+    
+    showSpace: (s) ->
+        
+        if not s is str
+            return noon s
+        s.split('\n').map((l) -> l+w2('◂')).join '\n'
+    
+    summarize: ->
+        
+        for fail in allfails
+            log R2(y5 ' ' + fail.stack[0] + ' ') + R1 y5 ' ' + fail.stack[1..].join(r3 ' ▸ ') + ' '
+            log r5 @showSpace fail.lhs
+            log R1 r3(' ▸ ') 
+            log g3 @showSpace fail.rhs
+             
+            # if "[object Object]" in ''+fail.lhs
+                # print.noon 'lhs' fail.lhs            
+            # if "[object Object]" in ''+fail.rhs
+                # print.noon 'rhs' fail.rhs
+        
+        if allsuccs or fails.length
+            summary  = w2 kstr.now() + ' '
+            if valid allfails
+                summary += R2 y2(' ✘ ') + y6(allfails.length) + y3(' failure' + (allfails.length > 1 ? 's ' : ' ')) 
+            else if allsuccs
+                summary += g3(" ✔ ") + g1(allsuccs) + ' ' 
+            log summary
+
+        allfails = []
+        allsuccs = 0
+
+    #  0000000  000   000   0000000   00000000   000000000  
+    # 000       000   000  000   000  000   000     000     
+    # 0000000   000000000  000   000  0000000       000     
+    #      000  000   000  000   000  000   000     000     
+    # 0000000   000   000   0000000   000   000     000     
+    
+    short: (s) ->
+        
+        return s if empty s
+        
+        split = (''+s).split '\n'
+        
+        l = 0
+        split = split each (v) ->
+            if valid v
+                v = ''+v
+                # a = min v.length, 80 - l
+                # l += a
+                # v[...a]
+         
+        split = split.filter (s) -> s.length
+            
+        ss = split.join w2 '➜ '
+        # if l >= 100 then ss += w2 '...'
+        ss
+        
+export new Tester
+
+◆main
+    
+    files =○ fs.list slash.path ◆dir, 'test'
+    fail = false
+    for file in files
+        continue if slash.name(file.path) == 'utils'
+        test =○ import(file.path)
+        tester = new Tester
+        fail = fail or not tester.test test.default
+    if fail
+        process.exit 1
+    

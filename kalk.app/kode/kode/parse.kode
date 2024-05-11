@@ -1,0 +1,631 @@
+###
+    00000000    0000000   00000000    0000000  00000000
+    000   000  000   000  000   000  000       000     
+    00000000   000000000  0000000    0000000   0000000 
+    000        000   000  000   000       000  000     
+    000        000   000  000   000  0000000   00000000
+    
+    the base class of Parser
+        
+    converts token blocks to an abstract syntax tree:
+        
+        exps: [top level expressions ...]
+        
+    expressions are build recursively
+    
+      ┌─▶ @exps ──────────┐
+      ├─▶ ┌─▶─┐ @exp ─────┤
+      │   ▲   ▼ ┌▶╷ @rhs ─┼─▶ Parser methods ▶─┐
+      │   └─◀─┘ ╵◀┘ @lhs ─┘                    │
+      └────────────────────────────────────────┘
+###
+
+use ./utils ▪ firstLineCol lastLineCol
+use         ◆ print parseutils
+
+function Parse extends parseutils
+
+    @: @kode ->
+
+        @debug    = @kode.args.debug
+        @verbose  = @kode.args.verbose
+
+    # 00000000    0000000   00000000    0000000  00000000
+    # 000   000  000   000  000   000  000       000
+    # 00000000   000000000  0000000    0000000   0000000
+    # 000        000   000  000   000       000  000
+    # 000        000   000  000   000  0000000   00000000
+
+    parse: block -> # convert block tree to abstract syntax tree
+
+        @stack = []
+        @sheap = []
+
+        vars: [] 
+        exps: @exps 'tl' block.tokens
+
+    # 00000000  000   000  00000000    0000000
+    # 000        000 000   000   000  000
+    # 0000000     00000    00000000   0000000
+    # 000        000 000   000             000
+    # 00000000  000   000  000        0000000
+
+    # consumes tokens and returns a list of expressions
+    #
+    # the entry point for ...
+    #   - the top level scope
+    #   - class and function bodies
+    #   - argument lists
+    #   - arrays and objects
+    #   - parens
+    #   - ...
+    # essentially everything that represents a list of something
+
+    exps: rule tokens stop ->
+        
+        ⮐ if empty tokens
+        
+        @sheapPush 'exps' rule
+        
+        es = []
+                        
+        while tokens.length
+            
+            numTokens = tokens.length
+            tok = tokens[0]
+            
+            doBreak = switch @stack[-1]
+            
+                '▸arg'      ➜ es.length
+                'switch'
+                'if' 'then' 
+                '▸else'     ➜ tok.text == 'else'
+                '['         ➜ tok.text == ']'  
+                '{'         ➜ tok.text in ['}' '->' '=>' '○->' '○=>' '(' '▸' ':' ']']
+                '('         ➜ tok.text == ')'
+                '○rgs'      ➜ tok.type == 'func'
+                '▸args'     ➜ tok.text in [']' ';' 'else' 'then']
+                '▸return'   ➜ tok.text == 'if'
+                'call'      ➜ tok.text in ';' # bail out for implicit calls
+                rule        ➜ tok.text == stop and tok.type != 'var'
+                            ➜ false
+
+            if doBreak
+                @verb "exps break for #{tok.text} and stack top" @stack 
+                break 
+                
+            if stop and tok.text == stop and tok.type != 'var'
+                @verb "exps break for #{tok.text} and stop" stop 
+                break 
+                    
+            if tok.type == 'block'
+    
+                if stop in ['nl'';']
+                    @verb "exps block start with stop #{stop} break!"
+                    break
+                
+                block = tokens.shift()
+    
+                @verb "exps block start stop #{stop} block:" block
+
+                blocked = true
+                blockExps = @exps 'block' block.tokens
+                
+                es = es.concat blockExps
+
+                if block.tokens.length
+                    @verb 'exps block end remaining block tokens:' block.tokens.length
+                    print.tokens 'before unshifting dangling block tokens' tokens if @debug
+                    while block.tokens.length
+                        tokens.unshift block.tokens.pop()
+                    print.tokens 'exps after unshifting dangling block tokens' tokens if @debug
+                    
+                if tokens[0]?.text == ','
+                    @verb "exps block end shift comma , and continue..."
+                    tokens.shift()
+                    continue
+                    
+                else if tokens[0]?.type == 'nl' and tokens[1]?.text == ','
+                    @shiftNewline "exps block end nl comma , and continue..." tokens
+                    tokens.shift()
+                    continue
+                    
+                @verb 'exps block end, break!'
+                break
+                
+            if tok.text == ')'                               ➜ @verb 'exps break on )'     ; break
+            if tok.text in ['in''of'] and rule == 'for vals' ➜ @verb 'exps break on in|of' ; break
+            if tok.type == 'nl' 
+                
+                @verb 'exps nl stop:' stop, tok, @stack
+                    
+                if @stack[-1] == '[' and tokens[1]?.text == ']'
+                    @shiftNewline 'exps nl ] in array' tokens
+                    break
+                    
+                if stop
+                    @verb 'exps nl with stop' stop
+                    if @stack[-1] in ['▸args' '▸body' '▸return' 'then' '▸else'] or stop != 'nl'
+                        @verb "exps nl with stop '#{stop}' in #{@stack[-1]} (break, but don't shift nl)"
+                    else
+                        @shiftNewline "exps nl with stop '#{stop}'" tokens 
+                    break 
+
+                nl = @shiftNewline "exps nl (no stop) ..." tokens
+                
+                if tokens[0]?.text == '.' and tokens[1]?.type == 'var'
+                    log 'exps nl next line starts with .var!' @stack
+                    es.push @prop es.pop(), tokens
+                    
+                @verb 'exps nl continue...'
+                continue
+                
+            if tok.text == ',' 
+                if @stack[-1] in ['▸args']
+                    @verb 'exps comma continues args ...'
+                    tokens.shift()
+                    if tokens[0]?.type == 'block'
+                        @verb 'exps comma followed by block ...'
+                        tokens = tokens.shift().tokens
+                    continue
+                    
+            if tok.text == ';' and tokens[1]?.text != ':'
+                @verb "exps shift semicolon ; and continue..."
+                tokens.shift()
+                continue
+                
+            e = @exp tokens
+            last = lastLineCol e
+            
+            while ( tokens[0]?.text in ['if' 'for' 'while'] and 
+                    @noThenAhead(tokens) and
+                    @stack[-1] not in ['▸args' '▸return'] and
+                    last.line == tokens[0].line )
+
+                @verb "exps #{tokens[0].text }Tail" e, @stack
+                switch tokens[0].text
+                    'if'    ➜ e = @ifTail    e, tokens.shift(), tokens
+                    'for'   ➜ e = @forTail   e, tokens.shift(), tokens
+                    'while' ➜ e = @whileTail e, tokens.shift(), tokens
+            
+            if tokens[0]?.text == '▸'
+                if @stack[-1] in ['▸args' '{']
+                    es.push e
+                    break
+                else
+                    e = @compare e, tokens
+                    
+            es.push e
+            
+            if  (   tokens[0]?.text in ['if''then''for''while'] and 
+                    tokens[0].col > last.col and
+                    es.length and 
+                    not blocked and
+                    last.line == tokens[0].line)
+                    
+                @verb 'exps break on if|then|for|while' 
+                break 
+            
+            if tokens[0]?.text == ';' 
+                if @stack[-1] not in ['▸args' 'when' '{']
+                    @verb 'exps shift colon' @stack
+                    colon = tokens.shift()
+                else
+                    @verb 'exps break on colon' @stack
+                    break
+            
+            if numTokens == tokens.length
+                @verb 'exps no token consumed' tokens # happens for unbalanced closing ]
+                break
+
+        @sheapPop 'exps' rule
+        
+        es
+
+    # 00000000  000   000  00000000
+    # 000        000 000   000   000
+    # 0000000     00000    00000000
+    # 000        000 000   000
+    # 00000000  000   000  000
+
+    # consumes tokens and returns a single expression
+    #
+    # expression can be anything, from single digits to whole classes 
+    # but it is always a single object
+    #
+    # assumes that the handling of newlines is done somewhere else
+    # skips over leading semicolons
+
+    exp: (tokens) ->
+
+        ⮐ if empty tokens
+
+        tok = tokens.shift()
+
+        log Y5 w1 tok?.text if @debug
+                
+        switch tok.type
+            
+            'block'     ➜   ⮐ error "INTERNAL ERROR: unexpected block token in exp!"
+            'nl'        ➜   ⮐ error "INTERNAL ERROR: unexpected nl token in exp!"
+            ';'         ➜   ⮐ error "INTERNAL ERROR: unexpected ; token in exp!"
+            'section'   ➜   ⮐ @section tok, tokens                
+            'keyword'       # dispatch to block rules identified by keyword
+                            if tokens[0]?.text not in ':' # allow keywords as dictionary keys
+                                
+                                if tok.text == 'import'
+                                    if tokens[0].text == '(' # this is really ugly! implement dynamic inline use
+                                        tok.type = 'call'
+                                        ⮐ @call tok, tokens
+                                    else if tokens[0].text in '.'
+                                        break
+                                
+                                switch tok.text
+                                    'return'   ➜ ⮐ @return   tok, tokens
+                                    'switch'   ➜ ⮐ @switch   tok, tokens
+                                    'class'    ➜ ⮐ @class    tok, tokens
+                                    'function' ➜ ⮐ @function tok, tokens                        
+                                    'await'    ➜ ⮐ @await    tok, tokens
+                                    'import'   ➜ ⮐ @import   tok, tokens
+                                    'export'   ➜ ⮐ @export   tok, tokens
+                                    'while'    ➜ ⮐ @while    tok, tokens
+                                    'when'     ➜ ⮐ @when     tok, tokens
+                                    'use'      ➜ ⮐ @use      tok, tokens
+                                    'try'      ➜ ⮐ @try      tok, tokens
+                                    'for'      ➜ ⮐ @for      tok, tokens
+                                    'if' 
+                                        if @stack[-1] not in ['▸return']
+                                            @verb 'if' @stack if @stack.length
+                                            ⮐ @if tok, tokens
+                        ➜   switch tok.text
+                                '○' ➜ ⮐ @await tok, tokens
+                                '->' '=>' '○->' '○=>'
+                                    if @stack[-1] not in ['{']
+                                        ⮐ @func null, tok, tokens
+
+        @sheapPush 'exp' tok.text ? tok.type
+        
+        if tok.type != 'paren' and '○rgs' not in @stack # treat methods and funcs with minimal args
+            
+            if @stack[-1] == ':' and @stack[-2] == 'class' or # class/function  m: a b -> 
+               @stack[-1] == 'op=' and not @blockAssign or  # f = a b ->
+               @stack[-1] == ':' and @stack[-2] == '{' and not '▸args' in @stack # object m: a b -> 
+                
+                if @funcAhead tokens
+                    
+                    paren = @argsWithoutParens tok, tokens
+                    @sheapPop 'exp' tok.text ? tok.type
+                    ⮐ @lhs paren, tokens
+                    
+        e = tok
+        while tokens.length                  # repeatedly call rhs and lhs until all tokens are swallowed
+            
+            numTokens = tokens.length
+
+            e = @rhs e, tokens               # first, try to eat as many tokens as possible to the right
+            
+            print.ast "rhs" e if @debug
+
+            e = @lhs e, tokens               # see if we can use the result as the left hand side of something
+            
+            print.ast "lhs" e if @debug
+
+            if tokens[0]?.text in ';'
+                @verb 'exp break on ;' tokens[0]?.text
+                break
+            
+            if numTokens == tokens.length    # simple expansion to the left and right didn't succeed
+                
+                if tokens[0]?.text in ','               # next token is comma
+                    if @stack[-1] in ['▸args']          # and we are in arguments
+                        @verb 'comma in args, break without shifting'
+                        break                               # those are parsed with @exps ➜ give back one arg
+                        
+                    if @stack[-1]?.startsWith 'op'
+                        @verb 'comma in operation, break without shifting'
+                        break
+                    @verb 'exp shift comma'
+                    tokens.shift()                      # probably in a list or something similar ➜ ignore comma
+                    
+                if tokens[0]?.type == 'block'           # next line is indented
+                    if tokens[0].tokens[0]?.text == '.' # and starts with property access ...
+                        @verb 'exp prop chain block! shift block and continue ...'
+                        @push 'propchain' + tokens[0].tokens[0].col
+                        block = tokens.shift()
+                        e = @prop e, block.tokens
+                        if block.tokens.length
+                            @verb 'dangling prop chain tokens' block.tokens, @stack[-1]
+                            tokens = block.tokens
+                            continue
+                        break
+                        
+                if tokens[0]?.type == 'nl'              # next line is not indendented
+                    if tokens[1]?.text == '.'           # and starts with property access ...
+                        if "propchain#{tokens[1]?.col}" in @stack[..-2]
+                            @verb 'exp higher level prop chain active! break!'
+                            break
+                        @verb 'exp prop chain block continues on next line! shift nl and continue ...'
+                        @shiftNewline 'exp prop chain block continues' tokens
+                        continue
+                    
+                @verb 'exp no token consumed: break!' @stack[-1]
+                break # bail out because no token was consumed to prevent endless recursion
+            
+        print.ast "exp #{if empty(@stack) then 'DONE' else ''}" e if @debug
+        
+        if @stack[-1]?.startsWith 'propchain'
+            @verb "exp cleanup #{@stack[-1]}"
+            @pop @stack[-1]
+        
+        @sheapPop 'exp' tok.text ? tok.type
+        e        
+
+    # 00000000   000   000   0000000  
+    # 000   000  000   000  000       
+    # 0000000    000000000  0000000   
+    # 000   000  000   000       000  
+    # 000   000  000   000  0000000   
+    
+    # recursively build up stuff that can be identified by looking at the next token only:
+    #
+    # anything that opens and closes
+    #   - objects
+    #   - arrays
+    #   - parens
+    #
+    # but also 
+    #   - single operand operations
+    
+    rhs: (e, tokens) ->
+        
+        @sheapPush 'rhs' 'rhs'
+        
+        while nxt = tokens[0]
+            
+            numTokens = tokens.length
+
+            if not e then return error 'no e?' nxt
+            
+            unspaced = (llc = lastLineCol(e)).col == nxt.col and llc.line == nxt.line
+            spaced = not unspaced
+
+            if nxt.text in '({' and e.type in @kode.literals
+                break
+                
+            if nxt.text == '▸' then @verb 'rhs break for ▸'; break
+            
+            if @stack[-1] == '▸arg' and nxt.type == 'op' then @verb 'rhs break for ▸arg'; break
+           
+            if 
+                nxt.text == ':' and @stack[-1] in ['class']
+                
+                    print.tokens 'rhs is class method' tokens[..20] if @debug
+                    e = @keyval e, tokens
+                    break
+                
+                nxt.text == ':' and (unspaced or ('?' not in @stack))
+                    
+                    if @stack[-1] != '{'
+                        @verb 'rhs is first key of implicit object' e
+                        print.tokens 'rhs is first key of implicit object ...' tokens[..20] if @debug
+                        e = @object e, tokens
+                    else
+                        @verb 'rhs is key of (implicit) object' e
+                        e = @keyval e, tokens
+                    
+                nxt.text == 'in' and @stack[-1] != 'for'
+                
+                    @verb 'incond' e, tokens
+                    e = @incond e, tokens
+                
+                e.text?
+                
+                    if      
+                        e.text == '['   ➜ e = @array  e, tokens
+                        e.text == '('   ➜ e = @parens e, tokens
+                        e.text == '{'   ➜ e = @curly  e, tokens
+                        e.text in ['not'] and (nxt.type not in ['op'] or nxt.text in ['++' '--' '+' '-' ]) ➜ e = @operation null, e, tokens
+                        e.text in ['delete''new''empty''valid''noon''copy''clone'] and (nxt.type not in ['op''nl'] and nxt.text not in ',.}])') ➜ e = @operation null, e, tokens
+                        e.text in ['first''last'] and (nxt.type not in ['op''nl'] and nxt.text[0] not in ',.}])') ➜ e = @operation null, e, tokens
+                        e.text in ['++''--'] and unspaced
+                            @verb 'rhs increment'
+                            e = @operation null, e, tokens
+                        e.text in ['+''-'] and unspaced
+                            if nxt.type == 'num'
+                                @verb 'rhs +- num'
+                                if e.text == '-'
+                                    nxt.text = '-' + nxt.text
+                                    nxt.col -= 1
+                                e = tokens.shift()
+                            else
+                                @verb 'rhs +- operation'
+                                e = @operation null, e, tokens
+                        nxt.text in ['++''--'] and unspaced
+                            if e.type not in ['var']
+                                return error 'wrong rhs increment'
+                            e = @operation e, tokens.shift()
+                        ➜
+                            print.tokens "rhs no nxt match? break! stack:#{@stack} nxt:" [nxt] if @debug
+                            break                    
+                    
+                ➜ # e is not a token anymore
+                
+                    if 
+                        nxt.text in ['++''--']  and unspaced        ➜ e = @operation e, tokens.shift(); break
+                        @stack[-1] == 'call'    and nxt.text == ']' ➜ @verb 'rhs call array end';       break
+                        @stack[-1] == '{'       and nxt.text == '}' ➜ @verb 'rhs curly end';            break                    
+                        @stack[-1] == '['       and nxt.text == ']' ➜ @verb 'rhs array end';            break
+                        ➜
+                            print.ast "rhs no nxt match?? stack:#{@stack} e:" e if @debug
+                            print.tokens "rhs no nxt match?? nxt:" nxt if @debug
+                            # log noon e
+                            break
+                    
+            if numTokens == tokens.length
+                @verb 'rhs no token consumed, break!'
+                break
+                            
+        @sheapPop 'rhs' 'rhs'
+        e
+        
+    # 000      000   000   0000000  
+    # 000      000   000  000       
+    # 000      000000000  0000000   
+    # 000      000   000       000  
+    # 0000000  000   000  0000000   
+    
+    # recursively build up stuff that can be identified by looking at the next token *and* what was just parsed
+    #
+    # anything that can be chained
+    #   - operations
+    #   - properties
+    #   - calls
+    
+    lhs: (e, tokens) ->
+        
+        @sheapPush 'lhs' 'lhs'
+        
+        while nxt = tokens[0]
+            
+            numTokens = tokens.length
+
+            if not e then return error 'no e?' nxt
+            
+            last  = lastLineCol  e
+            first = firstLineCol e
+            unspaced = last.col == nxt.col and last.line == nxt.line
+            spaced = not unspaced
+
+            b = switch @stack[-1]
+                '[' ➜ nxt.text == ']'
+                '{' ➜ nxt.text == '}'
+                
+            break if b
+            
+            if e.text == '@' and unspaced and tokens[0].type in ['var''keyword''op']
+                e = @this e, tokens
+                break
+                
+            if e.text == '◆' and nxt.text in ['file' 'dir'] 
+                e = @dirFile e, tokens
+                break
+
+            if e.text == '◆' and nxt.text == 'main'
+                e = @main e, tokens
+                break
+                
+            if      
+                nxt.text == '.'    ➜ e = @prop   e, tokens
+                nxt.type == 'dots' and not @stack[-1]?.startsWith('op') and @stack[-1] != '(' and '○rgs' not in @stack ➜ e = @slice e, tokens
+                nxt.text == 'each' ➜ e = @each   e, tokens
+                nxt.text == '?' 
+                
+                    if unspaced
+    
+                        e = @assert e, tokens
+                        
+                    else
+                        
+                        e = @qmrkop e, tokens
+                    
+                nxt.text == ':' and e.qmrkop
+                
+                    e = @qmrkcolon e.qmrkop, tokens
+                
+                (   nxt.type == 'op' and 
+                    nxt.text not in ['++' '--' '+' '-' 'not' 'noon' 'new' 'empty' 'valid'] and 
+                    e.text not in ['[' '('] and                     
+                    '▸arg' not in @stack)
+                    
+                    if 
+                        @stack[-1]?.startsWith 'op' and @stack[-1] != 'op='
+                            @verb 'lhs stop on operation' e, nxt
+                            break
+                        @stack[-1] in ['in?' 'opempty' 'opvalid']
+                            @verb "lhs stop on #{@stack[-1]}" e, nxt
+                            break
+                        nxt.text == '▸'
+                            @verb "lhs break on ▸"
+                            break
+                        ➜
+                            @verb 'lhs is lhs of op' e, nxt
+                            e = @operation e, tokens.shift(), tokens
+                
+                (   nxt.text in ['+' '-'] and 
+                    e.text not in ['[' '('] and
+                    spaced and tokens[1]?.col > nxt.col+nxt.text.length)
+                    
+                    @verb 'lhs is lhs of +-\s' e, nxt
+                    e = @operation e, tokens.shift(), tokens
+            
+                nxt.type == 'func' and e.parens
+                    @verb 'lhs is args for func' e
+                    e = @func e, tokens.shift(), tokens
+                
+                nxt.text == '(' and unspaced
+                    @verb 'lhs is lhs of call'
+                    e = @call e, tokens
+                    
+                nxt.text == '[' and unspaced and tokens[1]?.text != ']'
+                    @verb 'lhs is lhs of index' e
+                    e = @index e, tokens
+                
+                nxt.text == 'not' and tokens[1]?.text == 'in'
+
+                    e = operation:
+                        operator:tokens.shift()
+                        rhs:@incond e, tokens
+
+                # Probably the most critical point of the whole parsing shenanigans:
+                # Trying to figure out if the current left hand side is a function which is 
+                # called with the upcoming stuff as arguments.
+                # Since we have no syntax available, we need to figure it out from the context alone,
+                # which is the reason this is uglier than one would normally expect:
+                        
+                (   spaced and 
+                    (nxt.line == last.line or (nxt.col > first.col and @stack[-1] not in ['if''when'])) and
+                    '○rgs' not in @stack and
+                    nxt.text not in ['then' 'when' 'else' 'break' 'continue' 'in' 'of' 'for' 'while'] and
+                    (nxt.text not in ['if'] or not @noThenAhead tokens) and
+                    nxt.text not in ',.;:)}]' and
+                    nxt.type not in ['nl'] and
+                    (nxt.type != 'op' or nxt.text in ['++''--''noon''new''not'] or nxt.text in ['+''-'] and tokens[1].col == nxt.col+1) and
+                    @isSuitableForImplicitCall(e) )
+                    
+                    @verb 'lhs is lhs of implicit call! e' e, @stack[-1]
+                    @verb '    is lhs of implicit call! nxt' nxt
+                    @verb '    is lhs first' first 
+                    e = @call e, tokens
+                    break
+
+                nxt.text in ['+' '-'] and e.text not in ['[' '(']
+                    if spaced and tokens[1]?.col == nxt.col+nxt.text.length
+                        @verb 'lhs op is unbalanced +- break...' e, nxt, @stack
+                        break
+                    @verb 'lhs is lhs of +- op' e, nxt
+                    e = @operation e, tokens.shift(), tokens
+                                
+                ➜                
+                    print.tokens "lhs no nxt match? break! stack:#{@stack} nxt:" [nxt] if @debug
+                    print.ast "lhs no nxt match? break! stack:#{@stack}" e if @debug
+                    if nxt.type == 'block' 
+                        if  @isSuitableForImplicitCall(e) and 
+                            @stackAllowsBlockArg() and
+                            nxt.tokens[0]?.text not in ['then' 'when'] and
+                            @stack[-1] not in ['if' 'then' 'for' 'while' 'switch' 'when' 'catch' 'in?' '▸args' 'class' 'function' 'op+' 'op-' 'opis' 'opor' 'opand' 'op==' 'opnot' 'op<' 'op>']
+                                @verb 'blocked call arg' @stack, e, nxt
+                                e = @call e, tokens
+                        # else
+                            # log 'suitable?' @isSuitableForImplicitCall(e)
+                            # log 'allowblock?' @stackAllowsBlockArg()
+                            # log 'stack[-1]?' @stack[-1] not in ['if' 'then' 'for' 'while' 'switch' 'when' 'catch' 'in?' '▸args' 'class' 'function' 'op+' 'op-' 'opis' 'opor' 'opand' 'op==' 'opnot' 'op<' 'op>']
+                    break                    
+            
+            if numTokens == tokens.length
+                error 'lhs no token consumed?'
+                break
+                
+        @sheapPop 'lhs' 'lhs'     
+        e
+        
+export Parse

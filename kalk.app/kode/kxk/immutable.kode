@@ -1,0 +1,531 @@
+
+###
+    000  00     00  00     00  000   000  000000000   0000000   0000000    000      00000000  
+    000  000   000  000   000  000   000     000     000   000  000   000  000      000       
+    000  000000000  000000000  000   000     000     000000000  0000000    000      0000000   
+    000  000 0 000  000 0 000  000   000     000     000   000  000   000  000      000       
+    000  000   000  000   000   0000000      000     000   000  0000000    0000000  00000000  
+    
+    Copyright (c) 2016, Richard Feldman
+    https://github.com/rtfeldman/seamless-immutable 
+    
+    translated into kode
+###
+
+isObject     = (obj) -> (obj != null) and (typeof(obj) == 'object') and (not Array.isArray obj)
+isFileObject = (obj) -> (typeof(File) != 'undefined') and (obj instanceof File)
+isBlobObject = (obj) -> (typeof(Blob) != 'undefined') and (obj instanceof Blob)
+isPromise    = (obj) -> (typeof(obj) == 'object') and typeof(obj.then) == 'function'
+isError      = (obj) -> obj instanceof Error
+    
+instantiateEmptyObject = (obj) ->
+    
+    if prototype = Object.getPrototypeOf obj
+        Object.create prototype
+    else 
+        {}
+
+addPropertyTo = (target, methodName, value) ->
+    
+    Object.defineProperty target, methodName,
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: value
+
+banProperty = (target, methodName) ->
+    addPropertyTo target, methodName, ->
+        throw new ImmutableError "The #{methodName} method cannot be invoked on an Immutable data structure."
+
+immutabilityTag = "__immutable__"
+
+addImmutabilityTag = (target) -> addPropertyTo target, immutabilityTag, true
+
+isImmutable = (target) ->
+    
+    if typeof target == "object"
+        target == null or Boolean Object.getOwnPropertyDescriptor target, immutabilityTag
+    else 
+        # In JavaScript, only objects are even potentially mutable.
+        # strings, numbers, null, and undefined are all naturally immutable.
+        true
+
+isEqual = (a, b) -> a == b or (a != a and b != b) # Avoid false positives due to (NaN != NaN) evaluating to true
+
+isMergableObject = (target) -> (target != null) and typeof(target) == "object" and (not Array.isArray target) #and not (target instanceof Date)
+
+mutatingObjectMethods    = [ "setPrototypeOf" ]
+nonMutatingObjectMethods = [ "keys" ];
+mutatingArrayMethods     = mutatingObjectMethods.concat [
+        'push' 'pop' 'sort' 'splice' 'shift' 'unshift' 'reverse'
+    ]
+
+nonMutatingArrayMethods = nonMutatingObjectMethods.concat [
+        'map' 'filter' 'slice' 'concat' 'reduce' 'reduceRight'
+    ]
+
+ImmutableError = (message) ->
+    @name = 'ImmutableError'
+    @message = message
+    @stack = (new Error()).stack
+
+ImmutableError.prototype = new Error()
+ImmutableError.prototype.constructor = Error
+
+makeImmutable = (obj, bannedMethods) ->
+    
+    addImmutabilityTag obj # Tag it so we can quickly tell it's immutable later
+  
+    # Make all mutating methods throw exceptions
+    for banned in bannedMethods
+        banProperty obj, banned
+    
+    Object.freeze obj
+    obj
+    
+makeImmutableObject = (obj) ->
+
+    addPropertyTo obj, "merge"      merge
+    addPropertyTo obj, "replace"    objectReplace
+    addPropertyTo obj, "without"    without
+    addPropertyTo obj, "asMutable"  asMutableObject
+    addPropertyTo obj, "set",       objectSet
+    addPropertyTo obj, "setIn"      objectSetIn
+    addPropertyTo obj, "update"     update
+    addPropertyTo obj, "updateIn"   updateIn
+    addPropertyTo obj, "getIn"      getIn
+
+    makeImmutable obj, mutatingObjectMethods
+    
+makeImmutableArray = (array) ->
+    # Don't change their implementations, but wrap these functions to make sure
+    # they always return an immutable value.
+    for methodName in nonMutatingArrayMethods
+        makeMethodReturnImmutable array, methodName
+  
+    addPropertyTo array, "flatMap"   flatMap
+    addPropertyTo array, "asObject"  asObject
+    addPropertyTo array, "asMutable" asMutableArray
+    addPropertyTo array, "set"       arraySet
+    addPropertyTo array, "setIn"     arraySetIn
+    addPropertyTo array, "update"    update
+    addPropertyTo array, "updateIn"  updateIn
+    addPropertyTo array, "getIn"     getIn
+  
+    for i in 0...array.length
+        array[i] = Immutable array[i]
+  
+    makeImmutable array, mutatingArrayMethods
+    
+Immutable = (obj, options, stackRemaining) ->
+    
+    if 
+        isImmutable(obj) or isFileObject(obj) or isBlobObject(obj) or isError(obj)
+      
+            obj
+      
+        isPromise obj
+      
+            obj.then Immutable
+      
+        Array.isArray obj
+      
+            makeImmutableArray obj.slice()
+            
+        ➜
+            # Don't freeze the object we were given; make a clone and use that.
+            prototype = options and options.prototype
+            theClone = {}
+            if prototype and (prototype != Object.prototype) ➜ theClone = Object.create prototype
+                
+            if stackRemaining == null
+                  stackRemaining = 64
+
+            if stackRemaining <= 0
+                throw new ImmutableError "object either contains recursion or is nested too deep!"
+
+            stackRemaining -= 1
+      
+            for key of obj
+                if Object.getOwnPropertyDescriptor obj, key
+                    theClone[key] = Immutable obj[key], undefined, stackRemaining
+  
+            makeImmutableObject theClone
+
+makeMethodReturnImmutable = (obj, methodName) ->
+    
+    currentMethod = obj[methodName]
+
+    addPropertyTo obj, methodName, -> Immutable currentMethod.apply obj, arguments
+
+arraySet = (idx, value, config) ->
+    
+    deep = config and config.deep
+    
+    if @[idx]
+        if deep and @[idx] != value and isMergableObject(value) and isMergableObject @[idx]
+            value = Immutable.merge @[idx], value, {deep: true, mode: 'replace'}
+
+        if isEqual @[idx], value
+            return @
+    
+    mutable = asMutableArray.call @
+    mutable[idx] = Immutable value
+    makeImmutableArray mutable
+
+immutableEmptyArray = Immutable []
+
+arraySetIn = (pth, value, config) ->
+    
+    head = pth[0]
+    
+    if pth.length == 1
+        arraySet.call @, head, value, config
+    else 
+        tail = pth.slice 1
+        thisHead = @[head]
+        newValue;
+    
+        if typeof(thisHead) == "object" and thisHead != null
+            # Might (validly) be object or array
+            newValue = Immutable.setIn thisHead, tail, value
+        else 
+            nextHead = tail[0];
+            # If the next path part is a number, then we are setting into an array, else an object.
+            if (nextHead != '' and isFinite(nextHead)) 
+              newValue = arraySetIn.call immutableEmptyArray, tail, value
+            else
+              newValue = objectSetIn.call immutableEmptyObject, tail, value
+      
+        if @[head] and thisHead == newValue
+            return @
+      
+        mutable = asMutableArray.call @
+        mutable[head] = newValue
+        makeImmutableArray mutable
+
+# Effectively performs a map() over the elements in the array, using the
+# provided iterator, except that whenever the iterator returns an array, that
+# array's elements are added to the final result instead of the array itself.
+#
+# @param {function} iterator - The iterator that will be invoked on each element in the array. It will receive three arguments: the current value, the current index, and the current object.
+
+flatMap = (iterator) ->
+    
+    if arguments.length == 0 # Calling flatMap() with no arguments is a no-op. Don't bother cloning
+        return @
+  
+    result = []
+  
+    for index in 0...@length
+        iteratorResult = iterator @[index], index, @
+    
+        if Array.isArray iteratorResult
+            # Concatenate Array results into the return value we're building up.
+            result.push.apply result, iteratorResult
+        else
+            # Handle non-Array results the same way map() does.
+            result.push iteratorResult
+  
+    makeImmutableArray result
+
+# Returns an Immutable copy of the object without the given keys included.
+# 
+# @param {array} keysToRemove - A list of strings representing the keys to exclude in the return value. Instead of providing a single array, this method can also be called by passing multiple strings as separate arguments.
+
+without = (remove) ->
+    
+    if typeof(remove) == "undefined" and arguments.length == 0 # Calling without() with no arguments is a no-op. Don't bother cloning
+        return @
+  
+    if typeof(remove) != "function"
+        # If we weren't given an array, use the arguments list.
+        keysToRemoveArray = Array.isArray(remove) ? remove.slice() : Array.prototype.slice.call arguments
+    
+        # Convert numeric keys to strings since that's how they'll
+        # come from the enumeration of the object.
+        keysToRemoveArray.forEach (el, idx, arr) ->
+            if typeof(el) == "number"
+                arr[idx] = el.toString()
+    
+        remove = (val, key) -> keysToRemoveArray.indexOf(key) != -1
+  
+    result = instantiateEmptyObject @
+  
+    for key of @
+        if @hasOwnProperty(key) and remove(@[key], key) == false
+            result[key] = @[key]
+  
+    makeImmutableObject result
+
+asMutableArray = (opts) ->
+    
+    result = []
+
+    for i in 0...@length
+        result.push asDeepMutable @[i]
+
+    result
+
+# Effectively performs a [map](https:#developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) over the elements in the array, expecting that the iterator function
+# will return an array of two elements - the first representing a key, the other
+# a value. Then returns an Immutable Object constructed of those keys and values.
+
+# iterator - A function which should return an array of two elements - the first representing the desired key, the other the desired value
+
+asObject = (iterator) ->
+    
+    # If no iterator was provided, assume the identity function
+    # suggesting this array is already a list of key/value pairs
+    if typeof(iterator) != "function"
+        iterator = (value) -> value
+  
+    result = {}
+    length = @length
+  
+    for index in 0...length
+        pair  = iterator @[index], index, @
+        key   = pair[0]
+        value = pair[1]
+  
+        result[key] = value
+  
+    makeImmutableObject result
+
+asDeepMutable = (obj) ->
+    
+    ⮐ obj if not obj or (typeof obj != 'object') or not Object.getOwnPropertyDescriptor(obj, immutabilityTag)
+        
+    Immutable.asMutable obj
+
+quickCopy = (src, dest) ->
+    
+    for key of src
+        if Object.getOwnPropertyDescriptor src, key
+            dest[key] = src[key]
+    dest
+
+###
+    00     00  00000000  00000000    0000000   00000000  
+    000   000  000       000   000  000        000       
+    000000000  0000000   0000000    000  0000  0000000   
+    000 0 000  000       000   000  000   000  000       
+    000   000  00000000  000   000   0000000   00000000  
+
+    Returns an Immutable Object containing the properties and values of both
+    this object and the provided object, prioritizing the provided object's
+    values whenever the same key is present in both objects.
+    
+    other  - The other object to merge. Multiple objects can be passed as an array. In such a case, the later an object appears in that list, the higher its priority.
+    config - Optional config object that contains settings. Supported settings are: {deep: true} for deep merge and {merger: mergerFunc} where mergerFunc is a function
+             that takes a property from both objects. If anything is returned it overrides the normal merge behaviour.
+             {mode: 'replace'|'merge'}
+###
+
+merge = (other, config) ->
+    
+    if arguments.length == 0 # Calling merge() with no arguments is a no-op. Don't bother cloning
+        return @
+  
+    if (other == null) or (typeof other != "object") 
+        throw new TypeError "Immutable#merge can only be invoked with objects or arrays, not " + JSON.stringify other
+  
+    receivedArray = Array.isArray other
+    deep          = config?.deep
+    mode          = config?.mode or 'merge'
+    merger        = config?.merger
+    result        = undefined
+  
+    # Use the given key to extract a value from the given object, then place
+    # that value in the result object under the same key. If that resulted
+    # in a change from this object's value at that key, set anyChanges = true.
+    addToResult = (currentObj, otherObj, key) ->
+        
+        immutableValue = Immutable otherObj[key]
+        mergerResult = merger and merger currentObj[key], immutableValue, config
+        currentValue = currentObj[key]
+    
+        if (result != undefined) or (mergerResult != undefined) or (not currentObj.hasOwnProperty(key)) or (not isEqual(immutableValue, currentValue))
+    
+            if mergerResult != undefined
+                newValue = mergerResult;
+            else if deep and isMergableObject(currentValue) and isMergableObject(immutableValue)
+                newValue = Immutable.merge currentValue, immutableValue, config
+            else 
+                newValue = immutableValue
+      
+            if (not isEqual currentValue, newValue) or (not currentObj.hasOwnProperty key)
+                if result == undefined
+                    # Make a shallow clone of the current object.
+                    result = quickCopy currentObj, instantiateEmptyObject currentObj
+      
+                result[key] = newValue
+        null
+
+    clearDroppedKeys = (currentObj, otherObj) ->
+        
+        for key of currentObj
+            if not otherObj.hasOwnProperty key
+                if result == undefined
+                    # Make a shallow clone of the current object.
+                    result = quickCopy currentObj, instantiateEmptyObject currentObj
+                delete result[key]
+            
+    if not receivedArray
+        # merge one object into the existing one
+        for key of other
+            if Object.getOwnPropertyDescriptor other, key
+                addToResult @, other, key
+        if mode == 'replace'
+            clearDroppedKeys @, other
+    else 
+        for index in 0...other.length
+            otherFromArray = other[index]
+      
+            for key of otherFromArray
+                if otherFromArray.hasOwnProperty key
+                    addToResult (result != undefined ? result : @), otherFromArray, key
+
+    if result == undefined
+        @
+    else
+        makeImmutableObject result
+
+objectReplace = (value, config) ->
+    
+  deep = config and config.deep
+
+  if arguments.length == 0 # Calling replace() with no arguments is a no-op. Don't bother cloning
+        return @
+
+  if value == null or typeof(value) != "object"
+        throw new TypeError "Immutable#replace can only be invoked with objects or arrays, not " + JSON.stringify value
+
+  Immutable.merge @, value, {deep: deep, mode:'replace'}
+
+immutableEmptyObject = Immutable {}
+
+objectSetIn = (path, value, config) ->
+    
+    if (not Array.isArray path) or (path.length == 0)
+        throw new TypeError "The first argument to Immutable#setIn must be an array containing at least one \"key\" string."
+
+    head = path[0]
+    if path.length == 1
+        return objectSet.call @, head, value, config
+
+    tail = path.slice 1
+    newValue = undefined
+    thisHead = @[head]
+
+    if @hasOwnProperty(head) and (typeof(thisHead) == "object") and (thisHead != null)
+        # Might (validly) be object or array
+        newValue = Immutable.setIn thisHead, tail, value
+    else
+        newValue = objectSetIn.call immutableEmptyObject, tail, value
+  
+    if @hasOwnProperty(head) and (thisHead == newValue)
+        return @
+  
+    mutable = quickCopy @, instantiateEmptyObject @
+    mutable[head] = newValue
+    makeImmutableObject mutable
+
+objectSet = (property, value, config) ->
+    
+    deep = config and config.deep
+  
+    if @hasOwnProperty property
+        if deep and (@[property] != value) and isMergableObject(value) and isMergableObject(@[property])
+            value = Immutable.merge @[property], value, {deep: true, mode: 'replace'}
+        if isEqual @[property], value
+            return @
+  
+    mutable = quickCopy @, instantiateEmptyObject @
+    mutable[property] = Immutable value
+    makeImmutableObject mutable
+
+update = (property, updater) ->
+    
+    restArgs = Array.prototype.slice.call arguments, 2
+    initialVal = @[property]
+    Immutable.set @, property, updater.apply initialVal, [initialVal].concat restArgs
+
+getInPath = (obj, path) ->
+  
+    for i in 0...path.length
+        obj = obj[path[i]]
+        break if obj == null
+  
+    (i == path.length) ? obj : undefined
+
+updateIn = (path, updater) ->
+    
+    restArgs = Array.prototype.slice.call arguments, 2
+    initialVal = getInPath @, path
+
+    Immutable.setIn @, path, updater.apply initialVal, [initialVal].concat restArgs
+
+getIn = (path, defaultValue) ->
+    
+    value = getInPath @, path
+    
+    if value == undefined 
+        defaultValue 
+    else
+        value
+
+asMutableObject = (opts) ->
+    
+    result = instantiateEmptyObject(@), key
+  
+    for key of @
+        if @hasOwnProperty key
+            result[key] = asDeepMutable @[key]
+  
+    result
+    
+# Wrapper to allow the use of object methods as static methods of Immutable.
+toStatic = (fn) ->
+    
+    staticWrapper = ->
+        args = [].slice.call arguments
+        self = args.shift()
+        fn.apply self, args
+
+    staticWrapper
+
+# Wrapper to allow the use of object methods as static methods of Immutable.
+# with the additional condition of choosing which to call depending
+# if argument is an array or an object.
+toStaticObjectOrArray = (fnObject, fnArray) ->
+    
+    staticWrapper = ->
+        args = [].slice.call arguments
+        self = args.shift()
+        if Array.isArray self
+                fnArray.apply self, args
+        else 
+            fnObject.apply self, args
+  
+    staticWrapper
+
+Immutable.from           = Immutable
+Immutable.isImmutable    = isImmutable
+Immutable.ImmutableError = ImmutableError
+Immutable.merge          = toStatic merge
+Immutable.replace        = toStatic objectReplace
+Immutable.without        = toStatic without
+Immutable.asMutable      = toStaticObjectOrArray asMutableObject, asMutableArray
+Immutable.set            = toStaticObjectOrArray objectSet, arraySet
+Immutable.setIn          = toStaticObjectOrArray objectSetIn, arraySetIn
+Immutable.update         = toStatic update
+Immutable.updateIn       = toStatic updateIn
+Immutable.getIn          = toStatic getIn
+Immutable.flatMap        = toStatic flatMap
+Immutable.asObject       = toStatic asObject
+  
+Object.freeze Immutable
+  
+export Immutable
+

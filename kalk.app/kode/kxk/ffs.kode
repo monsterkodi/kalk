@@ -1,0 +1,32 @@
+###
+    00000000   00000000   0000000  
+    000        000       000       
+    000000     000000    0000000   
+    000        000            000  
+    000        000       0000000   
+###
+
+class FFS
+    
+    @pkg:           (p) ○-> ○ kakao 'fs.pkg'        p
+    @git:           (p) ○-> ○ kakao 'fs.git'        p
+    @list:          (p) ○-> ○ kakao 'fs.list'       p
+    @read:          (p) ○-> ○ kakao 'fs.read'       p
+    @write:      (p, t) ○-> ○ kakao 'fs.write'      p, t
+    @exists:        (p) ○-> ○ kakao 'fs.exists'     p
+    @fileExists:    (p) ○-> ○ kakao 'fs.fileExists' p
+    @dirExists:     (p) ○-> ○ kakao 'fs.dirExists'  p
+    @isWritable:    (p) ○-> ○ kakao 'fs.isWritable' p
+    @isReadable:    (p) ○-> ○ kakao 'fs.isReadable' p
+    @duplicate:     (p) ○-> ○ kakao 'fs.duplicate'  p
+    @remove:        (p) ○-> ○ kakao 'fs.remove'     p
+    @trash:         (p) ○-> ○ kakao 'fs.trash'      p
+    @move:       (p, d) ○-> ○ kakao 'fs.move'       p, d
+    @copy:       (p, d) ○-> ○ kakao 'fs.copy'       p, d
+    @mkdir:         (p) ○-> ○ kakao 'fs.mkdir'      p
+    @info:          (p) ○-> ○ kakao 'fs.info'       p
+    @type:          (p) ○-> i = await kakao 'fs.info'   p; i.type
+    @isFile:        (p) ○-> ○ FFS.fileExists        p
+    @isDir:         (p) ○-> ○ FFS.dirExists         p
+        
+export FFS

@@ -1,0 +1,114 @@
+###
+00000000   00000000   00000000  000000000  000000000  000   000
+000   000  000   000  000          000        000      000 000 
+00000000   0000000    0000000      000        000       00000  
+000        000   000  000          000        000        000   
+000        000   000  00000000     000        000        000   
+###
+
+function pretty
+
+    #  0000000    0000000   00000000  
+    # 000   000  000        000       
+    # 000000000  000  0000  0000000   
+    # 000   000  000   000  000       
+    # 000   000   0000000   00000000  
+    
+    @age: dateOrString opt={} ->
+        
+        levels = opt.levels ? 1 #   ▸ 3 months
+                            # 2     ▸ 3 months 5 days
+                            # 3     ▸ 3 months 5 days 7 hours
+    
+        if dateOrString is str
+            date = new Date Date.parse dateOrString
+        else
+            date = new Date dateOrString
+            
+        diff = Date.now() - date.valueOf()
+        
+        sec = parseInt diff/1000
+        
+        time =
+            year:   Math.floor sec / (60*60*24*30*12)
+            month:  Math.floor sec / (60*60*24*30) % 12
+            day:    Math.floor sec / (60*60*24) % 30
+            hour:   Math.floor sec / (60*60) % 24
+            minute: Math.floor sec / 60 % 60
+            second: Math.floor sec % 60
+            
+        s = []
+        for key,val of time
+            if val == 0 ➜ if s.length ➜ return s[0]
+            else s.push "#{val} #{@deplural(key+'s' val)}"
+                         
+            if s.length == levels ➜ return s.join ' '
+                  
+        if empty s
+            '0 seconds'
+        else
+            s.join ' '
+        
+    # 0000000    000   000  000000000  00000000   0000000  
+    # 000   000   000 000      000     000       000       
+    # 0000000      00000       000     0000000   0000000   
+    # 000   000     000        000     000            000  
+    # 0000000       000        000     00000000  0000000   
+    
+    @bytes: bytes ->
+        
+        number = Math.abs parseInt bytes
+        
+        ⮐ '0 bytes' if not number is num or number == 0
+        
+        UNITS = [ 'bytes' 'kB' 'MB' 'GB' 'TB' ]
+
+        exponent = Math.min Math.floor(Math.log10(number)/3), UNITS.length - 1
+        number  /= Math.pow 1000 exponent
+        
+        numStr = @number number, decimals:0
+        numStr + ' ' + @deplural UNITS[exponent], numStr
+        
+    # 000   000  000   000  00     00  0000000    00000000  00000000   
+    # 0000  000  000   000  000   000  000   000  000       000   000  
+    # 000 0 000  000   000  000000000  0000000    0000000   0000000    
+    # 000  0000  000   000  000 0 000  000   000  000       000   000  
+    # 000   000   0000000   000   000  0000000    00000000  000   000  
+    
+    @number: number opt={} ->
+        
+                                # 0        0.123 ▸ 0
+        decimals = opt.decimals ? 1 #      1.123 ▸ 1.1
+                                # 2        2.223 ▸ 2.22
+
+        prune    = opt.prune    ? true
+                                #          7.000 ▸ 7
+                                #          7.100 ▸ 7.1
+                                # false      
+                                #          7.000 ▸ 7.000
+                                #          7.100 ▸ 7.100
+        
+        ps = number.toFixed decimals
+        
+        if prune and decimals
+        
+            while ps[-1] == '0' ➜ ps = ps[0...-1]
+            if    ps[-1] == '.' ➜ ps = ps[0...-1]
+        ps
+        
+    @deplural: plural num ->
+        
+        if parseInt(num) == 1 and plural[-1] == 's'
+            plural[0...-1]
+        else
+            plural
+            
+    @shortCount: num ->
+    
+        v = parseInt num
+        if
+            v > 999999 ➜ "#{Math.floor v/1000000}M"
+            v > 999    ➜ "#{Math.floor v/1000}k"
+                       ➜ "#{v}"
+
+export pretty

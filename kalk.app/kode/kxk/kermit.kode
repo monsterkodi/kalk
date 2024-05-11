@@ -1,0 +1,286 @@
+###
+000   000  00000000  00000000   00     00  000  000000000
+000  000   000       000   000  000   000  000     000   
+0000000    0000000   0000000    000000000  000     000   
+000  000   000       000   000  000 0 000  000     000   
+000   000  00000000  000   000  000   000  000     000   
+###
+
+use ◆ kstr gonzo
+    
+wrapIndex = (ctx,offset) -> (ctx.pind+offset) % ctx.ptn.length
+    
+hasStrongMatch = (splt, ctx, d) -> splt[0] == ctx.ptn[wrapIndex(ctx,d)][0][0]
+    
+# 000      000  000   000  00000000  00     00   0000000   000000000   0000000  000   000  
+# 000      000  0000  000  000       000   000  000   000     000     000       000   000  
+# 000      000  000 0 000  0000000   000000000  000000000     000     000       000000000  
+# 000      000  000  0000  000       000 0 000  000   000     000     000       000   000  
+# 0000000  000  000   000  00000000  000   000  000   000     000      0000000  000   000  
+
+splitWords = (words, splitBy) ->
+    
+    newWords = []
+    
+    for word in words
+        sws = word.split splitBy
+        for sw,index in sws
+            newWords.push sw
+            newWords.push splitBy if index < sws.length-1
+    
+    newWords
+
+lineMatch = (line, pt, splitlist) ->
+    
+    tln = trim line
+    ⮐ if empty tln
+    
+    splt = tln.split /\s+/
+    cpt  = trim(pt).split /\s+/
+    
+    for sl in splitlist
+        splt = splitWords splt, sl
+        cpt  = splitWords cpt, sl
+        
+    # log splt, cpt
+        
+    ⮐ if empty splt
+    
+    strongMatch = false
+    weakMatch = false
+    varName = null
+    
+    ci = 0
+    si = 0
+    rslt = {}
+    
+    while ci < cpt.length
+        
+        cp = cpt[ci]
+        
+        if cp == splt[si]
+            strongMatch = true
+            varName = null
+            si++
+            ci++
+            continue
+            
+        if cp?[0] in '●○'
+            
+            weakMatch = true
+            varName = cp[1..]
+            switch cp[0]
+                '●' ➜ rslt[varName] = splt[si]
+                '○' 
+                    rslt[varName] = splt[si..].join ' '
+                    varName = null
+                    break
+            si++
+            ci++
+            continue
+            
+        if weakMatch and varName and valid splt[si+1]
+            
+            rslt[varName] += ' ' + splt[si]
+            si++
+            continue
+
+        # log "kermit no match |#{line}| #{cpt}" ci, cp
+        ⮐ 
+    
+    if ci == cpt.length and varName and si < splt.length
+        rslt[varName] += ' ' + splt[si..].join ' '
+    
+    # log rslt, strongMatch, weakMatch
+    ⮐ rslt if strongMatch or weakMatch
+
+#  0000000   0000000    0000000    00     00   0000000   000000000   0000000  000   000  
+# 000   000  000   000  000   000  000   000  000   000     000     000       000   000  
+# 000000000  000   000  000   000  000000000  000000000     000     000       000000000  
+# 000   000  000   000  000   000  000 0 000  000   000     000     000       000   000  
+# 000   000  0000000    0000000    000   000  000   000     000      0000000  000   000  
+
+addMatch = (line, ctx) ->
+        
+    splt = trim(line).split /\s+/
+    cpt = ctx.ptn[ctx.pind][0]
+            
+    strongMatch = false
+    weakMatch = false
+    varName = null
+    
+    ci = 0
+    si = 0
+    rslt = {}
+    
+    while ci < cpt.length
+        
+        cp = cpt[ci]
+        
+        if cp == splt[si]
+            strongMatch = true
+            varName = null
+            si++
+            ci++
+            continue
+            
+        if cp?[0] in '●○'
+            
+            weakMatch = true
+            varName = cp[1..]
+            switch cp[0]
+                '●' ➜ rslt[varName] = splt[si]
+                '○' 
+                    rslt[varName] = line[(splt[0...si].join(' ').length)..]
+                    varName = null
+                    break
+            si++
+            ci++
+            continue
+            
+        else if weakMatch and varName and valid splt[si+1]
+            
+            rslt[varName] += ' ' + splt[si]
+            si++
+            continue
+        else
+            # log 'fail?' cp, line, splt[si], kstr ctx
+            throw new Error "kermit failed to parse ▸#{line}◂ ▪#{kstr ctx.lines}▪"
+            ci++
+            continue
+    
+    if ci == cpt.length and varName and si < splt.length
+        rslt[varName] += ' ' + splt[si..].join ' '
+
+    if not strongMatch 
+        for d in [1 -1]
+            if hasStrongMatch splt, ctx, d
+                ctx.pind = wrapIndex ctx, d
+                return addMatch line, ctx
+    
+    if strongMatch or weakMatch
+        type = strongMatch ? 'strong' : 'weak'
+        ctx.matches.push type:type, rslt:rslt, pind:ctx.pind, arr:clone ctx.ptn[ctx.pind][1]
+        if strongMatch or empty ctx.ptn[ctx.pind][1] ➜ ctx.pind = wrapIndex ctx, 1
+    
+# 000000000  00000000    0000000   000   000  00000000  00000000    0000000  00000000  
+#    000     000   000  000   000  000   000  000       000   000  000       000       
+#    000     0000000    000000000   000 000   0000000   0000000    0000000   0000000   
+#    000     000   000  000   000     000     000       000   000       000  000       
+#    000     000   000  000   000      0      00000000  000   000  0000000   00000000  
+
+traverse = (ctx) ->
+    
+    ctx.matches = []
+    for line in ctx.lines
+        addMatch line, ctx
+
+    collect ctx
+    
+#  0000000   0000000   000      000      00000000   0000000  000000000  
+# 000       000   000  000      000      000       000          000     
+# 000       000   000  000      000      0000000   000          000     
+# 000       000   000  000      000      000       000          000     
+#  0000000   0000000   0000000  0000000  00000000   0000000     000     
+
+collect = (ctx) ->
+    
+    ctx.result = []
+    
+    lm = pind:Infinity
+    la = []
+    
+    stack = [last ctx.result]
+    
+    for match in ctx.matches
+
+        ma = ctx.ptn[match.pind][1]
+
+        lo = last stack
+
+        if ma.length > la.length
+            lo ?= {}
+            lo[last ma] = [{}]
+            stack.push last lo[last ma]
+        else if ma.length < la.length
+            for i in 0...la.length-ma.length
+                stack.pop()
+        else # ma.length == la.length
+        
+            if ma.length
+                po = stack[-2]
+                if po and po[last ma] is arr
+                    lo = po
+                    stack.pop()
+                    lo[last ma].push {}
+                    stack.push last lo[last ma]
+                else
+                    log r5('cant push into lo array?'), ma, po
+            
+        if match.pind <= lm.pind
+            if empty ma
+                ctx.result.push {}
+                stack = [last ctx.result]
+            else if ma.length < la.length
+                po = stack[-2]
+                if po and po[last ma] is arr
+                    lo = po
+                    stack.pop()
+                    lo[last ma].push {}
+                    stack.push last lo[last ma]
+                 
+        lo = last stack
+
+        for k,v of match.rslt
+            lo[k] = v
+            
+        lm = match 
+        la = ma
+    
+    ctx.result = ctx.result.filter (o) -> valid o
+    ctx
+             
+# 00000000    0000000   000000000  000000000  00000000  00000000   000   000  
+# 000   000  000   000     000        000     000       000   000  0000  000  
+# 00000000   000000000     000        000     0000000   0000000    000 0 000  
+# 000        000   000     000        000     000       000   000  000  0000  
+# 000        000   000     000        000     00000000  000   000  000   000  
+
+pattern = (kmt) ->
+    
+    p = []
+    ars = []
+    parseGonzo = (gzo) ->
+        
+        for gz in gzo
+            lpt = trim(gz.line).split /\s+/
+            if lpt[0][0] == '■'
+                ars.push lpt[0][1..]
+                parseGonzo gz.blck, ars 
+                ars.pop()
+            else
+                p.push [lpt, clone ars]
+    
+    gzo = gonzo kmt
+    return p if empty gzo
+    parseGonzo gzo
+    p
+        
+# 000   000  00000000  00000000   00     00  000  000000000  
+# 000  000   000       000   000  000   000  000     000     
+# 0000000    0000000   0000000    000000000  000     000     
+# 000  000   000       000   000  000 0 000  000     000     
+# 000   000  00000000  000   000  000   000  000     000     
+
+kermit = (kmt, str) ->
+
+    lines = str.split '\n'
+    lines = lines.filter (l) -> valid trim l
+
+    ctx = traverse lines:lines, pind:0 ptn:pattern kmt
+    ctx.result
+    
+kermit.pattern = pattern
+kermit.lineMatch = lineMatch
+
+export kermit

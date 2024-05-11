@@ -1,0 +1,154 @@
+###
+     0000000   0000000   0000000    0000000   000000000  00000000  00000000 
+    000       000       000   000  000   000     000     000       000   000
+    0000000   000       000   000  000   000     000     0000000   0000000  
+         000  000       000   000  000   000     000     000       000   000
+    0000000    0000000   0000000    0000000      000     00000000  000   000
+    
+    takes a string and evaluates it as a math expression
+    converts the resulting number to a string without scientific notation
+    and some constants replaced with unicode symbols (∞)
+    tries to handle some bigint calculations, but not too hard :)
+###
+
+use ◆ pepe kstr
+use ../kode/kode
+
+noTrailingZeros = str ->
+    
+        while str[-1] == '0' ➜ str = str[0...-1]
+        if    str[-1] == '.' ➜ str = str[0...-1]
+        str
+
+precise = str precision ->
+    
+    ⮐ '0' if Math.abs(str) < precise
+    val = parseFloat str
+    if val < 1 
+        # log 'precise' val, precision, val.toFixed precision
+        str = val.toFixed precision
+        str = noTrailingZeros str
+    str
+
+# 0000000    00000000   0000000   0000000  000  00000000  000   000   0000000  00000000  
+# 000   000  000       000       000       000  000       0000  000  000       000       
+# 000   000  0000000   0000000   000       000  0000000   000 0 000  000       0000000   
+# 000   000  000            000  000       000  000       000  0000  000       000       
+# 0000000    00000000  0000000    0000000  000  00000000  000   000   0000000  00000000  
+
+descience = str -> # convert scientific/exponential notation
+    
+    if 'e+' in str
+        str = BigInt(Number.parseFloat(str)).toString()
+    else if 'e-' in str
+        em = parseInt str.split('e-')[1]
+        str = Number.parseFloat(str).toFixed(em+2)
+        str = noTrailingZeros str
+    str
+
+# 00000000    0000000   000   000  
+# 000   000  000   000  000 0 000  
+# 00000000   000   000  000000000  
+# 000        000   000  000   000  
+# 000         0000000   00     00  
+
+pow = str ->
+    
+    # splt = str.split '^'
+    # if splt.length > 1
+        # str = "pow(#{splt[0]}, #{pow splt[1..].join '^'})"
+    str = str.replace /\^/g, '**'
+    str
+    
+# 0000000    00000000   0000000   
+# 000   000  000       000        
+# 000   000  0000000   000  0000  
+# 000   000  000       000   000  
+# 0000000    00000000   0000000   
+
+deg = str ->
+    
+    splt = str.split '°'
+    if splt.length > 1
+        val = splt[0]
+        if val[0] == '(' and val[-1] == ')'
+            str = "rad#{val}" + deg splt[1..].join '°'
+        else
+            for i in val.length-1..0
+                if val[i] not in '0.123456789'
+                    pre  = val[0..i] 
+                    val = val[i+1..-1]
+                    break
+            pre ?= ''
+            str = pre + "rad(#{val})" + deg splt[1..].join '°'
+    str
+    
+# 0000000    000   000  000  000      0000000    
+# 000   000  000   000  000  000      000   000  
+# 0000000    000   000  000  000      000   000  
+# 000   000  000   000  000  000      000   000  
+# 0000000     0000000   000  0000000  0000000    
+
+build = str ->
+    
+    pep = pepe str
+    
+    if pep.length > 1 or not pep[0] is str
+        dep = pepe.depepe pep, build
+        str = dep        
+    
+    str = pow str
+    str = deg str
+    str
+
+#  0000000   0000000   0000000    0000000   000000000  00000000  00000000   
+# 000       000       000   000  000   000     000     000       000   000  
+# 0000000   000       000   000  000   000     000     0000000   0000000    
+#      000  000       000   000  000   000     000     000       000   000  
+# 0000000    0000000   0000000    0000000      000     00000000  000   000  
+
+scooter = str opt ->
+    
+    if opt is num
+        opt = precision:opt
+    else
+        opt ?= {}
+        
+    precision = opt.precision or 0
+    
+    ost = str
+    str = str.replace /log\(/g, 'Math.log('
+    
+    str = str.replace /\//g,  ' / '
+    str = str.replace /∡/g,  'deg'
+    str = str.replace /√/g, 'sqrt'
+    str = str.replace /π/g, 'PI'
+    str = str.replace /ϕ/g, 'PHI'
+    str = str.replace /𝒆/g, 'E'
+    str = str.replace /∞/g, 'Infinity'
+    
+    b = """
+        {PI, E, sqrt, pow, exp, cos, sin, tan, acos, asin, atan} = Math
+        rad = d -> PI*d/180.0
+        deg = r -> r*180.0/PI
+        PHI = (1+sqrt(5))/2
+        
+        """
+    b += '(' + build(str) + ')'
+    
+    k = new kode
+    r = k.eval b
+    # log g2(ost), b5(str), r3(build(str)), g5 r
+    # log ost, str, build(str), r
+    
+    val = kstr r
+    val = trim val, ' \n'
+    val = val.replace  /Infinity/g, '∞'
+    # val = val.replace  /NaN/g, ''
+    val = descience val
+    val = precise val, precision if precision
+    val
+    
+scooter.near = a b -> Math.abs(a-b) < 0.000000000000001
+
+export scooter

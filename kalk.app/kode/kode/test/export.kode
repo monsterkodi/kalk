@@ -1,0 +1,39 @@
+###
+00000000  000   000  00000000    0000000   00000000   000000000  
+000        000 000   000   000  000   000  000   000     000     
+0000000     00000    00000000   000   000  0000000       000     
+000        000 000   000        000   000  000   000     000     
+00000000  000   000  000         0000000   000   000     000     
+###
+
+use ./utils ▪ kc ke
+
+▸ export
+
+    kc 'export { export1, export2 }'            ▸ 'export { export1 , export2 };'
+    kc 'export { export1, export2 as blark }'   ▸ 'export { export1 , export2 as blark };'
+    
+    kc  """
+        export
+            k: 1
+            $: 2
+        """ ▸ 
+        """
+        export default {k:1,$:2}
+        """
+
+    kc """
+        export
+            elem: elem
+            $: (a) -> log a
+        """ ▸ 
+        """
+        export default {elem:elem,$:function (a)
+        {
+            console.log(a)
+        }}
+        """
+        
+    kc 'export single' ▸ 'export default single;'
+    
+    kc 'd = { export:1 }' ▸ 'd = {export:1}'

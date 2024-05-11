@@ -1,0 +1,125 @@
+###
+    00000000   00000000  00000000   00000000
+    000   000  000       000   000  000     
+    00000000   0000000   00000000   0000000 
+    000        000       000        000     
+    000        00000000  000        00000000
+    
+    takes a string and a list of delimiter pairs
+    dissects the string into substrings:
+        
+    "some ( nested [ stuff ] har ) har"
+    
+    ▸ 
+    
+    [
+        'some '
+        start:'(' content:[' nested ' {start:'[' content:[' stuff '] end:']'} ' har '] end:')'
+        ' har'
+    ]
+    
+    delimiter pairs with start == end don't nest and consume any content until closed:
+        
+    "str '}])([{'"
+    
+    ▸ 
+    
+    [
+        'str ' 
+        start:"'" content:['}])([{'] end:"'"
+    ]
+    
+    returns an array on success
+    returns an object on mismatched or unbalanced input
+###
+
+pepe = str delimiters=[['"''"'] ["'""'"] ['('')'] ['['']'] ['{''}']] ->
+    
+    ⮐ []   if not str is str
+    ⮐ [''] if empty str
+    
+    starts = delimiters.map (d) -> d[0]
+    ends   = delimiters.map (d) -> d[1]
+    
+    pairs  = {}
+    delimiters.map (d) -> pairs[d[0]] = d[1]
+    
+    stack  = [content:[]]
+    p = lp = 0
+    
+    isGreedy    = -> last(stack).start and pairs[last(stack).start] == last(stack).start
+    contentPush = -> last(stack).content.push str[lp...p] if lp != p
+    advance     = -> lp = p += start.length 
+    
+    while p < str.length
+        
+        next = str[p..]
+        op = p
+        
+        for start in starts
+            if next.startsWith start
+                break if start == pairs[last(stack).start]
+                break if isGreedy()
+                contentPush()
+                stack.push start:start, content:[]
+                advance start.length
+                break
+
+        if p == op
+            
+            if isGreedy() and not next.startsWith pairs[last(stack).start]
+                contentPush()
+                cnt = last(stack).content.pop() or ''
+                last(stack).content.push cnt + next[0]
+                advance 1
+            else
+            
+                for end in ends
+                    if next.startsWith end
+                        if end == pairs[last(stack).start]
+                            contentPush()
+                            last(stack).end = end
+                            popped = stack.pop()
+                            last(stack).content.push popped
+                            advance end.length
+                        else
+                            contentPush()
+                            ⮐ mismatch:stack, tail:str[p...str.length]
+                        break
+                
+        if p == op
+            p += 1  
+            
+    if stack.length > 1
+        r = unbalanced:stack
+        r.tail = str[lp...p] if lp != p
+        ⮐ r
+            
+    contentPush()
+    last(stack).content
+    
+###
+    0000000    00000000  00000000   00000000  00000000   00000000  
+    000   000  000       000   000  000       000   000  000       
+    000   000  0000000   00000000   0000000   00000000   0000000   
+    000   000  000       000        000       000        000       
+    0000000    00000000  000        00000000  000        00000000  
+    
+    traverses the output of pepe and calls a callback for each substring
+    returns the joined substrings with the delimiter pairs reinserted
+###
+
+pepe.depepe = pep cb ->
+    
+    r = ''
+    
+    for p in pep
+        if p is str
+            r += p
+        else
+            r += p.start
+            r += cb pepe.depepe p.content, cb
+            r += p.end
+    r
+    
+export pepe

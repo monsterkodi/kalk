@@ -1,0 +1,102 @@
+###
+      000   0000000   0000000   000   000
+      000  000       000   000  0000  000
+      000  0000000   000   000  000 0 000
+000   000       000  000   000  000  0000
+ 0000000   0000000    0000000   000   000
+###
+
+use ./util ▪ ranges inc lang
+
+lang 'json'
+        
+#       000   0000000   0000000   000   000  
+#       000  000       000   000  0000  000  
+#       000  0000000   000   000  000 0 000  
+# 000   000       000  000   000  000  0000  
+#  0000000   0000000    0000000   000   000  
+
+▸ json
+    
+    
+    rgs = ranges """{ "A Z": 1 }"""
+    inc rgs, 2 '"'              ▸ 'punct dictionary'
+    inc rgs, 3 'A'              ▸ 'dictionary key'
+    inc rgs, 5 'Z'              ▸ 'dictionary key'
+    inc rgs, 6 '"'              ▸ 'punct dictionary'
+    inc rgs, 7 ':'              ▸ 'punct dictionary'
+    
+    rgs = ranges '"a": "http://domain.com"'
+    inc rgs, 6 'http' 'url p    ▸ rotocol'
+    inc rgs, 10 ':'             ▸ 'punct url'
+    inc rgs, 11 '/'             ▸ 'punct url'
+    inc rgs, 12 '/'             ▸ 'punct url'
+    inc rgs, 13 'domain'        ▸ 'url domain'
+    inc rgs, 19 '.'             ▸ 'punct url tld'
+    inc rgs, 20 'com'           ▸ 'url tld'
+
+    rgs = ranges '"http://domain.com/dir/page.html"'
+    inc rgs, 1 'http'           ▸ 'url protocol'
+    inc rgs, 5 ':'              ▸ 'punct url'
+    inc rgs, 6 '/'              ▸ 'punct url'
+    inc rgs, 7 '/'              ▸ 'punct url'
+    inc rgs, 8 'domain'         ▸ 'url domain'
+    inc rgs, 14 '.'             ▸ 'punct url tld'
+    inc rgs, 15 'com'           ▸ 'url tld'
+    inc rgs, 18 '/'             ▸ 'punct dir'
+     
+    rgs = ranges '"file.coffee"'
+    inc rgs, 1 'file'           ▸ 'coffee file'
+    inc rgs, 5 '.'              ▸ 'punct coffee'
+    inc rgs, 6 'coffee'         ▸ 'coffee ext'
+
+    rgs = ranges '"/some/path"'
+    inc rgs, 2 'some'           ▸ 'text dir'
+    inc rgs, 6 '/'              ▸ 'punct dir'
+    inc rgs, 7 'path'           ▸ 'text file'
+
+    rgs = ranges '"/some\\path/file.txt:10"'
+    inc rgs, 0 '"'              ▸ 'punct string double'
+    inc rgs, 1  '/'             ▸ 'punct dir'
+    inc rgs, 2  'some'          ▸ 'text dir'
+    inc rgs, 16 '.'             ▸ 'punct txt'
+    inc rgs, 20 ':'             ▸ 'string double'
+    inc rgs, 23 '"'             ▸ 'punct string double'
+
+    rgs = ranges '"./node_modules/.bin/mocha"'
+    inc rgs, 1 '.'              ▸ 'text dir' # why is this text and not punct?
+    inc rgs, 2 '/'              ▸ 'punct dir'
+    inc rgs, 3 'node_modules'   ▸ 'text dir'
+    inc rgs, 15 '/'             ▸ 'punct dir'
+    inc rgs, 16 '.'             ▸ 'text dir'
+    inc rgs, 17 'bin'           ▸ 'text dir'
+    inc rgs, 20 '/'             ▸ 'punct dir'
+    inc rgs, 21 'mocha'         ▸ 'text file'
+
+    rgs = ranges '"66.70.0"'
+    inc rgs, 1 "66"             ▸ 'semver'
+    inc rgs, 3 "."              ▸ 'punct semver'
+    inc rgs, 4 "70"             ▸ 'semver'
+    inc rgs, 6 "."              ▸ 'punct semver'
+    inc rgs, 7 "0"              ▸ 'semver'
+
+    rgs = ranges '"^0.7.1"'
+    inc rgs, 1 "^"              ▸ 'punct semver'
+    inc rgs, 2 "0"              ▸ 'semver'
+    inc rgs, 4 "7"              ▸ 'semver'
+    inc rgs, 6 "1"              ▸ 'semver'
+        
+    rgs = ranges '"^1.0.0-alpha.12"'
+    inc rgs, 2 "1"              ▸ 'semver'
+    inc rgs, 4 "0"              ▸ 'semver'
+    inc rgs, 6 "0"              ▸ 'semver'
+    
+    rgs = ranges '">=6.7.8"'
+    inc rgs, 1 ">"              ▸ 'punct semver'
+    inc rgs, 2 "="              ▸ 'punct semver'
+    inc rgs, 3 "6"              ▸ 'semver'
+    inc rgs, 4 "."              ▸ 'punct semver'
+    inc rgs, 5 "7"              ▸ 'semver'
+    inc rgs, 6 "."              ▸ 'punct semver'
+    inc rgs, 7 "8"              ▸ 'semver'
+    

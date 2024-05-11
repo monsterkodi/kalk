@@ -1,0 +1,101 @@
+###
+000   000  00000000   0000000  000    
+000  000   000   000     000   000    
+0000000    0000000      000    000    
+000  000   000   000   000     000    
+000   000  000   000  0000000  0000000
+###
+
+use .. ◆ krzl slash
+
+▸ krzl
+
+    ▸ strings
+
+        k = new krzl      ['hello' 'world'] 
+        
+        k.filter()      ▸ []
+        k.filter ''     ▸ []
+        k.filter '✘'    ▸ []
+        k.filter 'h'    ▸ ['hello']
+        k.filter 'w'    ▸ ['world']
+        k.filter 'l'    ▸ ['hello' 'world']
+        k.filter 'll'   ▸ ['hello']
+        k.filter 'o'    ▸ ['world' 'hello']
+        
+    ▸ extract
+    
+        k = new krzl      [{key:'hello'}, {key:'world' evil:666}]
+        k.extract = (i) -> i.key
+        
+        k.filter '✘'    ▸ []
+        k.filter 'h'    ▸ [key:'hello']
+        k.filter 'w'    ▸ [key:'world' evil:666]
+        k.filter 'l'    ▸ [{key:'hello'} {key:'world' evil:666}]
+        k.filter 'll'   ▸ [key:'hello']
+        k.filter 'o'    ▸ [{key:'world' evil:666} {key:'hello'}]
+        
+    ▸ weight
+    
+        k = new krzl      ['bba' 'aa'  'a' 'aba' 'acccca' 'aaa' 'akkaakka']
+        k.filter 'a'    ▸ ['a' 'aa' 'aba' 'aaa' 'acccca' 'akkaakka' 'bba']
+        k.filter 'b'    ▸ ['bba' 'aba']
+        k.filter 'aa'   ▸ ['aa' 'aba' 'aaa' 'acccca' 'akkaakka']
+        
+    ▸ custom
+    
+        k = new krzl      ['a.txt' 'a.a' 'a' 'a.noon' 'a.kode']
+        k.filter 'a'    ▸ ['a' 'a.a' 'a.txt' 'a.noon' 'a.kode']
+        
+        k.weight = (i) ->
+            switch slash.ext i
+                'kode' ➜ 1
+                'noon' ➜ 0.5
+                       ➜ 0
+                       
+        k.filter 'a'    ▸ ['a' 'a.kode' 'a.noon' 'a.a' 'a.txt']
+        
+        k.weight = (i) ->
+            switch slash.ext i
+                'kode' ➜ 100
+                'noon' ➜ 50
+                       ➜ 1
+                       
+        k.filter 'a'    ▸ ['a' 'a.kode' 'a.noon' 'a.a' 'a.txt']
+
+        k.weight = (i) ->
+            switch slash.ext i
+                'kode' ➜ 10
+                'noon' ➜ 0.5
+                       ➜ 0.1
+                       
+        k.filter 'a'    ▸ ['a' 'a.kode' 'a.noon' 'a.a' 'a.txt']
+
+    ▸ negative
+        
+        k = new krzl      ['a.txt' 'a.aaa' 'a.blork' 'a.noon' 'a.kode']
+        
+        k.weight = (i) ->
+            switch slash.ext i
+                'noon'  ➜ -1
+                'txt'   ➜ -100000
+                'blork' ➜ -666
+                        ➜ 'dafuk'
+                       
+        k.filter 'a'    ▸ ['a.txt' 'a.aaa' 'a.noon' 'a.kode' 'a.blork' ]
+        
+    ▸ case insensitive
+    
+        k = new krzl      ['a' 'aA' 'Aa' 'A' 'BaBa' 'bABA']
+        
+        k.filter 'a'    ▸ ['a' 'A'  'aA' 'Aa' 'BaBa' 'bABA']
+        k.filter 'A'    ▸ ['a' 'A'  'aA' 'Aa' 'BaBa' 'bABA']
+        k.filter 'b'    ▸ ['BaBa' 'bABA']
+        k.filter 'B'    ▸ ['BaBa' 'bABA']
+        
+    ▸ length insensitive
+    
+        k = new krzl values:['a' 'aA' 'Aa' 'A' 'BaBa' 'bABA'] sortByLength:false
+        k.filter 'a'    ▸ ['a' 'aA' 'Aa' 'A' 'BaBa' 'bABA']
+        
+    

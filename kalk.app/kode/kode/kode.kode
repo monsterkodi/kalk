@@ -1,0 +1,147 @@
+###
+000   000   0000000   0000000    00000000
+000  000   000   000  000   000  000
+0000000    000   000  000   000  0000000
+000  000   000   000  000   000  000
+000   000   0000000   0000000    00000000
+###
+
+use ../kxk ◆ slash karg
+use ◆ lexer print parser scoper stripol returner operator renderer
+
+class Kode
+
+    @: (@args) ->
+        
+        @args ?= {}
+        @args.header ?= true
+        @version  = '0.2.0'
+
+        @literals = ['bool''num''regex''single''double''triple']
+        @atoms    = @literals.concat ['var']
+
+        @lexer    = new lexer    @
+        @parser   = new parser   @
+        @scoper   = new scoper   @
+        @stripol  = new stripol  @
+        @returner = new returner @
+        @operator = new operator @
+        @renderer = new renderer @
+
+    # 00000000  000   000   0000000   000
+    # 000       000   000  000   000  000
+    # 0000000    000 000   000000000  000
+    # 000          000     000   000  000
+    # 00000000      0      000   000  0000000
+
+    eval: (text, file, glob) ->
+
+        ⮐ if empty text
+        
+        try
+            js = @compile text, file
+            eval js
+        catch err
+            log js
+            error err
+            throw err
+        
+    ###
+     0000000   0000000   00     00  00000000   000  000      00000000
+    000       000   000  000   000  000   000  000  000      000
+    000       000   000  000000000  00000000   000  000      0000000
+    000       000   000  000 0 000  000        000  000      000
+     0000000   0000000   000   000  000        000  0000000  00000000
+     
+    converts a string of kode into a string of javascript
+    ###
+
+    @compile: (text, opt={}) -> (new Kode opt).compile text
+    
+    compile: (text, file) ->
+
+        ⮐ '' if empty trim text
+        
+        log text if @args.verbose
+
+        @renderer.render @ast(text), file
+        
+    #  0000000    0000000  000000000  
+    # 000   000  000          000     
+    # 000000000  0000000      000     
+    # 000   000       000     000     
+    # 000   000  0000000      000     
+    
+    # converts a string of kode into an abstract syntax tree
+    
+    ast: (text) ->
+        
+        tokens = @lexer.tokenize text
+        blocks = @lexer.blockify tokens
+
+        ast = @parser.parse  blocks # convert blocked token tree to abstract syntax tree
+        ast = @stripol.collect  ast # handle string interpolation content
+        ast = @scoper.collect   ast # collect variables in scopes
+        ast = @returner.collect ast # insert return statements for last expressions in blocks
+        ast = @operator.collect ast # sort operation chains by precedence
+
+    astr: (text, scopes) -> print.astr @ast(text), scopes
+                    
+export Kode
+
+◆main    
+    args = karg """
+        kode
+            files       **
+            eval        evaluate a string and print the result
+            compile     transpile a string and print the result
+            outdir      transpile files into output directory
+            run         execute files                               = true
+            js          print transpiled js code                    = false
+            header      prepend output with version header          = false -H
+            verbose     log more                                    = false
+            debug       debug output                                = false
+        """
+        
+    # log 'args' args if args.verbose
+    kode = new Kode args
+    
+    #  0000000  000      000
+    # 000       000      000
+    # 000       000      000
+    # 000       000      000
+    #  0000000  0000000  000
+
+    args = kode.args
+
+    if args.compile
+        log kode.compile args.compile
+        process.exit 0
+        
+    if args.eval
+        log kode.eval args.eval, 'eval' global
+        process.exit 0
+
+    fs =○ import('../kxk/fs.js')
+    fs = fs.default
+        
+    for file in args.files
+
+        file = slash.path file
+        log gray file if args.verbose
+
+        text =○ fs.read file
+
+        if empty text then error Y4 r2 "can't read #{R3 y5 file}"; continue
+
+        if
+            args.outdir
+                            js  = kode.compile text, file
+                            out = slash.swapExt slash.path(args.outdir, slash.file file), 'js'
+                            log out if args.verbose
+                            if not ○ fs.write out, js then error R2 y3 "can't write #{R3 y6 out}"
+            args.js    ➜    log kode.compile text, file
+            args.run   ➜    log kode.eval text, file, global
+                       ➜    log kode.compile text, file
+    
+    

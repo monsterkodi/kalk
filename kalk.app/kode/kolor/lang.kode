@@ -1,0 +1,46 @@
+###
+    000       0000000   000   000   0000000 
+    000      000   000  0000  000  000      
+    000      000000000  000 0 000  000  0000
+    000      000   000  000  0000  000   000
+    0000000  000   000  000   000   0000000 
+    
+    builds extlang.js from lang.noon
+    
+    to regenerate use
+        
+        node js/kolor/lang.js
+###
+
+use ../kxk ▪ noon slash
+use ../kxk/fs
+
+noonFile    = slash.path ◆dir, '..' '..' 'kode' 'kolor' 'lang.noon'
+extlangFile = slash.path ◆dir, 'extlang.js'
+
+log Gg3(' input:  '), g3 noonFile
+log Gg2(' output: '), g2 extlangFile
+
+lang = {}
+exts = ['txt''log']
+langNoon = ○ noon.load noonFile
+for names, keywords of langNoon
+
+    for ext in names.split /\s/
+        exts.push(ext) if ext not in exts
+        lang[ext] ?= {}
+        for value,words of keywords
+            for word in words
+                lang[ext][word] = value
+
+json = JSON.stringify {exts:exts, lang:lang}, null, 4
+
+extlang = "export default #{json}"
+    
+if ○ fs.write extlangFile, extlang
+    log Gg1 ' ok ' 
+else
+    log Rr1 ' fail '
+    
+    
+    

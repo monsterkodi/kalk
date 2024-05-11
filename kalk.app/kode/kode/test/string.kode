@@ -1,0 +1,203 @@
+###
+ 0000000  000000000  00000000   000  000   000   0000000   
+000          000     000   000  000  0000  000  000        
+0000000      000     0000000    000  000 0 000  000  0000  
+     000     000     000   000  000  000  0000  000   000  
+0000000      000     000   000  000  000   000   0000000   
+###
+
+use ./utils ▪ kc ke
+
+▸ string
+
+    ▸ unicode
+    
+        kc '"▾"'   ▸   '"▾"'
+        kc 'cs += "#{s.links[li][0]}▾#{s.links[li][1]} "' ▸ 'cs += `${s.links[li][0]}▾${s.links[li][1]} `'
+    
+    # 000000000  00000000   000  00000000   000      00000000  
+    #    000     000   000  000  000   000  000      000       
+    #    000     0000000    000  00000000   000      0000000   
+    #    000     000   000  000  000        000      000       
+    #    000     000   000  000  000        0000000  00000000  
+    
+    ▸ triple
+        
+        # kc """
+            # log \"\"\"
+                # hello
+                # \"\"\"
+            # """ ▸
+            # """
+            # console.log(`hello`)
+            # """
+
+        ke  """
+            a =\"\"\"
+                hello
+                \"\"\"
+            """ ▸
+            'hello'
+            
+        ke  """
+            a =\"\"\"
+            hello
+                \"\"\"
+            """ ▸
+            'hello'
+            
+        ke  """
+            a =\"\"\"hello\"\"\"
+            """ ▸
+            'hello'
+
+        ke  """
+            a =\"\"\"   hello\"\"\"
+            """ ▸
+            '   hello'
+            
+        ke  """
+            a =\"\"\"   hello   \"\"\"
+            """ ▸
+            '   hello   '
+            
+        ke  """
+            a =\"\"\"
+                hello
+            world
+                \"\"\"
+            """ ▸
+            '    hello\nworld'
+            
+        ke  """
+            a =\"\"\"
+                    hello
+                world
+                \"\"\"
+            """ ▸
+            '    hello\nworld'
+            
+        ke  """
+            a =\"\"\"
+                    hello
+                world
+                        ugga
+                \"\"\"
+            """ ▸
+            """
+                hello
+            world
+                    ugga
+            """
+
+        ke  """
+            a =\"\"\"heLlo world\"\"\"
+            """ ▸
+            """heLlo world"""
+
+        ke  """
+            a =\"\"\" helLo world\"\"\"
+            """ ▸
+            """ helLo world"""
+            
+        ke  """
+            a =\"\"\"   hellO world   \"\"\"
+            """ ▸
+            """   hellO world   """
+
+        ke  """
+            a =\"\"\"   hello World
+            \"\"\"
+            """ ▸
+            """   hello World"""
+            
+        ke  """
+            a =\"\"\"
+                
+                hullo
+                wurld
+                
+                \"\"\"
+            """ ▸
+            '\nhullo\nwurld\n'
+            
+        ke  '("""\nclass A\n{\n\n}\n""")' ▸ "class A\n{\n\n}"
+            
+        ke  '("""\n' +
+            'class A\n' +
+            '{\n' +
+            '    constructor ()\n' +
+            '    {\n' +
+            '        this.b = this.b.bind(this)\n' +
+            '        this.f()\n' +
+            '    }\n' +
+            '\n' +
+            '    b ()\n' +
+            '    {\n' +
+            '        console.log(1)\n' +
+            '    }\n' +
+            '\n' +
+            '    f ()\n' +
+            '    {\n' +
+            '        var g\n' +
+            '\n' +
+            '        g = (function ()\n' +
+            '        {\n' +
+            '            return this.b()\n' +
+            '        }).bind(this)\n' +
+            '        return g()\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            '""")' ▸ 
+            'class A\n' +
+            '{\n' +
+            '    constructor ()\n' +
+            '    {\n' +
+            '        this.b = this.b.bind(this)\n' +
+            '        this.f()\n' +
+            '    }\n' +
+            '\n' +
+            '    b ()\n' +
+            '    {\n' +
+            '        console.log(1)\n' +
+            '    }\n' +
+            '\n' +
+            '    f ()\n' +
+            '    {\n' +
+            '        var g\n' +
+            '\n' +
+            '        g = (function ()\n' +
+            '        {\n' +
+            '            return this.b()\n' +
+            '        }).bind(this)\n' +
+            '        return g()\n' +
+            '    }\n' +
+            '}\n'
+        true
+            
+    # 000  000   000  000000000  00000000  00000000   00000000    0000000   000
+    # 000  0000  000     000     000       000   000  000   000  000   000  000
+    # 000  000 0 000     000     0000000   0000000    00000000   000   000  000
+    # 000  000  0000     000     000       000   000  000        000   000  000
+    # 000  000   000     000     00000000  000   000  000         0000000   0000000
+
+    ▸ interpolation
+        
+        kc "'#{}'"                                      ▸   "''" # `${}` throws an exception. js really sucks sometimes.
+        kc '"1234#{}890"'                               ▸   '"1234890"'
+        kc '"01234\#{}890"'                             ▸   '"01234890"' # this should keep the #{}, or not?
+        kc '"#{1}"'                                     ▸   "`${1}`"
+        kc '"#{\'b\'}"'                                 ▸   "`${'b'}`"
+        kc '"#{"b"}"'                                   ▸   '`${"b"}`'
+        kc '"#{a}"'                                     ▸   "`${a}`"
+        kc 'log "#{a+1}", "#{a}"'                       ▸   'console.log(`${a + 1}`,`${a}`)'
+        kc '"#{b+2}" ; "#{b}"'                          ▸   '`${b + 2}`\n`${b}`'
+        kc 'log "- #{c+3} - #{c}"'                      ▸   'console.log(`- ${c + 3} - ${c}`)'
+        kc '"""tri#{triple}ple""" ; "dou#{double}ble"'  ▸   '`tri${triple}ple`\n`dou${double}ble`'
+        kc '"#{\'a\'}"'                                 ▸   "`${'a'}`"
+        kc '"""#{"a"}"""'                               ▸   '`${"a"}`'
+        kc '"nullcheck in #{stripol ? 123}"'            ▸   "`nullcheck in ${(stripol != null ? stripol : 123)}`"
+        kc '"""{ok#} #{"well" + "1+\'2\' #{\'omg\'}" + kinda fukked}"""'  ▸  "`{ok#} ${\"well\" + `1+'2' ${'omg'}` + kinda(fukked)}`"
+        
+        
