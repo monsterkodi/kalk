@@ -1,0 +1,181 @@
+
+
+#main,
+#input
+{
+    background: #131313;
+}
+
+#keys
+{
+    background: #131313;
+}
+
+#sheet
+{
+    border: 2px solid #0b0b0b;
+    background: #0f0f0f;
+}
+
+.input-frame
+{
+    border: 2px solid #0b0b0b;
+    background: #181818;
+}
+
+.input-text
+{
+    color: #fff;
+}
+
+
+
+.input-text span,
+.sheet-line span,
+.key
+{
+    background: #0b0b0b;
+    border: none;
+    white-space: pre;
+}
+
+.input-text span.nan,
+.sheet-line span.nan,
+
+.input-text span.clear,
+.sheet-line span.clear,
+
+.input-text span.backspace,
+.sheet-line span.backspace,
+.key.nan,
+.key.clear,
+.key.backspace
+{
+    color: #800;
+}
+
+.input-text span.numbers,
+.sheet-line span.numbers,
+
+.input-text span.digit,
+.sheet-line span.digit,
+.key.numbers,
+.key.digit
+{
+    color: #88f;
+}
+
+.input-text span.function,
+.sheet-line span.function,
+.key.function
+{
+    color: #f80;
+}
+
+.input-text span.constant,
+.sheet-line span.constant,
+.key.constant
+{
+    color: #fc0;
+}
+
+.input-text span.op0,
+.sheet-line span.op0,
+.key.op0
+{
+    color: #88f;
+}
+
+.input-text span.op1,
+.sheet-line span.op1,
+.key.op1
+{
+    color: #66f;
+}
+
+.input-text span.op2,
+.sheet-line span.op2,
+.key.op2
+{
+    color: #44f;
+}
+
+.input-text span.bracket,
+.sheet-line span.bracket,
+.key.bracket
+{
+    color: #333;
+}
+
+.input-text span.func,
+.sheet-line span.func,
+
+.input-text span.equals,
+.sheet-line span.equals,
+.key.func,
+.key.equals
+{
+    color: #0a0;
+}
+
+.input-text span.dot,
+.sheet-line span.dot,
+
+.input-text span.exponent,
+.sheet-line span.exponent,
+
+.input-text span.complex,
+.sheet-line span.complex,
+.key.dot,
+.key.exponent,
+.key.complex
+{
+    color: #44a;
+}
+
+.key
+{
+    z-index: 1000;
+    color: #444;
+    border: 2px solid #080808;
+}
+
+.key:active:not(.inactive)
+{
+    background: #101010;
+}
+
+.key:hover:not(.inactive)
+{
+}
+
+.key:hover:not(.inactive) .key-wrap
+{
+    color: #ddf;
+    text-shadow: 0 0 30px rgba(175,175,255,0.8), 0 0 60px rgba(0,0,255,0.8);
+}
+
+
+.key:hover:not(.inactive).func .key-wrap,
+.key:hover:not(.inactive).equals .key-wrap
+{
+    color: #0f0;
+    text-shadow: 0 0 30px rgba(0,200,0,0.8), 0 0 60px rgba(0,155,0,0.8);
+}
+
+
+
+
+.key:hover:not(.inactive).clear .key-wrap,
+.key:hover:not(.inactive).function .key-wrap,
+.key:hover:not(.inactive).constant .key-wrap,
+.key:hover:not(.inactive).backspace .key-wrap
+{
+    color: #ff0;
+    text-shadow: 0 0 30px rgba(205,0,0,0.8), 0 0 60px rgba(105,0,0,0.8);
+}
+
+.key.inactive
+{
+    color: #131313;
+}

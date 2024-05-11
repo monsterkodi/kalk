@@ -1,0 +1,263 @@
+
+@font-face
+{
+    font-family: titlebarFont;
+    font-weight: normal;
+    font-style: normal;
+    src: url("../../Contents/Resources/font/Bahnschrift.woff");
+}
+
+@font-face
+{
+    font-family: fontMono;
+    font-weight: normal;
+    font-style: normal;
+    src: url("../../Contents/Resources/font/MesloLGS-NF-Regular.woff2");
+}
+
+*
+{
+    outline-width: 0;
+    outline-style: none;
+}
+
+body
+{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    -webkit-user-select: none;
+    animation: 300ms ease-in fadeIn;
+    font-family: fontMono;
+    font-size: 14px;
+}
+
+#main
+{
+    overflow: auto;
+    pointer-events: auto;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    margin: 0;
+}
+
+#content
+{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#titlebar
+{
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: row;
+    height: 30px;
+    box-sizing: border-box;
+    font-family: titlebarFont;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.titlebar-title
+{
+    cursor: grab;
+    display: inline-block;
+    flex-direction: row;
+    flex: 1 1 0px;
+    padding-top: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font: titlebarFont;
+}
+
+.titlebar-dot
+{
+    display: inline-block;
+    vertical-align: top;
+    padding-left: 9px;
+    padding-right: 9px;
+    margin-top: -1px;
+}
+
+#titlebar .winicon img
+{
+    padding-left: 6px;
+    padding-top: 3px;
+    width: 22px;
+    height: 22px;
+}
+
+#titlebar .winbutton
+{
+    flex: 0 1 30px;
+    display: inline-block;
+    text-align: center;
+    vertical-align: bottom;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#titlebar .winbutton.minimize
+{
+    padding-top: 3px;
+    padding-right: 1px;
+}
+
+#titlebar .winbutton.maximize
+{
+    padding-right: 1px;
+}
+
+#titlebar .winbutton.close
+{
+    padding-right: 3px;
+}
+
+#titlebar .topframe
+{
+    height: 2px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 135px;
+}
+
+#titlebar //.menu
+{
+    animation: 14s ease scaleIn;
+}
+
+.menu
+{
+    height: 30px;
+    flex: 0 1 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.menuItem
+{
+    cursor: pointer;
+    padding-left: 12px;
+    padding-right: 0px;
+    padding-top: 6px;
+    display: inline-block;
+    height: 30px;
+    overflow: visible;
+}
+
+.popup
+{
+    line-height: 1;
+    z-index: 9999;
+    position: absolute;
+    border-radius: 3px;
+    font-family: titlebarFont;
+    padding-top: 3px;
+    padding-bottom: 6px;
+    cursor: pointer;
+}
+
+.popup.titlemenu
+{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.popupItem
+{
+    padding: 4px;
+    padding-left: 12px;
+    padding-right: 82px;
+}
+
+.popupItem.separator
+{
+    padding: 0;
+    cursor: default;
+    border: 0;
+    height: 0;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.popupItem:last-child
+{
+    padding-bottom: 6px;
+}
+
+.popupItem:first-child
+{
+    padding-top: 6px;
+}
+
+.popupImage
+{
+    position: absolute;
+    left: 0;
+}
+
+.popupCombo
+{
+    font-family: fontMono;
+    position: absolute;
+    right: 12px;
+}
+
+::-webkit-scrollbar
+{
+    width: 6px;
+}
+
+::-webkit-scrollbar
+{
+    height: 6px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-track
+{
+    background-color: transparent;
+}
+
+@keyframes fadeIn
+{
+    0%
+    {
+        opacity: 0;
+    }
+
+    100%
+    {
+        opacity: 1;
+    }
+
+}
+
+@keyframes scaleIn
+{
+    from
+    {
+        transform: translate(-200px, 0) scale(0, 1);
+    }
+
+    to
+    {
+        transform: translate(0, 0) scale(1, 1);
+    }
+
+}

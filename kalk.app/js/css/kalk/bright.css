@@ -1,0 +1,99 @@
+
+.input-text
+{
+    color: #000;
+    border: 1px solid #fff;
+    border-radius: 10px;
+}
+
+
+.key,
+span
+{
+    border: none;
+    white-space: pre;
+}
+
+.key.nan,
+span.nan
+{
+    color: #f00;
+}
+
+.key.digit,
+span.digit
+{
+    color: #88f;
+}
+
+.key.function,
+span.function
+{
+    color: #c20;
+}
+
+.key.constant,
+span.constant
+{
+    color: #d40;
+}
+
+.key.op0,
+span.op0
+{
+    color: #22f;
+}
+
+.key.op1,
+span.op1
+{
+    color: #44f;
+}
+
+.key.op2,
+span.op2
+{
+    color: #66f;
+}
+
+.key.bracket,
+span.bracket
+{
+    color: #aaa;
+}
+
+.key.equals,
+span.equals
+{
+    color: #888;
+}
+
+.key.dot,
+
+.key.exponent,
+
+.key.complex,
+span.dot,
+span.exponent,
+span.complex
+{
+    color: #44a;
+}
+
+.key
+{
+    z-index: 1000;
+    color: #888;
+    border: 1px solid #fff;
+}
+
+.key:hover
+{
+    background: #fff;
+    color: #000;
+}
+
+.key:active
+{
+    background: #ddd;
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>ko</title>
+        <meta charset="utf-8">
+        <meta http-equiv="Cross-Origin-Opener-Policy"   content="same-origin">
+        <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
+        <link rel="stylesheet" href="./css/style.css"          type="text/css">
+        <link rel="stylesheet" href="./css/dark.css"           type="text/css">
+        <link rel="stylesheet" href="./css/ko/style.css"       type="text/css">
+        <link rel="stylesheet" href="./css/ko/dark/colors.css" type="text/css" class="scheme-link">
+        <link rel="stylesheet" href="./css/ko/dark/syntax.css" type="text/css" class="scheme-link">
+        <link rel="stylesheet" href="./css/ko/dark/files.css"  type="text/css" class="scheme-link">
+        <link rel="stylesheet" href="./css/ko/icons.css"       type="text/css">
+    </head>
+    <body id="ko">
+        <div id="titlebar"></div>
+        <div id="main">
+            <div id="split">
+                <div id="browser" tabindex="3"></div>
+                <div id="terminal" tabindex="2"></div>
+                <div id="commandline">
+                    <span id="commandline-button"></span>
+                    <span id="commandline-span">
+                        <div id="commandline-editor" tabindex="1"></div>
+                        <div id="info"></div>
+                    </span>
+                </div>
+                <div id="editor" tabindex="0"></div>
+            </div>
+        </div>
+    </body>
+    <script type="module" src="./ko/win/window.js"></script>
+</html>

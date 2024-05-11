@@ -1,0 +1,235 @@
+
+body
+{
+    display: none;
+    font-family: fontMono;
+    font-size: 14px;
+}
+
+#main
+{
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#sheet
+{
+    flex: 1 1 0;
+    overflow: auto;
+    display: none;
+    flex-direction: row;
+    padding: 0;
+    margin-left: 6px;
+    margin-right: 6px;
+    margin-bottom: 8px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+#keys
+{
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.sheet-calc
+{
+    flex: 1 1 0;
+    padding: 6px;
+    height: auto;
+    width: auto;
+}
+
+.sheet-result
+{
+    width: auto;
+    height: auto;
+    flex: 1 1 0;
+    padding: 6px;
+}
+
+.sheet-line
+{
+    white-space: nowrap;
+    height: 26px;
+    text-align: right;
+    font-size: 16px;
+    -webkit-user-select: auto;
+    padding-right: 10px;
+    display: block;
+    margin-left: auto;
+    overflow: hidden;
+}
+
+.sheet-line.result
+{
+    text-align: left;
+}
+
+#input
+{
+    flex: 0 0 100px;
+    margin-top: -6px;
+    padding-top: 6px;
+    padding-bottom: 0;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.input-frame
+{
+    position: relative;
+    height: 100px;
+    min-height: 100px;
+    border-radius: 10px;
+}
+
+.input-text
+{
+    position: absolute;
+    top: 50%;
+    transform: translate(0%, -50%);
+    left: 12px;
+    right: 12px;
+    font-size: 80px;
+    -webkit-user-select: auto;
+    white-space: pre;
+    pointer-events: all;
+    text-align: right;
+}
+
+.input-text span
+{
+    background: transparent !important;
+    vertical-align: middle;
+}
+
+.input-text span:last-child
+{
+        padding-right: 14px;
+}
+
+
+.key,
+span
+{
+}
+
+.key.function,
+
+.key.complex,
+span.function,
+span.complex
+{
+    font-style: italic;
+}
+
+#keys
+{
+    flex: 0 0;
+}
+
+.key-row
+{
+    font-size: 60px;
+}
+
+.key
+{
+    overflow: hidden;
+    font-size: 35px;
+    height: 76px;
+    text-align: center;
+    border-radius: 10px;
+    -webkit-user-select: none;
+    -webkit-app-region: no-drag;
+}
+
+.key:not(.inactive)
+{
+    cursor: pointer;
+}
+
+.key.right
+{
+    text-align: right;
+    padding-right: 31px;
+}
+
+
+.key.oneoverx,
+.key.function
+{
+    font-size: 32px;
+}
+
+.key.oneoverx
+{
+    letter-spacing: -0.2rem;
+}
+
+.key.function .key-wrap
+{
+    padding-right: 6px;
+    margin-right: -6px;
+}
+
+.key.rad2deg .key-wrap
+{
+    font-size: 64px;
+    padding-bottom: 24px;
+}
+
+.key.multiply .key-wrap
+{
+    padding-top: 12px;
+}
+
+.key.function.atan
+{
+    font-size: 28px;
+}
+
+.key.function.atan .key-wrap
+{
+    padding-left: 3px;
+}
+
+.key-table
+{
+    margin-top: -7px;
+}
+
+.spacing-cell
+{
+    padding: 0;
+}
+
+.key
+{
+    position: relative;
+}
+
+.key-wrap
+{
+    position: absolute;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.key.clear .key-wrap
+{
+    top: 12px;
+    transform: translate(-50%, 0%);
+}
+
+.key.bottom .key-wrap
+{
+    transform: translate(-50%, 45%);
+}
