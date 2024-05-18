@@ -1,0 +1,56 @@
+###
+00000000   000       0000000   000000000
+000   000  000      000   000     000   
+00000000   000      000   000     000   
+000        000      000   000     000   
+000        0000000   0000000      000   
+###
+
+use ◆ elem post
+
+class plot
+
+    @: opt={} ->
+        
+        @history = []
+        
+        opt.width   ?= 1500
+        opt.height  ?= 1000
+        
+        @samples = opt.width*2
+        @height  = opt.height*2
+        @scale   = opt.scale ? {}
+        @color   = opt.color ? {}
+                    
+        @elem = elem class:'plot' width:opt.width, height:opt.height
+
+        @canvas = elem 'canvas' class:'plotCanvas' width:@samples, height:@height
+        @elem.appendChild @canvas
+        
+    add: sample ->
+
+        @history.push sample
+        @history.shift() while @history.length > @samples
+        @draw()
+            
+    # 0000000    00000000    0000000   000   000
+    # 000   000  000   000  000   000  000 0 000
+    # 000   000  0000000    000000000  000000000
+    # 000   000  000   000  000   000  000   000
+    # 0000000    000   000  000   000  00     00
+                
+    draw: =>
+        
+        @canvas.height = @canvas.height
+        ctx = @canvas.getContext '2d'       
+        for sample,i in @history
+            for k,v of sample
+                if @color[k]
+                    ctx.fillStyle = @color[k]
+                else
+                    ctx.fillStyle = "white"
+                if @scale[k]
+                    v *= @scale[k]
+                ctx.fillRect @samples-@history.length+i, @height-v, 1, 1
+
+export plot

@@ -1,5 +1,3 @@
-var _k_
-
 class Bundle
 {
     static path = window.bundlePath

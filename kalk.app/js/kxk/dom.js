@@ -45,9 +45,9 @@ export default {elem:elem,$:function (idOrQueryOrElement, queryOrElement = docum
     var rule
 
     var list = _k_.list(document.styleSheets[ssid].cssRules)
-    for (var _45_17_ = 0; _45_17_ < list.length; _45_17_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        rule = list[_45_17_]
+        rule = list[_a_]
         if (rule.selectorText === selector)
         {
             rule.style[key] = value
@@ -61,13 +61,13 @@ export default {elem:elem,$:function (idOrQueryOrElement, queryOrElement = docum
     var rule, styleSheet
 
     var list = _k_.list(document.styleSheets)
-    for (var _54_23_ = 0; _54_23_ < list.length; _54_23_++)
+    for (var _b_ = 0; _b_ < list.length; _b_++)
     {
-        styleSheet = list[_54_23_]
+        styleSheet = list[_b_]
         var list1 = _k_.list(styleSheet.cssRules)
-        for (var _55_21_ = 0; _55_21_ < list1.length; _55_21_++)
+        for (var _c_ = 0; _c_ < list1.length; _c_++)
         {
-            rule = list1[_55_21_]
+            rule = list1[_c_]
             if (rule.selectorText === selector)
             {
                 if ((rule.style[key] != null ? rule.style[key].length : undefined))

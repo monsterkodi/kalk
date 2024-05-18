@@ -1,5 +1,3 @@
-var _k_
-
 import kakao from "./kakao.js"
 
 import kxk from "./kxk.js"

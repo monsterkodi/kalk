@@ -34,18 +34,18 @@ class Calc
         
         switch key
             
-            symbol.func 
-            symbol.numbers      ➜ ⮐ true
+            symbol.func
+            symbol.numbers   ➜ ⮐ true
             
             symbol.pi 
             symbol.phi 
-            symbol.euler        ➜ ⮐ not cOnst and not deg2rad and not dot
+            symbol.euler     ➜ ⮐ not cOnst and not deg2rad and not dot
             
             '1''2''3''4''5'
-            '6''7''8''9''0'     ➜ ⮐ not cOnst and not deg2rad
+            '6''7''8''9''0'  ➜ ⮐ not cOnst and not deg2rad
             
             'c'
-            symbol.backspace    ➜ ⮐ not clean
+            symbol.backspace ➜ ⮐ not clean
             
             'sin' 'cos' 'tan' 'atan' 'deg' 'rad' 'log' 
 
@@ -54,17 +54,17 @@ class Calc
 
             '/' '*' '=' 
             
-            symbol.pow          ➜ ⮐ apply
-            symbol.exp          
+            symbol.pow     ➜ ⮐ apply
+            symbol.exp     
             symbol.oneoverx
-            symbol.sqrt         ➜ ⮐ open or apply or clean or (unfin and not dot)
+            symbol.sqrt    ➜ ⮐ open or apply or clean or (unfin and not dot)
             
-            symbol.rad2deg      ➜ ⮐ apply and not rad2deg
-            symbol.deg2rad      ➜ ⮐ apply and not deg2rad
+            symbol.rad2deg ➜ ⮐ apply and not rad2deg
+            symbol.deg2rad ➜ ⮐ apply and not deg2rad
             
-            '+' '-'             ➜ ⮐ not text.endsWith txt, ['+' '-' '.']
-            '.'                 ➜ ⮐ nuber and not float
-            symbol.open         ➜ ⮐ not dot and not open and not cOnst and not close and not value
+            '+' '-'        ➜ ⮐ not text.endsWith txt, ['+' '-' '.']
+            '.'            ➜ ⮐ nuber and not float
+            symbol.open    ➜ ⮐ not dot and not open and not cOnst and not close and not value
             symbol.close
                 
                 ⮐ false if unfin or clean
@@ -143,19 +143,19 @@ class Calc
                 else if not text.endsWith(txt, ['.'])
                     txt += key + '('
                     
-            symbol.exp        ➜ if open or clean ➜ txt += symbol.euler+'^' else txt = @calc symbol.euler+'^(' + txt + ')'
-            '°'               ➜ txt += key 
-            '='               ➜ txt = @calc txt
-            symbol.oneoverx   ➜ if open or clean or unfin ➜ txt += '1/' else txt = @calc '1/(' + txt + ')'
-            '∡'               ➜ txt = @calc '∡(' + txt + ')'
-            '+' '-'           ➜ txt += key 
-            '.'               ➜ txt += key 
+            symbol.exp      ➜ if open or clean ➜ txt += symbol.euler+'^' else txt = @calc symbol.euler+'^(' + txt + ')'
+            '°'             ➜ txt += key 
+            '='             ➜ txt = @calc txt
+            symbol.oneoverx ➜ if open or clean or unfin ➜ txt += '1/' else txt = @calc '1/(' + txt + ')'
+            '∡'             ➜ txt = @calc '∡(' + txt + ')'
+            '+' '-'         ➜ txt += key 
+            '.'             ➜ txt += key 
             symbol.euler
             symbol.phi
-            symbol.pi         ➜ txt += '*' if value; txt += key
+            symbol.pi       ➜ txt += '*' if value; txt += key
             
-            '('               ➜ txt += key 
-            ')'               ➜ txt += key 
+            '('             ➜ txt += key 
+            ')'             ➜ txt += key 
             ➜
                 if key in text.unfinished
                     if not empty txt

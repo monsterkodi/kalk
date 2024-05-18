@@ -1,5 +1,3 @@
-var _k_
-
 import kxk from "../kxk.js"
 let post = kxk.post
 let elem = kxk.elem
@@ -9,7 +7,7 @@ import kakao from "../kakao.js"
 
 kakao.init(function ()
 {
-    var main
+    var main, version, _25_34_
 
     kakao('window.setSize',250,250)
     kakao('window.center')
@@ -23,5 +21,12 @@ kakao.init(function ()
     }
     main = $('#main')
     main.classList.add('app-drag-region')
-    return elem('div',{class:'about',id:'about',parent:main,children:[elem('img',{class:'image',src:window.aboutImage}),elem('div',{class:'version',id:'version',text:'1.0.0'})]})
+    version = ((_25_34_=window.aboutVersion) != null ? _25_34_ : '1.0.0')
+    return elem('div',{class:'about',id:'about',parent:main,children:[elem('img',{class:'image',src:window.aboutImage}),elem('div',{class:'version',id:'version',text:version,click:function ()
+    {
+        if (window.aboutURL)
+        {
+            return kakao('open',window.aboutURL)
+        }
+    }})]})
 })

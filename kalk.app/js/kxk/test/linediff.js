@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import linediff from "../linediff.js"
 
 toExport["linediff"] = function ()

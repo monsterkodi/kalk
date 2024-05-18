@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import pug from "../pug.js"
 
 toExport["pug"] = function ()

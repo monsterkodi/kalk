@@ -8,8 +8,8 @@
 
 kxk = {}
 
-use ./kxk ◆ dom elem post drag slash stash store prefs matchr immutable linediff karg krzl pretty profile keyinfo tooltip events popup scheme kstr kermit scooter kpos util sds win os ffs noon
-for exp in "dom elem post drag slash stash store prefs matchr immutable linediff karg krzl pretty profile keyinfo tooltip events popup scheme kstr kermit scooter kpos util sds win os ffs noon".split(' ') ➜ kxk[exp] = eval exp
+use ./kxk ◆ dom elem post drag slash stash store prefs matchr immutable linediff karg krzl plot pretty profile keyinfo tooltip events popup scheme kstr kermit scooter clippo kpos util sds fps win os ffs noon
+for exp in "dom elem post drag slash stash store prefs matchr immutable linediff karg krzl plot pretty profile keyinfo tooltip events popup scheme kstr kermit scooter clippo kpos util sds fps win os ffs noon".split(' ') ➜ kxk[exp] = eval exp
     
 for exp in "$ setStyle getStyle stopEvent".split(' ') ➜ kxk[exp] = eval "dom.#{exp}" # export some dom functions
     

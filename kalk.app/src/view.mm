@@ -10,10 +10,10 @@
 #import "route.h"
 
 @interface WebInspector : NSObject  { WKWebView *_webView; }
-- (id)initWithWebView:(WKWebView *)webView;
-- (void)detach:     (id)sender;
-- (void)show:       (id)sender;
-- (void)showConsole:(id)sender;
+- (id)   initWithWebView:(WKWebView *)webView;
+- (void) detach:     (id)sender;
+- (void) show:       (id)sender;
+- (void) showConsole:(id)sender;
 @end
 
 @implementation View

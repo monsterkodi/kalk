@@ -24,9 +24,9 @@ class Returner
         if ((body != null ? (_36_21_=body.exps) != null ? _36_21_.length : undefined : undefined))
         {
             var list = _k_.list(body.exps)
-            for (var _37_25_ = 0; _37_25_ < list.length; _37_25_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                e = list[_37_25_]
+                e = list[_a_]
                 this.exp(e)
             }
         }
@@ -47,9 +47,9 @@ class Returner
             {
                 lst = f.body.exps.slice(-1)[0]
                 var list = _k_.list(f.body.exps)
-                for (var _56_22_ = 0; _56_22_ < list.length; _56_22_++)
+                for (var _a_ = 0; _a_ < list.length; _a_++)
                 {
-                    e = list[_56_22_]
+                    e = list[_a_]
                     if (e.text === '●')
                     {
                         this.profile = e
@@ -70,9 +70,9 @@ class Returner
         e.returns = true
         this.insert(e.then)
         var list = _k_.list(e.elifs)
-        for (var _77_15_ = 0; _77_15_ < list.length; _77_15_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            ei = list[_77_15_]
+            ei = list[_a_]
             if (ei.elif.then)
             {
                 this.insert(ei.elif.then)
@@ -102,9 +102,9 @@ class Returner
         var w
 
         var list = _k_.list(e.whens)
-        for (var _102_14_ = 0; _102_14_ < list.length; _102_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            w = list[_102_14_]
+            w = list[_a_]
             if (!_k_.empty(w.when.then))
             {
                 this.insert(w.when.then)
@@ -194,9 +194,9 @@ class Returner
             if (e.length)
             {
                 var list = _k_.list(e)
-                for (var _159_42_ = 0; _159_42_ < list.length; _159_42_++)
+                for (var _a_ = 0; _a_ < list.length; _a_++)
                 {
-                    v = list[_159_42_]
+                    v = list[_a_]
                     this.exp(v)
                 }
             }

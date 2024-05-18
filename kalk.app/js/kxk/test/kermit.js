@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var lm
 
 import kermit from "../kermit.js"

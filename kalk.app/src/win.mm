@@ -51,7 +51,7 @@ NSDictionary* dictForSize(NSSize size)
     [Route send:msg win:win];
 }
 
-- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize { [self sendWillResize:(Win*)sender newSize:frameSize]; return frameSize; }
+- (NSSize) windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize { [self sendWillResize:(Win*)sender newSize:frameSize]; return frameSize; }
 - (void)  windowDidResize:    (NSNotification *)notification { [self sendFrame:(Win*)notification.object]; }
 - (void)  windowDidMove:      (NSNotification *)notification { [self sendFrame:(Win*)notification.object]; }
 - (void)  windowDidBecomeKey: (NSNotification *)notification { [Route send:@"window.focus" win:(Win*)notification.object]; }

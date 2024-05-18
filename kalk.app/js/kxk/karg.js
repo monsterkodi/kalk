@@ -13,9 +13,9 @@ expand = function (l)
     var a, match
 
     var list = _k_.list(l)
-    for (var _23_10_ = 0; _23_10_ < list.length; _23_10_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        a = list[_23_10_]
+        a = list[_a_]
         if (match = /^\-(\w\w+)$/.exec(a))
         {
             a = match[1].split('').map(function (i)

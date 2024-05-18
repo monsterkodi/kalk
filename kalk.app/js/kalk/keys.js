@@ -54,9 +54,9 @@ class Keys
         console.log('onInputText',text)
         wraps = document.querySelectorAll('.key-wrap')
         var list = _k_.list(wraps)
-        for (var _39_17_ = 0; _39_17_ < list.length; _39_17_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            wrap = list[_39_17_]
+            wrap = list[_a_]
             active = calc.activeKey(text,wrap.innerHTML)
             wrap.parentElement.classList.toggle('inactive',!active)
             wrap.classList.toggle('inactive',!active)
@@ -77,9 +77,9 @@ class Keys
         }
         this.table.appendChild(row)
         var list = _k_.list(keys)
-        for (var _54_16_ = 0; _54_16_ < list.length; _54_16_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            row = list[_54_16_]
+            row = list[_a_]
             this.table.appendChild(row)
         }
     }
@@ -235,7 +235,6 @@ class Keys
 
     keyUp (info)
     {
-        console.log('up',info)
         if (info.key === 'shift')
         {
             if (this.shiftFunctions)

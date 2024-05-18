@@ -10,14 +10,14 @@
 # stores state in separate files per window 
 # does not sync between windows
  
-use ◆ noon post slash sds kstr ffs
+use        ◆ noon post slash sds kstr ffs
 use ./util ▪ defaults isEqual
 
 function Stash
     
-    @: (@name, opt) ->
+    @: @name opt ->
 
-        return error 'stash.constructor -- no name?' if not @name
+        ⮐ error 'stash.constructor -- no name?' if not @name
         
         @sep     = opt?.separator ? '|'
         @timer   = null
@@ -29,7 +29,7 @@ function Stash
         @data = defaults @data, opt.defaults if opt?.defaults?
         @load()
 
-    keypath: (key) -> key.split @sep
+    keypath: key -> key.split @sep
     
     #  0000000   00000000  000000000
     # 000        000          000   
@@ -37,10 +37,10 @@ function Stash
     # 000   000  000          000   
     #  0000000   00000000     000   
         
-    get: (key, value) ->
+    get: key value ->
         
-        error 'stash.get -- invalid key', key if not key is str
-        return value if not key is str
+        error 'stash.get -- invalid key' key if not key is str
+        ⮐ value if not key is str
         sds.get @data, @keypath(key), value
          
     #  0000000  00000000  000000000  
@@ -49,9 +49,9 @@ function Stash
     #      000  000          000     
     # 0000000   00000000     000     
     
-    set: (key, value) ->
+    set: key value ->
         
-        return error 'stash.set -- invalid key', key if not key is str
+        ⮐ error 'stash.set -- invalid key' key if not key is str
         
         if not isEqual value, sds.get @data, @keypath(key)
 
@@ -63,7 +63,7 @@ function Stash
             clearTimeout @timer if @timer
             @timer = setTimeout @save, @timeout
                     
-    del: (key) -> @set key
+    del: key -> @set key
     
     isEmpty: -> empty @data
     
@@ -80,7 +80,7 @@ function Stash
     # 000      000   000  000   000  000   000  
     # 0000000   0000000   000   000  0000000    
     
-    load: (file) ○->
+    load: file ○->
         
         file ?= @file
         data =○ noon.load file

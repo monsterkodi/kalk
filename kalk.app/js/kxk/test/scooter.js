@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var near, scoot
 
 import scooter from "../scooter.js"

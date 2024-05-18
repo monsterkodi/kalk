@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import utils from "./utils.js"
 let kc = utils.kc
 let kd = utils.kd
@@ -249,7 +247,7 @@ toExport["switch"] = function ()
     default:
         fork
 }\n`)
-        compare(kd(`switch x
+        compare(kc(`switch x
     obj.prop ➜ jup
     obj.deep.prop
         cool

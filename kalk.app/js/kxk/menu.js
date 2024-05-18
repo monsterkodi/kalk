@@ -26,9 +26,9 @@ Menu = (function ()
         this["focus"] = this["focus"].bind(this)
         this.elem = elem({class:'menu',tabindex:0})
         var list = _k_.list(opt.items)
-        for (var _18_17_ = 0; _18_17_ < list.length; _18_17_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            item = list[_18_17_]
+            item = list[_a_]
             if (item.hide)
             {
                 continue

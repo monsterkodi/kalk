@@ -1,0 +1,173 @@
+###
+ 0000000  000000000   0000000   000000000  000   000   0000000    
+000          000     000   000     000     000   000  000         
+0000000      000     000000000     000     000   000  0000000     
+     000     000     000   000     000     000   000       000    
+0000000      000     000   000     000      0000000   0000000     
+###
+
+use ../kxk ▪ pretty slash
+use ../kolor/kolor ▪ klor
+use child_process
+
+# 00000000   00000000  00000000    0000000   00000000   000000000  
+# 000   000  000       000   000  000   000  000   000     000     
+# 0000000    0000000   00000000   000   000  0000000       000     
+# 000   000  000       000        000   000  000   000     000     
+# 000   000  00000000  000         0000000   000   000     000     
+
+report = status opt={} ○->
+
+    changes = []
+    
+    for gitFile,k of status.files
+        
+        relPath = slash.relative gitFile, process.cwd()
+        
+        l =  deleted:r1, created:w2, changed:g1
+        m =  deleted:r4, created:w5, changed:g4
+        b =  deleted:R5, created:W1, changed:G1
+        
+        if k in Object.keys m
+        
+            prfx   = b[k] "  "
+            prfx  += reset '  '
+            lame   = slash.ext(gitFile) in ['js' 'json']
+            change = prfx + pretty.filePath relPath, (lame and l[k] or m[k])
+            
+            if k in ['changed' 'created'] and opt.diff
+
+                continue if lame
+
+                cmd = "git --no-pager diff -U0  --ignore-blank-lines --ignore-space-at-eol --no-color #{gitFile}"
+                res = child_process.execSync(cmd,{encoding:'utf8',cwd:status.gitDir})
+                diff = ""
+                c = w2 '●'
+                start = 0
+
+                for ls in res.split /\r?\n/
+
+                    if 
+                        ls.substr(0,4) in ['+++ ' '--- '] ➜
+
+                        ls[0] == '@'
+
+                            split = ls.split('@@')
+                            split = split[1].split ' +'
+                            split = split[1].split ','
+                            start = parseInt split[0]
+                            diff += "\n" + c
+                            c = w2 '●'
+
+                        ls[0] == '+'
+
+                            diff += "\n "
+                            start++
+                            rgs = kolor.ranges ls.substr(1), slash.ext gitFile
+                            if valid rgs
+                                diff += pretty.ranges rgs
+                            else
+                                diff += w8 ls.substr 1
+
+                        ls[0] == '-'
+                            
+                            diff += "\n " + w3 ls.substr 1
+                            
+                if diff.length ➜ change += diff + "\n" + w2 '●'
+                    
+            changes.push change
+
+    relPath = slash.relative status.gitDir, process.cwd() 
+    relPath = '.' if relPath == ''
+    gitPath = pretty.filePath relPath, klor.w5
+    
+    #aheadBehind = -> 
+    #    
+    #    if status.ahead or status.behind
+    #        st = ''
+    #        if status.ahead
+    #            st += w3 "▲ #{status.ahead}"
+    #        if status.behind
+    #            st += r5 "▼ #{status.behind}"
+    #        st = rpad 4 st
+    #    else
+    #        ''
+            
+    log B5('    ' + gitPath + ' ') + ' '
+    for c in changes
+        log c
+
+# 00000000    0000000   00000000    0000000  00000000  
+# 000   000  000   000  000   000  000       000       
+# 00000000   000000000  0000000    0000000   0000000   
+# 000        000   000  000   000       000  000       
+# 000        000   000  000   000  0000000   00000000  
+
+parseStatus = gitStatus gitDir -> 
+
+    lines = gitStatus.split '\n'
+    status = 
+        gitDir:  gitDir
+        deleted: []
+        created: []
+        changed: []
+        files:   {}
+        
+    dirSet = new Set
+    
+    while line = lines.shift()
+
+        rel = line.slice 3
+        file = slash.path gitDir, line.slice 3
+        while (rel = slash.dir(rel)) != ''
+            dirSet.add(rel)
+
+        switch line.slice 0 2
+            ' D' ➜  status.deleted.push file
+            'MM'
+            ' M' ➜  status.changed.push file
+            '??' ➜  status.created.push file
+
+    status.dirs = Array.from(dirSet).map (d) -> slash.path gitDir, d
+    list = ['deleted' 'created' 'changed']
+    
+    for key in list
+        for file in status[key]
+            status.files[file] = key
+
+    status
+
+# 00000000  000   000  00000000    0000000   00000000   000000000  
+# 000        000 000   000   000  000   000  000   000     000     
+# 0000000     00000    00000000   000   000  0000000       000     
+# 000        000 000   000        000   000  000   000     000     
+# 00000000  000   000  000         0000000   000   000     000     
+
+export (opt={}) ○->
+    
+    new Promise (resolve, reject) ->
+
+        shopt = shell:true
+        child_process.exec 'git rev-parse --show-toplevel' shopt, (err, gitDir, stderr) -> 
+
+            if err
+                # error 'ERROR' err
+                # ⮐ reject()
+                ⮐ resolve()
+                
+            else if valid gitDir
+
+                gitDir = trim gitDir,' \n'
+                
+                child_process.exec '/usr/bin/git status --porcelain' shopt, (err, status, stderr) -> 
+                    
+                    if err
+                        error 'ERROR' err
+                        ⮐ reject()
+
+                    else if valid status
+
+                        report parseStatus(status,gitDir), opt
+
+                        ⮐ resolve()
+                        

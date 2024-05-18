@@ -1,5 +1,3 @@
-var _k_
-
 class FFS
 {
     static async pkg (p)

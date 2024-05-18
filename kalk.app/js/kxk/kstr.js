@@ -23,7 +23,7 @@ str.fillet = function (s, wordCharacterSet = '')
     {
         return fillets
     }
-    for (var _46_14_ = ci = 0, _46_18_ = s.length; (_46_14_ <= _46_18_ ? ci < s.length : ci > s.length); (_46_14_ <= _46_18_ ? ++ci : --ci))
+    for (var _a_ = ci = 0, _b_ = s.length; (_a_ <= _b_ ? ci < s.length : ci > s.length); (_a_ <= _b_ ? ++ci : --ci))
     {
         ch = s[ci]
         if (_k_.in(ch,' \t\n\r'))
@@ -63,9 +63,9 @@ str.unfillet = function (fillets)
 
     s = ''
     var list = _k_.list(fillets)
-    for (var _76_15_ = 0; _76_15_ < list.length; _76_15_++)
+    for (var _c_ = 0; _c_ < list.length; _c_++)
     {
-        fillet = list[_76_15_]
+        fillet = list[_c_]
         s = _k_.rpad(fillet.index,s)
         s += fillet.match
     }
@@ -293,9 +293,9 @@ str.time = function (t)
             f = 1
             o = {ms:1000,second:60,minute:60,hour:24,day:30,month:12,year:0}
             var list = _k_.list(Object.keys(o))
-            for (var _266_18_ = 0; _266_18_ < list.length; _266_18_++)
+            for (var _e_ = 0; _e_ < list.length; _e_++)
             {
-                k = list[_266_18_]
+                k = list[_e_]
                 num = parseInt(t / f)
                 f *= o[k]
                 if (k === 'year' || t < f)
@@ -312,9 +312,9 @@ str.time = function (t)
             thsnd = BigInt(1000)
             f = thsnd
             var list1 = ['ns','μs','ms','second']
-            for (var _277_18_ = 0; _277_18_ < list1.length; _277_18_++)
+            for (var _f_ = 0; _f_ < list1.length; _f_++)
             {
-                k = list1[_277_18_]
+                k = list1[_f_]
                 if (k === 'seconds' || t < f)
                 {
                     num = parseInt(thsnd * t / f)

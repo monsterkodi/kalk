@@ -51,9 +51,9 @@ class Print
             {
                 s = ''
                 var list = _k_.list(tok.tokens)
-                for (var _38_22_ = 0; _38_22_ < list.length; _38_22_++)
+                for (var _a_ = 0; _a_ < list.length; _a_++)
                 {
-                    t = list[_38_22_]
+                    t = list[_a_]
                     s += this.token(t)
                 }
                 return '\n' + s
@@ -77,9 +77,9 @@ class Print
 
         s = _k_.B2('   ')
         var list = _k_.list(sheap)
-        for (var _58_14_ = 0; _58_14_ < list.length; _58_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            r = list[_58_14_]
+            r = list[_a_]
             switch (r.type)
             {
                 case 'exps':
@@ -141,9 +141,9 @@ class Print
                 s += b.type[0] + ' '
             }
             var list = _k_.list(b.tokens)
-            for (var _88_18_ = 0; _88_18_ < list.length; _88_18_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                c = list[_88_18_]
+                c = list[_a_]
                 if ((c.tokens != null))
                 {
                     s += '\n' + printBlock(c) + b.indent
@@ -198,9 +198,9 @@ class Print
                 {
                     s += lp + ' ' + indent + bold(_k_.w3('['))
                     var list = _k_.list(node)
-                    for (var _128_30_ = 0; _128_30_ < list.length; _128_30_++)
+                    for (var _a_ = 0; _a_ < list.length; _a_++)
                     {
-                        value = list[_128_30_]
+                        value = list[_a_]
                         s += '\n'
                         s += printNode(value,indent,visited)
                     }
@@ -231,9 +231,9 @@ class Print
         if (ast instanceof Array)
         {
             var list = _k_.list(ast)
-            for (var _145_40_ = 0; _145_40_ < list.length; _145_40_++)
+            for (var _b_ = 0; _b_ < list.length; _b_++)
             {
-                node = list[_145_40_]
+                node = list[_b_]
                 console.log(printNode(node))
             }
         }
@@ -270,9 +270,9 @@ class Print
                 if (node.length)
                 {
                     var list = _k_.list(node)
-                    for (var _171_30_ = 0; _171_30_ < list.length; _171_30_++)
+                    for (var _a_ = 0; _a_ < list.length; _a_++)
                     {
-                        value = list[_171_30_]
+                        value = list[_a_]
                         s += printNode(value,indent,visited)
                     }
                 }
@@ -303,7 +303,7 @@ class Print
         }
         if (ast instanceof Array)
         {
-            s = (function () { var r_187_41_ = []; var list = _k_.list(ast); for (var _187_41_ = 0; _187_41_ < list.length; _187_41_++)  { node = list[_187_41_];r_187_41_.push(printNode(node))  } return r_187_41_ }).bind(this)().join('')
+            s = (function () { var r_b_ = []; var list = _k_.list(ast); for (var _c_ = 0; _c_ < list.length; _c_++)  { node = list[_c_];r_b_.push(printNode(node))  } return r_b_ }).bind(this)().join('')
         }
         else
         {

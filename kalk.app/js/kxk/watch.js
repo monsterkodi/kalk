@@ -88,9 +88,9 @@ Watch = (function ()
             items = await fs.list(this.dir)
             this.watchers = []
             var list = _k_.list(items)
-            for (var _67_21_ = 0; _67_21_ < list.length; _67_21_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                item = list[_67_21_]
+                item = list[_a_]
                 if (item.type === 'dir')
                 {
                     if (_k_.in(item.file,['node_modules','.git']))
@@ -124,9 +124,9 @@ Watch = (function ()
         if (this.opt.ignore)
         {
             var list = _k_.list(this.opt.ignore)
-            for (var _90_22_ = 0; _90_22_ < list.length; _90_22_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                regex = list[_90_22_]
+                regex = list[_a_]
                 if (new RegExp(regex).test(path))
                 {
                     return true
@@ -145,9 +145,9 @@ Watch = (function ()
         if (this.opt.recursive)
         {
             var list = _k_.list(this.watchers)
-            for (var _106_22_ = 0; _106_22_ < list.length; _106_22_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                watch = list[_106_22_]
+                watch = list[_a_]
                 watch.close()
             }
             return delete this.watchers

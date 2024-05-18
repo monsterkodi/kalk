@@ -31,9 +31,9 @@ class Scheme
 
         this.colors = {}
         var list = _k_.list(document.querySelectorAll('.scheme-link'))
-        for (var _32_17_ = 0; _32_17_ < list.length; _32_17_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            link = list[_32_17_]
+            link = list[_a_]
             css = slash.file(link.href)
             newlink = elem('link',{href:`css/ko/${scheme}/${css}`,rel:'stylesheet',type:'text/css',class:'scheme-link'})
             link.parentNode.replaceChild(newlink,link)

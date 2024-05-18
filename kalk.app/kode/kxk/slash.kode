@@ -315,15 +315,15 @@ class Slash
     
     @home:   -> globalThis.homeDir ? process.env.HOME  
     @user:   -> globalThis.useName ? process.env.USER  
-    @tmpdir: -> globalThis.tmpDir  ? process.env.TMPDIR
+    @tmpdir: -> globalThis.tmpDir  ? '/tmp' # process.env.TMPDIR
     
-    @tmpfile: (ext) ->
+    @tmpfile: ext ->
 
         Slash.path Slash.tmpdir(), "#{Date.now()}#{Math.random()}" + (ext and ".#{ext}" or '')
     
-    @tilde:     (p) -> p?.replace Slash.home(), '~'
-    @untilde:   (p) -> p?.replace /^\~/, Slash.home()
-    @unenv:     (p) -> 
+    @tilde:   p -> p?.replace Slash.home(), '~'
+    @untilde: p -> p?.replace /^\~/, Slash.home()
+    @unenv:   p -> 
         
         i = p.indexOf '$', 0
         while i >= 0

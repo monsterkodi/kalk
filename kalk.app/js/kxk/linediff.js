@@ -54,7 +54,7 @@ lineDiff = function (oldLine, newLine)
         }
         if (changes.length > 1)
         {
-            for (var _39_21_ = i = changes.length - 1, _39_39_ = 1; (_39_21_ <= _39_39_ ? i <= 1 : i >= 1); (_39_21_ <= _39_39_ ? ++i : --i))
+            for (var _a_ = i = changes.length - 1, _b_ = 1; (_a_ <= _b_ ? i <= 1 : i >= 1); (_a_ <= _b_ ? ++i : --i))
             {
                 if (changes[i - 1].index + changes[i - 1].length === changes[i].index)
                 {
@@ -77,9 +77,9 @@ lineDiff.isBoring = function (oldLine, newLine)
         return true
     }
     var list = _k_.list(changes)
-    for (var _56_15_ = 0; _56_15_ < list.length; _56_15_++)
+    for (var _c_ = 0; _c_ < list.length; _c_++)
     {
-        change = list[_56_15_]
+        change = list[_c_]
         if (!_k_.empty(_k_.trim(newLine.slice(change.index,change.index + change.length))))
         {
             return false

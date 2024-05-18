@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import utils from "./utils.js"
 let kc = utils.kc
 let ke = utils.ke
@@ -29,7 +27,7 @@ toExport["loops"] = function ()
 {
 }`)
                 compare(kc(`for i in a..b
-    log i`),`for (var _1_9_ = i = a, _1_12_ = b; (_1_9_ <= _1_12_ ? i <= b : i >= b); (_1_9_ <= _1_12_ ? ++i : --i))
+    log i`),`for (var _a_ = i = a, _b_ = b; (_a_ <= _b_ ? i <= b : i >= b); (_a_ <= _b_ ? ++i : --i))
 {
     console.log(i)
 }`)
@@ -60,22 +58,22 @@ toExport["loops"] = function ()
             {
                 compare(kc(`for t in l
     t`),`var list = _k_.list(l)
-for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    t = list[_1_6_]
+    t = list[_a_]
     t
 }`)
                 compare(kc(`for a in [1,2,3] then log a`),`var list = [1,2,3]
-for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    a = list[_1_6_]
+    a = list[_a_]
     console.log(a)
 }`)
                 compare(kc(`for a in [1,2,3] then log a
 log a`),`var list = [1,2,3]
-for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    a = list[_1_6_]
+    a = list[_a_]
     console.log(a)
 }
 console.log(a)`)
@@ -83,9 +81,9 @@ console.log(a)`)
     log '1' a
     log '2' a
 log '3' a`),`var list = [1,2,3]
-for (var _1_6_ = 0; _1_6_ < list.length; _1_6_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    a = list[_1_6_]
+    a = list[_a_]
     console.log('1',a)
     console.log('2',a)
 }
@@ -99,10 +97,10 @@ for (i = 0; i < list.length; i++)
 }`)
                 compare(kc(`for [a,b] in @regs
     log a,b`),`var list = _k_.list(this.regs)
-for (var _1_10_ = 0; _1_10_ < list.length; _1_10_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    a = list[_1_10_][0]
-    b = list[_1_10_][1]
+    a = list[_a_][0]
+    b = list[_a_][1]
     console.log(a,b)
 }`)
                 compare(kc(`empty = (a) -> a in ['' null undefined] or b`),`
@@ -126,22 +124,22 @@ for (k = 0; k < list.length; k++)
     val = this.patts[key]
     console.log(key,val)
 }`)
-            compare(kc(`matches = ([k, r.exec t] for k,r of rgs)`),`matches = (function () { var r_1_33_ = []; for (var k in rgs)  { var r = rgs[k];r_1_33_.push([k,r.exec(t)])  } return r_1_33_ }).bind(this)()`)
+            compare(kc(`matches = ([k, r.exec t] for k,r of rgs)`),`matches = (function () { var r_a_ = []; for (var k in rgs)  { var r = rgs[k];r_a_.push([k,r.exec(t)])  } return r_a_ }).bind(this)()`)
         })
         section("tail", function ()
         {
             compare(kc(`f e for e in l ? []`),`var list = (l != null ? l : [])
-for (var _1_10_ = 0; _1_10_ < list.length; _1_10_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    e = list[_1_10_]
+    e = list[_a_]
     f(e)
 }`)
         })
     })
     section("list comprehension", function ()
     {
-        compare(kc("m = ([k, r.exec t] for k,r of rgs)"),`m = (function () { var r_1_27_ = []; for (var k in rgs)  { var r = rgs[k];r_1_27_.push([k,r.exec(t)])  } return r_1_27_ }).bind(this)()`)
-        compare(kc("m = ([i, k] for k,i in rgs)"),`m = (function () { var r_1_20_ = []; var list = _k_.list(rgs); for (i = 0; i < list.length; i++)  { var k = list[i];r_1_20_.push([i,k])  } return r_1_20_ }).bind(this)()`)
+        compare(kc("m = ([k, r.exec t] for k,r of rgs)"),`m = (function () { var r_a_ = []; for (var k in rgs)  { var r = rgs[k];r_a_.push([k,r.exec(t)])  } return r_a_ }).bind(this)()`)
+        compare(kc("m = ([i, k] for k,i in rgs)"),`m = (function () { var r_a_ = []; var list = _k_.list(rgs); for (i = 0; i < list.length; i++)  { var k = list[i];r_a_.push([i,k])  } return r_a_ }).bind(this)()`)
         compare(ke("1"),1)
         compare(ke("'abc'"),'abc')
         compare(ke("[1,2,3]"),[1,2,3])

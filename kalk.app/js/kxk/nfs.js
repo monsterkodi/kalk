@@ -13,9 +13,9 @@ class NFS
 
         dirents = await fsp.readdir(dir,{withFileTypes:true})
         var list = _k_.list(dirents)
-        for (var _25_19_ = 0; _25_19_ < list.length; _25_19_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            dirent = list[_25_19_]
+            dirent = list[_a_]
             file = dirent.name
             isDir = !dirent.isFile()
             if (isDir && _k_.in(file,['node_modules','.git']))
@@ -85,12 +85,9 @@ class NFS
 
     static async info (p)
     {
-        var stat
-
         try
         {
-            stat = await fsp.stat(p)
-            return stat
+            return await fsp.stat(p)
         }
         catch (err)
         {
@@ -108,7 +105,7 @@ class NFS
         {
             if (err.code !== 'EEXIST')
             {
-                console.error("nfs.mkdir -- " + String(err))
+                return console.error("nfs.mkdir -- " + String(err))
             }
         }
         return p
@@ -116,7 +113,7 @@ class NFS
 
     static async exists (p)
     {
-        var r, s
+        var r
 
         try
         {
@@ -126,7 +123,7 @@ class NFS
             }
             p = slash.path(slash.removeLinePos(p))
             r = await fsp.access(p,fs.R_OK | fs.F_OK)
-            return s = await fsp.stat(p)
+            return await fsp.stat(p)
         }
         catch (err)
         {
@@ -190,6 +187,18 @@ class NFS
         return await fsp.cp(from,to,{recursive:true})
     }
 
+    static async move (from, to)
+    {
+        if (await NFS.isDir(to))
+        {
+            to = slash.path(to,slash.file(from))
+        }
+        if (await NFS.exists(from))
+        {
+            return await fsp.rename(from,to)
+        }
+    }
+
     static async pkg (p)
     {
         console.error('todo')
@@ -216,11 +225,6 @@ class NFS
     }
 
     static async trash (p)
-    {
-        console.error('todo')
-    }
-
-    static async move (p, d)
     {
         console.error('todo')
     }

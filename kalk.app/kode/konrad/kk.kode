@@ -10,7 +10,7 @@
 
 use ../kxk ▪ sleep karg slash os
 use ../kxk ◆ watch
-use        ◆ knrd build spawn
+use        ◆ knrd build spawn status version
 
 use child_process
 
@@ -26,11 +26,13 @@ args = karg """
         watch      watch for file changes         = false
         test       run tests                      = false
         run        launch application executable  = false
-        clean      remove transpilated files      = false 
-        spawn      spawn app                      = false
-        verbose    log more                       = false
+        commit     git commit                     = false 
+        status     git status                     = false
+        diff       git status with diffs          = false 
+        spawn      spawn app                      = false -S
         quiet      log nothing                    = false
-        debug      log debug                      = false
+        debug      log debug                      = false -D
+        version    log version                    = false
     """
 
 class kk
@@ -46,23 +48,18 @@ class kk
         while not os.loaded # todo: move this check somewhere else!
             ○ sleep 150
             
-        # if not (args.info or args.test or args.knrd or args.build or args.run or args.clean or args.rebuild or args.watch)
-            # # no command given? assume all of them for now :)
-            # args.info  = true
-            # args.knrd  = true
-            # args.build = true
-            # args.test  = true
-            # args.run   = true
-        
-        if args.info    ➜○ kk.info()
-        if args.clean   ➜○ kk.clean()
-        if args.knrd    ➜○ knrd         args.options, args
-        if args.build   ➜○ kk.build()
-        if args.rebuild ➜○ kk.rebuild()                            
-        if args.test    ➜○ kk.test      args.options
-        if args.run     ➜○ kk.launch    args.options
-        if args.spawn   ➜○ kk.spawn     args.options
-        if args.watch   ➜○ kk.watch()                            
+        if args.version ➜ ○ log version, slash.name slash.path ◆dir, '../../'
+        if args.info    ➜ ○ kk.info()
+        if args.knrd    ➜ ○ knrd         args.options, args
+        if args.build   ➜ ○ kk.build()
+        if args.rebuild ➜ ○ kk.rebuild()                            
+        if args.test    ➜ ○ kk.test      args.options
+        if args.run     ➜ ○ kk.launch    args.options
+        if args.commit  ➜ ○ kk.commit    args.options
+        if args.spawn   ➜ ○ kk.spawn     args.options
+        if args.status  ➜ ○ status()
+        if args.diff    ➜ ○ status diff:true
+        if args.watch   ➜ ○ kk.watch()                            
             
         # if valid args.options
             # log 'leftover options' args.options
@@ -89,12 +86,8 @@ class kk
     # 000  000 0 000  000000    000   000  
     # 000  000  0000  000       000   000  
     # 000  000   000  000        0000000   
-    
-    @info: ○->
-        
-        log w4 '○● info' 
-        info =○ knrd.info()
-        log info
+ 
+    @info: ○-> ○ knrd [] dryrun:true
         
     # 000   000   0000000   000000000   0000000  000   000  
     # 000 0 000  000   000     000     000       000   000  
@@ -104,23 +97,18 @@ class kk
     
     @watch: ○->
         
-        log w4('○● watch'), w5 kk.appPath()
+        log '👁 ' w5 kk.appPath()
         
-        start = (cb) ->
-    
-            watch.watch kk.appPath(), recursive:true, cb: (watcher) ->
-                watcher.on 'change' (info) -> 
-                    cb info.path
-    
-        start (sourceFile) ○->
-            
-            ⮐ if slash.contains sourceFile, '.stash'
-            
-            log b5('🔧'), w3 sourceFile
-            
-            if slash.ext(sourceFile) in ['kode' 'pug' 'styl' 'noon']
-                ○ knrd sourceFile
-                ○ kk.test args.options
+        watch.watch kk.appPath(), recursive:true, cb: (watcher) ->
+            watcher.on 'change' (info) ○-> 
+
+                ⮐ if slash.contains info.path, '.stash'
+                
+                log b5('🔧'), w3 info.path
+                
+                if slash.ext(info.path) in ['kode' 'pug' 'styl' 'noon']
+                    ○ knrd info.path
+                    ○ kk.test args.options
     
     # 000000000  00000000   0000000  000000000  
     #    000     000       000          000     
@@ -128,13 +116,11 @@ class kk
     #    000     000            000     000     
     #    000     00000000  0000000      000     
     
-    @test: (options) ○->
+    @test: options ○->
                 
         cmd = "node js/test.js"
         cmd += ' ' + options.join ' ' if valid options
         opt = shell:true cwd:kk.appPath() # run tests inside the .app folder
-        
-        # log w4 '○● test'
         
         new Promise (resolve, reject) ->
         
@@ -159,6 +145,25 @@ class kk
         appExe = slash.path ◆dir, '../../Contents/MacOS/kakao'
         ○ fs.rm jsDir, recursive:true, force:true 
         ○ fs.unlink appExe
+        
+    #  0000000   0000000   00     00  00     00  000  000000000  
+    # 000       000   000  000   000  000   000  000     000     
+    # 000       000   000  000000000  000000000  000     000     
+    # 000       000   000  000 0 000  000 0 000  000     000     
+    #  0000000   0000000   000   000  000   000  000     000     
+    
+    @commit: args ○->
+
+        msg = args.join ' '
+        msg = 'misc' if empty msg
+        
+        exec = cmd -> log child_process.execSync cmd, encoding:'utf8'
+        
+        exec "git add ." 
+        exec "git commit -m #{msg}" 
+        exec "git push -q 2>&1" 
+        
+        status()
 
     #  0000000  00000000    0000000   000   000  000   000  
     # 000       000   000  000   000  000 0 000  0000  000  
@@ -166,7 +171,7 @@ class kk
     #      000  000        000   000  000   000  000  0000  
     # 0000000   000        000   000  00     00  000   000  
     
-    @spawn: (args) -> spawn args
+    @spawn: args -> spawn args
     
     # 000       0000000   000   000  000   000   0000000  000   000  
     # 000      000   000  000   000  0000  000  000       000   000  
@@ -174,7 +179,7 @@ class kk
     # 000      000   000  000   000  000  0000  000       000   000  
     # 0000000  000   000   0000000   000   000   0000000  000   000  
     
-    @launch: (args=[]) ->
+    @launch: args=[] ->
         
         log '🚀'
         cmd = slash.path ◆dir, '../../Contents/MacOS/kakao'

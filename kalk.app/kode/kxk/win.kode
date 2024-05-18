@@ -10,8 +10,9 @@
     calls methods on its delegate
 ###
 
-use ./dom ▪ $ stopEvent
-use ◆ ffs elem post prefs slash stash keyinfo title
+use ../konrad ◆ version
+use ./dom     ▪ $ stopEvent
+use           ◆ ffs elem post prefs slash stash keyinfo title
 
 function Delegate
     
@@ -41,14 +42,15 @@ function Win
         @saveStashOnClose = true
         @delegate ?= new Delegate
         
-        post.on 'window.blur'  @onWindowBlur
-        post.on 'window.focus' @onWindowFocus
-        post.on 'window.close' @onWindowClose
-        post.on 'window.frame' @onWindowFrame
+        post.on 'window.blur'       @onWindowBlur
+        post.on 'window.focus'      @onWindowFocus
+        post.on 'window.close'      @onWindowClose
+        post.on 'window.frame'      @onWindowFrame
+        post.on 'menuAction'        @onMenuAction
+        post.on 'stashLoaded'       @onStashLoaded
+        post.on 'saveStash'         @saveStash
+        post.on 'window.willReload' @saveStash
         post.on 'window.willResize' @onWindowWillResize
-        post.on 'menuAction'   @onMenuAction
-        post.on 'stashLoaded'  @onStashLoaded
-        post.on 'saveStash'    @saveStash
         post.on 'menu.init'    (template) => @delegate?.onWindowMenuTemplate? @, template
         
         menuIcon = @delegate.menuIcon ? kakao.bundle.img 'menu_kakao.png'
@@ -109,11 +111,10 @@ function Win
                     
     saveStash: ->
         
-        log 'saveStash'
+        # log 'saveStash'
      
         post.emit 'saveChanges' 
-        post.emit 'stash'
-        window.prefs.save()
+        post.emit 'stash'        
         window.stash.save()
             
     animate: =>
@@ -133,7 +134,7 @@ function Win
     onResize:     event => @delegate?.onWindowResize? @, event#; log 'resize' event.target.innerWidth, event.target.innerHeight
     onWindowFocus:      => @delegate?.onWindowFocus?  @
     onWindowBlur:       => @delegate?.onWindowBlur?   @
-    onWindowClose:      => post.emit 'saveStash' if @saveStashOnClose; @delegate?.onWindowClose?  @
+    onWindowClose:      => post.emit 'saveStash' if @saveStashOnClose; window.prefs.save(); @delegate?.onWindowClose?  @
     onWindowFrame: info => window.stash.set 'frame' info.frame#; log 'window.frame' info.frame.w, info.frame.h
     onWindowWillResize: info newSize => #log 'window.willResize' info.frame.w, info.frame.h, newSize
     onStashLoaded: => 
@@ -171,13 +172,17 @@ function Win
                 ffs.list(kakao.bundle.app '.stash/win').then (list) =>
                     if list.length > 1              # if not the last window
                         window.stash.clear()        #   remove the stash file
-                        @saveStashOnClose = false   #   and prevent saving it 
+                        @saveStashOnClose = false   #   and prevent saving it
                     kakao 'window.close'
-            'about'          
+            'about'
+            
+                vrs = " window.aboutVersion = \"#{@delegate.aboutVersion ? @delegate.aboutVersion : version}\";"
+                url = @delegate.aboutURL ? " window.aboutURL = \"#{@delegate.aboutURL}\";" : ''
+            
                 if @delegate.aboutImage
-                    kakao 'window.new' 'about.html' "window.aboutImage = \"#{@delegate.aboutImage}\";"
+                    kakao 'window.new' 'about.html' "window.aboutImage = \"#{@delegate.aboutImage}\";#{vrs}#{url}"
                 else
-                    kakao 'window.new' 'about.html' "window.aboutImage = \"#{kakao.bundle.img 'about_kakao.png'}\";"
+                    kakao 'window.new' 'about.html' "window.aboutImage = \"#{kakao.bundle.img 'about_kakao.png'}\";#{vrs}#{url}"
         0
         
     # 000   000  00000000  000   000

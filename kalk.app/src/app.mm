@@ -131,11 +131,13 @@
 
 - (void) reload
 {
+    [Route emit:@"window.willReload"];
+    
     for (Win* win in [self wins])
     {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), 
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), 
             dispatch_get_main_queue(), ^{
-            [win reload];            
+            [win reload];   
         });
     }
 }
@@ -218,6 +220,7 @@
         }
 
         if ([relPath hasPrefix:@"pyg/"] || ([relPath hasPrefix:@"kode/"] && ![relPath hasPrefix:@"kode/kode/"]))
+        // if ([relPath hasPrefix:@"pyg/"] || [relPath hasPrefix:@"kode/ko"] || ([relPath hasPrefix:@"kode/kxk"]))
         {
             NSString* ext = [change.path pathExtension];
             
@@ -353,7 +356,6 @@
                 isTranspiling = NO;
                 if (reload) 
                 {
-                    NSLog(@"reload");
                     [self reload];
                 }
             }

@@ -38,9 +38,9 @@ elem = function (typ, opt)
     if ((opt.children != null) && opt.children instanceof Array)
     {
         var list = _k_.list(opt.children)
-        for (var _35_14_ = 0; _35_14_ < list.length; _35_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            c = list[_35_14_]
+            c = list[_a_]
             if (isElement(c))
             {
                 e.appendChild(c)
@@ -54,9 +54,9 @@ elem = function (typ, opt)
         delete opt.parent
     }
     var list1 = ['mousedown','mousemove','mouseup','click','dblclick']
-    for (var _43_14_ = 0; _43_14_ < list1.length; _43_14_++)
+    for (var _b_ = 0; _b_ < list1.length; _b_++)
     {
-        event = list1[_43_14_]
+        event = list1[_b_]
         if (opt[event] && typeof(opt[event]) === 'function')
         {
             e.addEventListener(event,opt[event])
@@ -64,9 +64,9 @@ elem = function (typ, opt)
         }
     }
     var list2 = _k_.list(Object.keys(opt))
-    for (var _48_10_ = 0; _48_10_ < list2.length; _48_10_++)
+    for (var _c_ = 0; _c_ < list2.length; _c_++)
     {
-        k = list2[_48_10_]
+        k = list2[_c_]
         e.setAttribute(k,opt[k])
     }
     return e
@@ -172,9 +172,9 @@ elem.downElem = function (element, opt)
         }
     }
     var list = _k_.list(element.children)
-    for (var _92_14_ = 0; _92_14_ < list.length; _92_14_++)
+    for (var _d_ = 0; _d_ < list.length; _d_++)
     {
-        child = list[_92_14_]
+        child = list[_d_]
         if (found = elem.downElem(child,opt))
         {
             return found

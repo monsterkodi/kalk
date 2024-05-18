@@ -12,7 +12,7 @@ util = {isEqual:function (a, b)
         {
             return false
         }
-        for (var _23_25_ = index = 0, _23_29_ = a.length; (_23_25_ <= _23_29_ ? index < a.length : index > a.length); (_23_25_ <= _23_29_ ? ++index : --index))
+        for (var _a_ = index = 0, _b_ = a.length; (_a_ <= _b_ ? index < a.length : index > a.length); (_a_ <= _b_ ? ++index : --index))
         {
             if (!util.isEqual(a[index],b[index]))
             {
@@ -35,7 +35,7 @@ util = {isEqual:function (a, b)
     {
         return a.length
     }))
-    for (var _44_17_ = i = 0, _44_21_ = maxLen; (_44_17_ <= _44_21_ ? i < maxLen : i > maxLen); (_44_17_ <= _44_21_ ? ++i : --i))
+    for (var _c_ = i = 0, _d_ = maxLen; (_c_ <= _d_ ? i < maxLen : i > maxLen); (_c_ <= _d_ ? ++i : --i))
     {
         result.push(args.map(function (a)
         {
@@ -69,7 +69,7 @@ util = {isEqual:function (a, b)
 {
     var index
 
-    for (var _63_21_ = index = arr.length - 1, _63_35_ = 0; (_63_21_ <= _63_35_ ? index <= 0 : index >= 0); (_63_21_ <= _63_35_ ? ++index : --index))
+    for (var _e_ = index = arr.length - 1, _f_ = 0; (_e_ <= _f_ ? index <= 0 : index >= 0); (_e_ <= _f_ ? ++index : --index))
     {
         if (pred(arr[index]))
         {
@@ -88,9 +88,9 @@ util = {isEqual:function (a, b)
     var v
 
     var list = _k_.list(arr)
-    for (var _70_30_ = 0; _70_30_ < list.length; _70_30_++)
+    for (var _10_ = 0; _10_ < list.length; _10_++)
     {
-        v = list[_70_30_]
+        v = list[_10_]
         if (pred(v))
         {
             return v
@@ -103,10 +103,10 @@ util = {isEqual:function (a, b)
     if (!_k_.empty(arr) && _k_.isArr(arr))
     {
         var list = _k_.list(items)
-        for (var _76_21_ = 0; _76_21_ < list.length; _76_21_++)
+        for (var _11_ = 0; _11_ < list.length; _11_++)
         {
-            item = list[_76_21_]
-            for (var _77_29_ = index = arr.length - 1, _77_43_ = 0; (_77_29_ <= _77_43_ ? index <= 0 : index >= 0); (_77_29_ <= _77_43_ ? ++index : --index))
+            item = list[_11_]
+            for (var _12_ = index = arr.length - 1, _13_ = 0; (_12_ <= _13_ ? index <= 0 : index >= 0); (_12_ <= _13_ ? ++index : --index))
             {
                 if (cmp(arr[index],item))
                 {
@@ -122,9 +122,9 @@ util = {isEqual:function (a, b)
 
     result = []
     var list = _k_.list(arr)
-    for (var _85_17_ = 0; _85_17_ < list.length; _85_17_++)
+    for (var _14_ = 0; _14_ < list.length; _14_++)
     {
-        item = list[_85_17_]
+        item = list[_14_]
         if (!(_k_.in(item,result)))
         {
             result.push(item)
@@ -137,14 +137,14 @@ util = {isEqual:function (a, b)
 
     result = []
     var list = _k_.list(arr)
-    for (var _93_17_ = 0; _93_17_ < list.length; _93_17_++)
+    for (var _15_ = 0; _15_ < list.length; _15_++)
     {
-        item = list[_93_17_]
+        item = list[_15_]
         add = true
         var list1 = _k_.list(result)
-        for (var _95_22_ = 0; _95_22_ < list1.length; _95_22_++)
+        for (var _16_ = 0; _16_ < list1.length; _16_++)
         {
-            ritem = list1[_95_22_]
+            ritem = list1[_16_]
             if (util.isEqual(item,ritem))
             {
                 add = false
@@ -171,14 +171,14 @@ util = {isEqual:function (a, b)
     }
     result = []
     var list = _k_.list(arr)
-    for (var _109_17_ = 0; _109_17_ < list.length; _109_17_++)
+    for (var _17_ = 0; _17_ < list.length; _17_++)
     {
-        item = list[_109_17_]
+        item = list[_17_]
         add = true
         var list1 = _k_.list(result)
-        for (var _111_22_ = 0; _111_22_ < list1.length; _111_22_++)
+        for (var _18_ = 0; _18_ < list1.length; _18_++)
         {
-            ritem = list1[_111_22_]
+            ritem = list1[_18_]
             if (prop(item) === prop(ritem))
             {
                 add = false
@@ -273,5 +273,26 @@ util = {isEqual:function (a, b)
         return setTimeout(r,ms)
     }).bind(this))
     return true
+},rad2deg:function (r)
+{
+    return 180 * r / Math.PI
+},deg2rad:function (d)
+{
+    return Math.PI * d / 180
+},randInt:function (r)
+{
+    return Math.floor(Math.random() * r)
+},randIntRange:function (l, h)
+{
+    return Math.floor(l + Math.random() * (h - l + 1))
+},randRange:function (l, h)
+{
+    return l + Math.random() * (h - l)
+},absMax:function (a, b)
+{
+    return ((Math.abs(a) >= Math.abs(b)) ? a : b)
+},absMin:function (a, b)
+{
+    return ((Math.abs(a) < Math.abs(b)) ? a : b)
 }}
 export default util;

@@ -41,17 +41,19 @@ class Renderer
         @hint = _k_:{}
         @varstack = [ast.vars]
         @indent = ''
+        @varindex = 0
+        @varcontext = {}
 
         s = ''
         
         if @kode.args.header
-            s += @js "// monsterkodi/kakao #{@kode.version}\n\n" true
+            s += "// monsterkodi/kakao #{@kode.version}\n\n"
             
-        s += @js "var _k_\n\n", true
+        s += 'var _k_\n\n'
         
         if valid ast.vars
             vl = @sortVars ast.vars
-            s += @js "var #{vl}\n\n" true
+            s += "var #{vl}\n\n"
 
         s += @nodes ast.exps, '\n' true
         
@@ -74,9 +76,10 @@ class Renderer
     # 000   000  000       000   000  000   000  000       000   000  
     # 000   000  00000000  000   000  0000000    00000000  000   000  
     
-    header: (s) ->
+    header: s ->
 
-        return s if empty Object.keys @hint._k_
+        if empty Object.keys @hint._k_
+            ⮐ s.replace "var _k_\n\n" ''
 
         kf = 
             isNum:      "function (o) {return !isNaN(o) && !isNaN(parseFloat(o)) && (isFinite(o) || o === Infinity || o === -Infinity)}"
@@ -164,10 +167,7 @@ class Renderer
                 if stripped[0] in '([' then a = ';'+a
                 else if stripped.startsWith 'function' then a = "(#{a})"
                 
-            # if kstr.lstrip(a)[0] in '([' then log "prefix with ;?", sep, a
-            
             a += if i<nodes.length-1 then sep else ''
-            @js a, tl if tl
             s += a
         s
 
@@ -192,7 +192,7 @@ class Renderer
             if @[k] is func
                 s += @[k] v
             else
-                log R4("renderer.node unhandled key #{k} in exp"), exp # if @debug or @verbose
+                log R4("renderer.node unhandled key #{k} in exp"), exp
         s
 
     #  0000000   000000000   0000000   00     00
@@ -211,7 +211,7 @@ class Renderer
             lhs = @atom p.lhs
             "(#{lhs} != null ? #{lhs} : #{@atom p.rhs})"
         else
-            vn = @makeVar p.qmrk
+            vn = @lineVar p.qmrk
             "((#{vn}=#{@atom p.lhs}) != null ? #{vn} : #{@atom p.rhs})"
 
     qmrkcolon: (p) ->
@@ -244,10 +244,8 @@ class Renderer
         if /(?<!['"\[])[▾]/.test s
             i = s.indexOf '▾'
             if (n = s.indexOf '\n' i) > i
-                # log b3('n!'), w3(s[...i]), m6(s[i+1...n]), green(s[n..])
                 return s[...i] + @fixAsserts(s[i+1...n]) + @fixAsserts(s[n..])
             else
-                # log b3('▾!'), w3(s[...i]), m6(s[i+1..])
                 return s[...i] + @fixAsserts s[i+1..]
         
         splt = s.split /▸\d+_\d+◂/
@@ -270,8 +268,6 @@ class Renderer
                     t = splt[0]
                 return  "(#{t} != null)"
                 
-            # log splt, mtch
-
             s = ''
 
             for i in 0...mtch.length
@@ -301,7 +297,6 @@ class Renderer
             for i in 0...mtch.length then s += " : undefined"
 
             s = "(#{s})"
-        # log 'fixedAsserts' s
         s
 
     # 000   000   0000000  00000000  
@@ -1305,9 +1300,6 @@ class Renderer
             else
                 tok.text
                 
-        @js s, tok
-        s
-
     #  0000000   0000000   00     00  00     00  00000000  000   000  000000000
     # 000       000   000  000   000  000   000  000       0000  000     000
     # 000       000   000  000000000  000000000  0000000   000 0 000     000
@@ -1719,7 +1711,7 @@ class Renderer
     # 000       000   000  000            000  000   000     000     000   000  000   000  
     # 000       000   000  00000000  0000000   000   000      0      000   000  000   000  
     
-    freshVar: (name, suffix=0) ->
+    freshVar: name suffix=0 ->
 
         for vars in @varstack
             for v in vars
@@ -1728,8 +1720,17 @@ class Renderer
 
         @varstack[-1].push text:name + (suffix or '')
         name + (suffix or '')
+        
+    lineVar: tok -> "_#{tok.line}_#{tok.col}_"
 
-    makeVar: (tok) -> "_#{tok.line}_#{tok.col}_"
+    makeVar: tok ->
+        
+        ctx = @fncsName ? @mthdName
+        ctx ?= '_k_'
+        ctx = '@' if ctx == 'constructor'
+        @varcontext[ctx] ?= 0
+        @varcontext[ctx] = @varcontext[ctx] + 1
+        "_#{(@varcontext[ctx]+9).toString(16)}_"
         
     verb: -> if @debug then console.log.apply console.log, arguments
     

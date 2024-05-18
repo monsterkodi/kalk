@@ -76,9 +76,9 @@ ParseUtils = (function ()
         if ((mthds != null ? mthds.length : undefined))
         {
             var list = _k_.list(mthds)
-            for (var _106_18_ = 0; _106_18_ < list.length; _106_18_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                m = list[_106_18_]
+                m = list[_a_]
                 if (name = ((_107_34_=m.keyval) != null ? (_107_39_=_107_34_.key) != null ? _107_39_.text : undefined : undefined))
                 {
                     if (((m.keyval.val != null ? m.keyval.val.func : undefined) != null))
@@ -256,9 +256,9 @@ ParseUtils = (function ()
                 }
             }
             var list = _k_.list(e.if.elifs)
-            for (var _260_19_ = 0; _260_19_ < list.length; _260_19_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                ei = list[_260_19_]
+                ei = list[_a_]
                 if (!this.ifSuitableForInline(ei))
                 {
                     return false

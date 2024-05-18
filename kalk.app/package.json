@@ -1,0 +1,11 @@
+{
+  "name": "kakao",
+  "type": "module",
+  "scripts": {
+    "stage": "pnpm run build0 && pnpm run build1 && pnpm run testage",
+    "build0": "node js/kode/kode.js -v kode/kode/*.kode -o js/kode0 && cp js/kode/lexer.json js/kode0",
+    "build1": "node js/kode0/kode.js -v kode/kode/*.kode -o js/kode1 && cp js/kode/lexer.json js/kode1 && cp -r js/kode/test js/kode1",
+    "testage": "node js/kode1/tester.js && cp js/kode1/*.js js/kode && rm -rf js/kode0 js/kode1",
+    "test": "node js/test.js"
+  }
+}

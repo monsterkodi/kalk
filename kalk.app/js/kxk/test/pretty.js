@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var before, now
 
 import pretty from "../pretty.js"

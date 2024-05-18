@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import utils from "./utils.js"
 let kc = utils.kc
 

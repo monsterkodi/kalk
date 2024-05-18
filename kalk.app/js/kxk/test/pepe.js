@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var cb
 
 import pepe from "../pepe.js"

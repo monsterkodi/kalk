@@ -354,7 +354,7 @@ use ./utils ▪ kc kd ke
             }\n
             """
 
-        kd  """
+        kc  """
             switch x
                 obj.prop ➜ jup
                 obj.deep.prop

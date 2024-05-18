@@ -22,9 +22,9 @@ splitWords = function (words, splitBy)
 
     newWords = []
     var list = _k_.list(words)
-    for (var _25_13_ = 0; _25_13_ < list.length; _25_13_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        word = list[_25_13_]
+        word = list[_a_]
         sws = word.split(splitBy)
         var list1 = _k_.list(sws)
         for (index = 0; index < list1.length; index++)
@@ -52,9 +52,9 @@ lineMatch = function (line, pt, splitlist)
     splt = tln.split(/\s+/)
     cpt = _k_.trim(pt).split(/\s+/)
     var list = _k_.list(splitlist)
-    for (var _41_11_ = 0; _41_11_ < list.length; _41_11_++)
+    for (var _c_ = 0; _c_ < list.length; _c_++)
     {
-        sl = list[_41_11_]
+        sl = list[_c_]
         splt = splitWords(splt,sl)
         cpt = splitWords(cpt,sl)
     }
@@ -180,9 +180,9 @@ addMatch = function (line, ctx)
     if (!strongMatch)
     {
         var list = [1,-1]
-        for (var _156_14_ = 0; _156_14_ < list.length; _156_14_++)
+        for (var _d_ = 0; _d_ < list.length; _d_++)
         {
-            d = list[_156_14_]
+            d = list[_d_]
             if (hasStrongMatch(splt,ctx,d))
             {
                 ctx.pind = wrapIndex(ctx,d)
@@ -207,9 +207,9 @@ traverse = function (ctx)
 
     ctx.matches = []
     var list = _k_.list(ctx.lines)
-    for (var _175_13_ = 0; _175_13_ < list.length; _175_13_++)
+    for (var _e_ = 0; _e_ < list.length; _e_++)
     {
-        line = list[_175_13_]
+        line = list[_e_]
         addMatch(line,ctx)
     }
     return collect(ctx)
@@ -224,9 +224,9 @@ collect = function (ctx)
     la = []
     stack = [_k_.last(ctx.result)]
     var list = _k_.list(ctx.matches)
-    for (var _195_14_ = 0; _195_14_ < list.length; _195_14_++)
+    for (var _f_ = 0; _f_ < list.length; _f_++)
     {
-        match = list[_195_14_]
+        match = list[_f_]
         ma = ctx.ptn[match.pind][1]
         lo = _k_.last(stack)
         if (ma.length > la.length)
@@ -237,7 +237,7 @@ collect = function (ctx)
         }
         else if (ma.length < la.length)
         {
-            for (var _206_21_ = i = 0, _206_25_ = la.length - ma.length; (_206_21_ <= _206_25_ ? i < la.length - ma.length : i > la.length - ma.length); (_206_21_ <= _206_25_ ? ++i : --i))
+            for (var _10_ = i = 0, _11_ = la.length - ma.length; (_10_ <= _11_ ? i < la.length - ma.length : i > la.length - ma.length); (_10_ <= _11_ ? ++i : --i))
             {
                 stack.pop()
             }
@@ -306,9 +306,9 @@ pattern = function (kmt)
         var gz, lpt
 
         var list = _k_.list(gzo)
-        for (var _255_15_ = 0; _255_15_ < list.length; _255_15_++)
+        for (var _12_ = 0; _12_ < list.length; _12_++)
         {
-            gz = list[_255_15_]
+            gz = list[_12_]
             lpt = _k_.trim(gz.line).split(/\s+/)
             if (lpt[0][0] === '■')
             {

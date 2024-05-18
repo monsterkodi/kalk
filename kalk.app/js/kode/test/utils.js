@@ -1,5 +1,3 @@
-var _k_
-
 var kdd, kde
 
 import kode from "../kode.js"

@@ -68,7 +68,7 @@ Krzl = (function ()
     {
         var e, info, lengthOffset, value, w
 
-        var _69_22_ = pair; value = _69_22_[0]; info = _69_22_[1]
+        var _a_ = pair; value = _a_[0]; info = _a_[1]
 
         e = 0.00001
         w = e
@@ -110,9 +110,9 @@ Krzl = (function ()
         }
         pairs = []
         var list = _k_.list(this.values)
-        for (var _95_18_ = 0; _95_18_ < list.length; _95_18_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            value = list[_95_18_]
+            value = list[_a_]
             if (mi = this.match(abbrv.toLowerCase(),this.extract(value).toLowerCase()))
             {
                 pairs.push([value,mi])

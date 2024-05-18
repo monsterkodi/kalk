@@ -6,6 +6,8 @@
 000        000   000  00000000     000        000        000   
 ###
 
+use ◆ klor slash
+
 function pretty
 
     #  0000000    0000000   00000000  
@@ -111,4 +113,104 @@ function pretty
             v > 999    ➜ "#{Math.floor v/1000}k"
                        ➜ "#{v}"
 
+    #  0000000  000      000         0000000   000   000   0000000  000     
+    # 000       000      000        000   000  0000  000  000       000    
+    # 000       000      000        000000000  000 0 000  0000000   000    
+    # 000       000      000        000   000  000  0000       000  000    
+    #  0000000  0000000  000        000   000  000   000  0000000   000    
+    
+    @path:     p c=klor.y5 -> p.split('/').map((n) -> c(n)).join klor.dim(c('/'))
+    @ext:      e c=klor.y3 -> e.length ? klor.dim(c('.')) + c(e) : ''
+    @file:     f c=klor.y5, e=klor.y3 -> "#{klor.bold(c(slash.name(f)))}#{pretty.ext(slash.ext(f),e)}"
+    @filePath: p c=klor.y5, d=klor.y3, e ->
+
+        e ?= d
+        if valid slash.dir p
+            "#{pretty.path(slash.tilde(slash.dir(p)),d)}#{pretty.path('/',d)}#{pretty.file(slash.file(p),c,e)}"
+        else
+            "#{pretty.file(slash.file(p),c)}"
+
+    # 00000000    0000000   000   000   0000000   00000000   0000000  
+    # 000   000  000   000  0000  000  000        000       000       
+    # 0000000    000000000  000 0 000  000  0000  0000000   0000000   
+    # 000   000  000   000  000  0000  000   000  000            000  
+    # 000   000  000   000  000   000   0000000   00000000  0000000   
+    
+    @ranges: rgs ->
+
+        result = ''
+        plain  = ''
+        
+        for rng in rgs
+            
+            while plain.length < rng.start
+                plain += ' '
+                result += ' '
+
+            cfunc = switch rng.clss
+
+                    'text'                  ➜ ⮐ (s) -> klor.white s
+                    'text require string'   ➜ ⮐ (s) -> klor.gray klor.bold s
+                    'comment'               ➜ ⮐ (s) -> klor.w1 s
+                    'punct comment'         ➜ ⮐ (s) -> klor.w1 klor.dim s
+                    'punct'
+                    'punct minor'
+                    'punct require'
+                    'keyword require'       ➜ ⮐ (s) -> klor.gray klor.dim s
+                    'function'
+                    'function call'
+                    'string single'
+                    'string double'
+                    'dir text'
+                    'property'
+                    'function argument'     ➜ ⮐ (s) -> klor.g3 klor.bold s
+                    'punct string interpolation start' 
+                    'punct string interpolation end' ➜ (s) -> klor.g1 klor.bold s
+                    'punct string single'
+                    'punct string double'
+                    'punct string double triple' 
+                    'punct dir'
+                    'punct function call'   ➜ ⮐ (s) -> klor.green klor.dim s
+                    'method class'          ➜ ⮐ (s) -> klor.y4 klor.bold s
+                    'obj'
+                    'class'
+                    'git file'
+                    'dictionary key'
+                    'module'                ➜ ⮐ (s) -> klor.y4 s
+                    'method'                ➜ ⮐ (s) -> klor.y5 klor.bold s
+                    'punct method'          ➜ ⮐ (s) -> klor.y2 klor.bold s
+                    'punct git'
+                    'git ext'
+                    'punct method class'
+                    'punct dictionary'
+                    'punct function'        ➜ ⮐ (s) -> klor.yellow klor.dim s
+                    'number' 'keyword'
+                    'punct compare ligature'
+                    'url domain'            ➜ ⮐ (s) -> klor.blue klor.bold s  
+                    'require'
+                    'punct property'        ➜ ⮐ (s) -> klor.green klor.dim s  
+                    'punct semver' 
+                    'url protocol'
+                    'punct regexp start'
+                    'punct regexp end'
+                    'punct regexp'
+                    'punct url'             ➜ ⮐ (s) -> klor.magenta s 
+                    'punct escape regexp'   ➜ ⮐ (s) -> klor.m1 s 
+                    'semver' 
+                    'dir url tld'
+                    'text regexp'
+                    'punct url tld'         ➜ ⮐ (s) -> klor.magenta klor.bold s  
+                    'punct function tail ligature' 
+                    'punct function async' 
+                    'punct keyword' 
+                    'punct await'
+                    'punct keyword return'  ➜ ⮐ (s) -> klor.b5 klor.bold s
+                    'nil'                   ➜ ⮐ (s) -> klor.r2 s
+                                            ➜ ⮐ (s) -> klor.white s
+
+            plain  += rng.match
+            result += cfunc rng.match
+
+        result
+                       
 export pretty

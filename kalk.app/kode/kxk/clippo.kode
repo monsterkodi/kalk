@@ -1,0 +1,27 @@
+###
+ 0000000  000      000  00000000   00000000    0000000 
+000       000      000  000   000  000   000  000   000
+000       000      000  00000000   00000000   000   000
+000       000      000  000        000        000   000
+ 0000000  0000000  000  000        000         0000000 
+###
+
+use ◆ post
+
+function clippo
+
+    @content: ''
+    @history: []
+
+    @watch: ○->
+        
+        current =○ kakao 'clipboard.get'
+        
+        if current != clippo.content
+            clippo.content = current
+            clippo.history.push clippo.content
+            post.emit 'clipboard' clippo.content
+        
+        setTimeout clippo.watch, 500
+
+export clippo

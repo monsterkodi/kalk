@@ -122,9 +122,9 @@ if (((globalThis.process != null ? globalThis.process.argv : undefined) != null)
     fs = await import('../kxk/fs.js')
     fs = fs.default
     var list = _k_.list(args.files)
-for (var _128_13_ = 0; _128_13_ < list.length; _128_13_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    file = list[_128_13_]
+    file = list[_a_]
     file = slash.path(file)
     if (args.verbose)
     {

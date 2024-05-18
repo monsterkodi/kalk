@@ -50,9 +50,9 @@ pepe = function (str, delimiters = [['"','"'],["'","'"],['(',')'],['[',']'],['{'
         next = str.slice(p)
         op = p
         var list = _k_.list(starts)
-        for (var _59_18_ = 0; _59_18_ < list.length; _59_18_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            start = list[_59_18_]
+            start = list[_a_]
             if (next.startsWith(start))
             {
                 if (start === pairs[_k_.last(stack).start])
@@ -81,9 +81,9 @@ pepe = function (str, delimiters = [['"','"'],["'","'"],['(',')'],['[',']'],['{'
             else
             {
                 var list1 = _k_.list(ends)
-                for (var _77_24_ = 0; _77_24_ < list1.length; _77_24_++)
+                for (var _b_ = 0; _b_ < list1.length; _b_++)
                 {
-                    end = list1[_77_24_]
+                    end = list1[_b_]
                     if (next.startsWith(end))
                     {
                         if (end === pairs[_k_.last(stack).start])
@@ -128,9 +128,9 @@ pepe.depepe = function (pep, cb)
 
     r = ''
     var list = _k_.list(pep)
-    for (var _116_10_ = 0; _116_10_ < list.length; _116_10_++)
+    for (var _c_ = 0; _c_ < list.length; _c_++)
     {
-        p = list[_116_10_]
+        p = list[_c_]
         if (_k_.isStr(p))
         {
             r += p

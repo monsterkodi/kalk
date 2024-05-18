@@ -37,6 +37,7 @@ Delegate = (function ()
         this.menuIcon = kakao.bundle.img('menu_kalk.png')
         this.menuNoon = kakao.bundle.res('menu_kalk.noon')
         this.aboutImage = kakao.bundle.img('about_kalk.png')
+        this.aboutURL = "https://github.com/monsterkodi/kalk"
         post.on('menuAction',this.onMenuAction)
         post.on('calc',this.onCalc)
         return Delegate.__super__.constructor.apply(this, arguments)

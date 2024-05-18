@@ -19,7 +19,9 @@ function Delegate extends win.Delegate
         
         @menuIcon   = kakao.bundle.img 'menu_kalk.png'
         @menuNoon   = kakao.bundle.res 'menu_kalk.noon'
+        
         @aboutImage = kakao.bundle.img 'about_kalk.png'
+        @aboutURL   = "https://github.com/monsterkodi/kalk"
         
         post.on 'menuAction' @onMenuAction
         post.on 'calc'       @onCalc

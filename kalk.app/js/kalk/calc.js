@@ -106,9 +106,9 @@ class Calc
                     return false
                 }
                 var list = ['+','-','/','*','^']
-                for (var _74_23_ = 0; _74_23_ < list.length; _74_23_++)
+                for (var _a_ = 0; _a_ < list.length; _a_++)
                 {
-                    op = list[_74_23_]
+                    op = list[_a_]
                     if (_k_.in(op,txt))
                     {
                         return true
@@ -167,9 +167,9 @@ class Calc
         {
             case symbol.backspace:
                 var list = ['sin','cos','tan','atan','deg','rad','log','NaN',symbol.sqrt]
-                for (var _131_22_ = 0; _131_22_ < list.length; _131_22_++)
+                for (var _a_ = 0; _a_ < list.length; _a_++)
                 {
-                    f = list[_131_22_]
+                    f = list[_a_]
                     if (txt.endsWith(f))
                     {
                         return txt = txt.slice(0, txt.length - f.length)

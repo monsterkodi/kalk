@@ -60,9 +60,9 @@ render = function (block, text)
     {
         text += '\n'
         var list = _k_.list(block.blocks)
-        for (var _49_14_ = 0; _49_14_ < list.length; _49_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            b = list[_49_14_]
+            b = list[_a_]
             text += render(b,'')
         }
         text += idt
@@ -106,9 +106,9 @@ pug = function (srcText)
         return kstr.fillet(line,'-')
     }))
     var list = _k_.list(blocks)
-    for (var _78_14_ = 0; _78_14_ < list.length; _78_14_++)
+    for (var _b_ = 0; _b_ < list.length; _b_++)
     {
-        block = list[_78_14_]
+        block = list[_b_]
         tgtText = render(block,tgtText)
     }
     return tgtText

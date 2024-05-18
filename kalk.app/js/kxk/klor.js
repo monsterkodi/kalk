@@ -134,9 +134,9 @@ exports.FG_COLORS = FG_COLORS
 exports.BG_NAMES = []
 exports.FG_NAMES = []
 var list = _k_.list(BG_COLORS)
-for (var _63_7_ = 0; _63_7_ < list.length; _63_7_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    bg = list[_63_7_]
+    bg = list[_a_]
     exports[bg] = eval(bg)
     for (i = 1; i <= 8; i++)
     {
@@ -145,9 +145,9 @@ for (var _63_7_ = 0; _63_7_ < list.length; _63_7_++)
     }
 }
 var list1 = _k_.list(FG_COLORS)
-for (var _69_7_ = 0; _69_7_ < list1.length; _69_7_++)
+for (var _b_ = 0; _b_ < list1.length; _b_++)
 {
-    fg = list1[_69_7_]
+    fg = list1[_b_]
     exports[fg] = eval(fg)
     for (i = 1; i <= 8; i++)
     {
@@ -187,9 +187,9 @@ exports.globalize = function (enabled = true)
         }
     }
     var list2 = _k_.list(FG_COLORS)
-    for (var _95_11_ = 0; _95_11_ < list2.length; _95_11_++)
+    for (var _c_ = 0; _c_ < list2.length; _c_++)
     {
-        fg = list2[_95_11_]
+        fg = list2[_c_]
         for (i = 1; i <= 8; i++)
         {
             bg = fg.toUpperCase()
@@ -197,9 +197,9 @@ exports.globalize = function (enabled = true)
             glob[bg + i] = exp(bg + i)
         }
         var list3 = ['underline','bold','dim','italic','inverse','reset','strip','black','red','green','yellow','blue','magenta','cyan','white','gray']
-        for (var _102_14_ = 0; _102_14_ < list3.length; _102_14_++)
+        for (var _d_ = 0; _d_ < list3.length; _d_++)
         {
-            n = list3[_102_14_]
+            n = list3[_d_]
             glob[n] = exp(n)
         }
     }
@@ -215,18 +215,18 @@ if (((globalThis.process != null ? globalThis.process.argv : undefined) != null)
     reset = '\x1b[0m'
     bold = '\x1b[1m'
     var list2 = _k_.list(BG_COLORS)
-for (var _129_11_ = 0; _129_11_ < list2.length; _129_11_++)
+for (var _e_ = 0; _e_ < list2.length; _e_++)
 {
-    bg = list2[_129_11_]
+    bg = list2[_e_]
     for (i = 1; i <= 8; i++)
     {
         s = reset
         fg = bg.toLowerCase()
         s += exports[fg + i](`${fg + i} ${bg + i} `)
         var list3 = _k_.list(FG_COLORS)
-        for (var _134_19_ = 0; _134_19_ < list3.length; _134_19_++)
+        for (var _f_ = 0; _f_ < list3.length; _f_++)
         {
-            fg = list3[_134_19_]
+            fg = list3[_f_]
             s += exports[bg + i](exports[fg + (9 - i)](' ' + fg + ' '))
         }
         console.log(s + reset)

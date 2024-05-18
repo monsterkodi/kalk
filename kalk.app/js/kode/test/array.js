@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import utils from "./utils.js"
 let kc = utils.kc
 let ke = utils.ke
@@ -14,8 +12,8 @@ toExport["array"] = function ()
         compare(kc('a[1][2]'),'a[1][2]')
         compare(kc('[1,2][1]'),';[1,2][1]')
         compare(kc('{a:1}["a"]'),'{a:1}["a"]')
-        compare(kc(';[d,k,v,e] = f'),'var _1_11_ = f; d = _1_11_[0]; k = _1_11_[1]; v = _1_11_[2]; e = _1_11_[3]\n')
-        compare(kc('[d,k,v,e] = f'),'var _1_10_ = f; d = _1_10_[0]; k = _1_10_[1]; v = _1_10_[2]; e = _1_10_[3]\n')
+        compare(kc(';[d,k,v,e] = f'),'var _a_ = f; d = _a_[0]; k = _a_[1]; v = _a_[2]; e = _a_[3]\n')
+        compare(kc('[d,k,v,e] = f'),'var _a_ = f; d = _a_[0]; k = _a_[1]; v = _a_[2]; e = _a_[3]\n')
         section("slice", function ()
         {
             compare(kc('a[0..1]'),'a.slice(0, 2)')
@@ -123,7 +121,7 @@ blocks.push(block)`)
     })
     section("assign", function ()
     {
-        compare(kc('[l, r] = a'),'var _1_7_ = a; l = _1_7_[0]; r = _1_7_[1]\n')
+        compare(kc('[l, r] = a'),'var _a_ = a; l = _a_[0]; r = _a_[1]\n')
         compare(ke(`a = [1,2]
 [a, b] = a
 [b,a]`),[2,1])

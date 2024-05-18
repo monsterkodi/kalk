@@ -123,9 +123,9 @@ class Operator
         if ((tl != null ? (_71_19_=tl.exps) != null ? _71_19_.length : undefined : undefined))
         {
             var list = _k_.list(tl.exps)
-            for (var _72_25_ = 0; _72_25_ < list.length; _72_25_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                e = list[_72_25_]
+                e = list[_a_]
                 this.exp(e)
             }
         }
@@ -149,9 +149,9 @@ class Operator
             if (e.length)
             {
                 var list = _k_.list(e)
-                for (var _86_42_ = 0; _86_42_ < list.length; _86_42_++)
+                for (var _a_ = 0; _a_ < list.length; _a_++)
                 {
-                    v = list[_86_42_]
+                    v = list[_a_]
                     this.exp(v)
                 }
             }
@@ -210,7 +210,7 @@ class Operator
             {
                 this.logChain(chain,p)
             }
-            for (var _121_21_ = i = 1, _121_25_ = p.length; (_121_21_ <= _121_25_ ? i < p.length : i > p.length); (_121_21_ <= _121_25_ ? ++i : --i))
+            for (var _a_ = i = 1, _b_ = p.length; (_a_ <= _b_ ? i < p.length : i > p.length); (_a_ <= _b_ ? ++i : --i))
             {
                 if (p[i] > p[i - 1])
                 {

@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var dss, rgs
 
 import util from "./util.js"

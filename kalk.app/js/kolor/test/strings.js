@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var i, rgs
 
 import util from "./util.js"
@@ -31,17 +29,17 @@ toExport["strings"] = function ()
     compare(inc(rgs,13,'"'),'punct string double')
     rgs = ranges('a="";b=" ";c="X"')
     var list = [2,3,7,9,13,15]
-    for (var _44_10_ = 0; _44_10_ < list.length; _44_10_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        i = list[_44_10_]
+        i = list[_a_]
         compare(inc(rgs,i,'"'),'punct string double')
     }
     compare(inc(rgs,14,'X'),'string double')
     rgs = ranges("a='';b=' ';c='Y'")
     var list1 = [2,3,7,9,13,15]
-    for (var _49_10_ = 0; _49_10_ < list1.length; _49_10_++)
+    for (var _b_ = 0; _b_ < list1.length; _b_++)
     {
-        i = list1[_49_10_]
+        i = list1[_b_]
         compare(inc(rgs,i,"'"),'punct string single')
     }
     compare(inc(rgs,14,'Y'),'string single')

@@ -26,9 +26,9 @@ class Keyinfo
         mods = []
         char = null
         var list = _k_.list(combo.split('+'))
-        for (var _34_14_ = 0; _34_14_ < list.length; _34_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            c = list[_34_14_]
+            c = list[_a_]
             if (this.isModifier(c))
             {
                 mods.push(c)
@@ -227,7 +227,7 @@ class Keyinfo
         var i, short
 
         short = this.convertCmdCtrl(combo.toLowerCase())
-        for (var _118_17_ = i = 0, _118_21_ = this.iconKeyNames.length; (_118_17_ <= _118_21_ ? i < this.iconKeyNames.length : i > this.iconKeyNames.length); (_118_17_ <= _118_21_ ? ++i : --i))
+        for (var _a_ = i = 0, _b_ = this.iconKeyNames.length; (_a_ <= _b_ ? i < this.iconKeyNames.length : i > this.iconKeyNames.length); (_a_ <= _b_ ? ++i : --i))
         {
             short = short.replace(new RegExp(this.iconKeyNames[i],'gi'),this.iconKeyChars[i])
         }

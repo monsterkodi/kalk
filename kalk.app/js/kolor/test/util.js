@@ -19,9 +19,9 @@ export default {lang:function (l)
     var r
 
     var list = _k_.list(rgs)
-    for (var _19_14_ = 0; _19_14_ < list.length; _19_14_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        r = list[_19_14_]
+        r = list[_a_]
         if (r.start === start && r.match === match)
         {
             return r.clss

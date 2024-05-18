@@ -219,7 +219,7 @@ class Slash
     {
         var c, clmn, d, f, l, line, split
 
-        var _175_14_ = Slash.splitDrive(p); f = _175_14_[0]; d = _175_14_[1]
+        var _a_ = Slash.splitDrive(p); f = _a_[0]; d = _a_[1]
 
         split = String(f).split(':')
         if (split.length > 1)
@@ -281,7 +281,7 @@ class Slash
     {
         var c, f, l
 
-        var _192_16_ = Slash.splitFileLine(p); f = _192_16_[0]; l = _192_16_[1]; c = _192_16_[2]
+        var _a_ = Slash.splitFileLine(p); f = _a_[0]; l = _a_[1]; c = _a_[2]
 
         return [f,[c,l - 1]]
     }
@@ -295,7 +295,7 @@ class Slash
     {
         var f, l
 
-        var _197_14_ = Slash.splitFileLine(p); f = _197_14_[0]; l = _197_14_[1]
+        var _a_ = Slash.splitFileLine(p); f = _a_[0]; l = _a_[1]
 
         if (l > 1)
         {
@@ -468,7 +468,7 @@ class Slash
     {
         var _318_35_
 
-        return ((_318_35_=globalThis.tmpDir) != null ? _318_35_ : process.env.TMPDIR)
+        return ((_318_35_=globalThis.tmpDir) != null ? _318_35_ : '/tmp')
     }
 
     static tmpfile (ext)

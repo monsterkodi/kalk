@@ -8,9 +8,9 @@ class Text
 
         o = 0
         var list = _k_.list(txt)
-        for (var _14_14_ = 0; _14_14_ < list.length; _14_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            c = list[_14_14_]
+            c = list[_a_]
             switch (c)
             {
                 case '(':
@@ -72,9 +72,9 @@ class Text
             return false
         }
         var list = _k_.list(chars)
-        for (var _48_14_ = 0; _48_14_ < list.length; _48_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            c = list[_48_14_]
+            c = list[_a_]
             if (txt.endsWith(c))
             {
                 return true

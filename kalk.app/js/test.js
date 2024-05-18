@@ -24,9 +24,9 @@ usage
 }
 tests = {}
 var list = _k_.list(mods)
-for (var _30_18_ = 0; _30_18_ < list.length; _30_18_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    m = list[_30_18_]
+    m = list[_a_]
     tests[m] = true
 }
 
@@ -46,18 +46,18 @@ else if (process.argv.slice(-1)[0] === 'silent')
 else if (_k_.in(process.argv.slice(-1)[0],mods))
 {
     var list1 = _k_.list(mods)
-    for (var _45_10_ = 0; _45_10_ < list1.length; _45_10_++)
+    for (var _b_ = 0; _b_ < list1.length; _b_++)
     {
-        m = list1[_45_10_]
+        m = list1[_b_]
         tests[m] = m === process.argv.slice(-1)[0]
     }
 }
 else if (process.argv.slice(-1)[0] !== _k_.file())
 {
     var list2 = _k_.list(mods)
-    for (var _49_10_ = 0; _49_10_ < list2.length; _49_10_++)
+    for (var _c_ = 0; _c_ < list2.length; _c_++)
     {
-        m = list2[_49_10_]
+        m = list2[_c_]
         tests[m] = false
     }
     hdr(process.argv.slice(-1)[0])
@@ -66,17 +66,17 @@ else if (process.argv.slice(-1)[0] !== _k_.file())
     tester.test(test.default)
 }
 var list3 = _k_.list(mods)
-for (var _57_8_ = 0; _57_8_ < list3.length; _57_8_++)
+for (var _d_ = 0; _d_ < list3.length; _d_++)
 {
-    mod = list3[_57_8_]
+    mod = list3[_d_]
     if (tests[mod])
     {
         hdr(mod)
         files = await fs.list(slash.path(_k_.dir(),mod,'test'))
         var list4 = _k_.list(files)
-        for (var _61_17_ = 0; _61_17_ < list4.length; _61_17_++)
+        for (var _e_ = 0; _e_ < list4.length; _e_++)
         {
-            file = list4[_61_17_]
+            file = list4[_e_]
             test = await import(file.path)
             tester.test(test.default)
         }

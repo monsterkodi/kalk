@@ -22,9 +22,11 @@ kakao.init ->
     main =$ '#main'
     main.classList.add 'app-drag-region' # make the window draggable anywhere
     
+    version = window.aboutVersion ? '1.0.0'
+    
     elem 'div' class:'about' id:'about' parent:main, children:
         [
             elem 'img' class:'image' src:window.aboutImage
-            elem 'div' class:'version' id:'version' text:'1.0.0'
+            elem 'div' class:'version' id:'version' text:version, click: -> if window.aboutURL ➜ kakao 'open' window.aboutURL
         ]
     

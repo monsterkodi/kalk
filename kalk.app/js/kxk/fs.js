@@ -15,9 +15,9 @@ class FS
 
         dirents = await fsp.readdir(dir,{withFileTypes:true})
         var list = _k_.list(dirents)
-        for (var _28_19_ = 0; _28_19_ < list.length; _28_19_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            dirent = list[_28_19_]
+            dirent = list[_a_]
             file = dirent.name
             isDir = !dirent.isFile()
             if (isDir && _k_.in(file,['node_modules','.git']))

@@ -186,7 +186,7 @@ class Stripol
                 }
             }
         }
-        for (var _159_17_ = i = 1, _159_21_ = chunks.length; (_159_17_ <= _159_21_ ? i < chunks.length : i > chunks.length); (_159_17_ <= _159_21_ ? ++i : --i))
+        for (var _a_ = i = 1, _b_ = chunks.length; (_a_ <= _b_ ? i < chunks.length : i > chunks.length); (_a_ <= _b_ ? ++i : --i))
         {
             if (_k_.empty(chunks))
             {

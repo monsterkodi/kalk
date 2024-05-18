@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var k
 
 import krzl from "../krzl.js"

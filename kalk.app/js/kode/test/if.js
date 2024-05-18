@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import utils from "./utils.js"
 let kc = utils.kc
 let ke = utils.ke
@@ -246,9 +244,9 @@ j = function ()
     var m
 
     var list = _k_.list(ms)
-    for (var _2_10_ = 0; _2_10_ < list.length; _2_10_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        m = list[_2_10_]
+        m = list[_a_]
         if (bla)
         {
             blub

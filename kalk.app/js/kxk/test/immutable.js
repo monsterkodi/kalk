@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var imm, ma, nx2, nxt
 
 import immutable from "../immutable.js"

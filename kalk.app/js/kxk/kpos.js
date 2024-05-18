@@ -11,7 +11,7 @@ clamp = function (r1, r2, v)
     {
         v = r1
     }
-    var _12_13_ = [Math.min(r1,r2),Math.max(r1,r2)]; s1 = _12_13_[0]; s2 = _12_13_[1]
+    var _a_ = [Math.min(r1,r2),Math.max(r1,r2)]; s1 = _a_[0]; s2 = _a_[1]
 
     if (v < s1)
     {

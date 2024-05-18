@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var a, arr, b, def, obj
 
 import util from "../util.js"

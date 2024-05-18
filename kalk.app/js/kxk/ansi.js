@@ -14,19 +14,19 @@ toHexString = function (num)
     return num
 }
 ;(function (o) {
-    var r_50_7_ = _k_.each_r(o)
+    var r_a_ = _k_.each_r(o)
     for (var k in o)
     {   
         var m = (function (red)
     {
         return         (function (o) {
-            var r_51_11_ = _k_.each_r(o)
+            var r_b_ = _k_.each_r(o)
             for (var k in o)
             {   
                 var m = (function (green)
             {
                 return                 (function (o) {
-                    var r_52_15_ = _k_.each_r(o)
+                    var r_c_ = _k_.each_r(o)
                     for (var k in o)
                     {   
                         var m = (function (blue)
@@ -37,35 +37,35 @@ toHexString = function (num)
                         r = red > 0 ? red * 40 + 55 : 0
                         g = green > 0 ? green * 40 + 55 : 0
                         b = blue > 0 ? blue * 40 + 55 : 0
-                        rgb = (function () { var r_57_40_ = []; var list = [r,g,b]; for (var _57_40_ = 0; _57_40_ < list.length; _57_40_++)  { n = list[_57_40_];r_57_40_.push(toHexString(n))  } return r_57_40_ }).bind(this)().join('')
+                        rgb = (function () { var r_d_ = []; var list = [r,g,b]; for (var _e_ = 0; _e_ < list.length; _e_++)  { n = list[_e_];r_d_.push(toHexString(n))  } return r_d_ }).bind(this)().join('')
                         STYLES[`f${c}`] = `#${rgb}`
                         return STYLES[`b${c}`] = `#${rgb}`
                     })(o[k])
                         if (m != null)
                         {
-                            r_52_15_[k] = m
+                            r_c_[k] = m
                         }
                     }
-                    return typeof o == 'string' ? r_52_15_.join('') : r_52_15_
+                    return typeof o == 'string' ? r_c_.join('') : r_c_
                 })([0,1,2,3,4,5])
             })(o[k])
                 if (m != null)
                 {
-                    r_51_11_[k] = m
+                    r_b_[k] = m
                 }
             }
-            return typeof o == 'string' ? r_51_11_.join('') : r_51_11_
+            return typeof o == 'string' ? r_b_.join('') : r_b_
         })([0,1,2,3,4,5])
     })(o[k])
         if (m != null)
         {
-            r_50_7_[k] = m
+            r_a_[k] = m
         }
     }
-    return typeof o == 'string' ? r_50_7_.join('') : r_50_7_
+    return typeof o == 'string' ? r_a_.join('') : r_a_
 })([0,1,2,3,4,5])
 ;(function (o) {
-    var r_61_8_ = _k_.each_r(o)
+    var r_f_ = _k_.each_r(o)
     for (var k in o)
     {   
         var m = (function (gray)
@@ -79,10 +79,10 @@ toHexString = function (num)
     })(o[k])
         if (m != null)
         {
-            r_61_8_[k] = m
+            r_f_[k] = m
         }
     }
-    return typeof o == 'string' ? r_61_8_.join('') : r_61_8_
+    return typeof o == 'string' ? r_f_.join('') : r_f_
 })((function() { var r = []; for (var i = 0; i <= 23; i++){ r.push(i); } return r; }).apply(this))
 class Ansi
 {
@@ -93,12 +93,12 @@ class Ansi
         andi = new Ansi()
         lines = []
         var list = ((_79_32_=(s != null ? s.split('\n') : undefined)) != null ? _79_32_ : [])
-        for (var _79_14_ = 0; _79_14_ < list.length; _79_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            l = list[_79_14_]
+            l = list[_a_]
             diss = andi.dissect(l)[1]
             htmlLine = ''
-            for (var _82_22_ = i = 0, _82_26_ = diss.length; (_82_22_ <= _82_26_ ? i < diss.length : i > diss.length); (_82_22_ <= _82_26_ ? ++i : --i))
+            for (var _b_ = i = 0, _c_ = diss.length; (_b_ <= _c_ ? i < diss.length : i > diss.length); (_b_ <= _c_ ? ++i : --i))
             {
                 d = diss[i]
                 span = d.styl && `<span style=\"${d.styl}\">${d.match}</span>` || d.match
@@ -237,7 +237,7 @@ class Ansi
                     return space = ''
                 }
             }).bind(this)
-            for (var _170_21_ = i = 0, _170_25_ = t.length; (_170_21_ <= _170_25_ ? i < t.length : i > t.length); (_170_21_ <= _170_25_ ? ++i : --i))
+            for (var _a_ = i = 0, _b_ = t.length; (_a_ <= _b_ ? i < t.length : i > t.length); (_a_ <= _b_ ? ++i : --i))
             {
                 if (t[i] !== ' ')
                 {
@@ -291,9 +291,9 @@ class Ansi
             }
             cs = c.trimRight(';').split(';')
             var list = _k_.list(cs)
-            for (var _196_21_ = 0; _196_21_ < list.length; _196_21_++)
+            for (var _c_ = 0; _c_ < list.length; _c_++)
             {
-                code = list[_196_21_]
+                code = list[_c_]
                 code = parseInt(code,10)
                 switch (code)
                 {

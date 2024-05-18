@@ -53,10 +53,10 @@ class Lexer
         {
             before = text.length
             var list = _k_.list(this.regs)
-            for (var _137_26_ = 0; _137_26_ < list.length; _137_26_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                key = list[_137_26_][0]
-                reg = list[_137_26_][1]
+                key = list[_a_][0]
+                reg = list[_a_][1]
                 match = text.match(reg)
                 if ((match != null ? match.index : undefined) === 0)
                 {
@@ -173,9 +173,9 @@ class Lexer
         var minind, splt, tok
 
         var list = _k_.list(tokens)
-        for (var _220_16_ = 0; _220_16_ < list.length; _220_16_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            tok = list[_220_16_]
+            tok = list[_a_]
             if (tok.type === 'triple')
             {
                 splt = tok.text.slice(3, -3).split('\n')
@@ -327,7 +327,7 @@ class Lexer
                 block = blocks.slice(-1)[0]
             }
         }
-        for (var _352_19_ = idx = 0, _352_23_ = tokens.length; (_352_19_ <= _352_23_ ? idx < tokens.length : idx > tokens.length); (_352_19_ <= _352_23_ ? ++idx : --idx))
+        for (var _a_ = idx = 0, _b_ = tokens.length; (_a_ <= _b_ ? idx < tokens.length : idx > tokens.length); (_a_ <= _b_ ? ++idx : --idx))
         {
             tok = tokens[idx]
             if (tok.type === 'nl')

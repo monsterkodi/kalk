@@ -77,7 +77,7 @@ parse = function (s)
             esc ^= s[p] === '|'
         }
         ld = ''
-        for (var _71_18_ = i = 0, _71_22_ = d; (_71_18_ <= _71_22_ ? i < d : i > d); (_71_18_ <= _71_22_ ? ++i : --i))
+        for (var _a_ = i = 0, _b_ = d; (_a_ <= _b_ ? i < d : i > d); (_a_ <= _b_ ? ++i : --i))
         {
             ld += ' '
         }
@@ -120,9 +120,9 @@ parse = function (s)
 
         o = {}
         var list = _k_.list(t.o)
-        for (var _113_14_ = 0; _113_14_ < list.length; _113_14_++)
+        for (var _c_ = 0; _c_ < list.length; _c_++)
         {
-            i = list[_113_14_]
+            i = list[_c_]
             o[i] = null
         }
         t.l = _k_.last(t.o)
@@ -396,7 +396,7 @@ parse = function (s)
     while (i < lines.length)
     {
         line = lines[i]
-        var _329_18_ = inspect(line); d = _329_18_[0]; k = _329_18_[1]; v = _329_18_[2]; e = _329_18_[3]
+        var _d_ = inspect(line); d = _d_[0]; k = _d_[1]; v = _d_[2]; e = _d_[3]
 
         if ((k != null))
         {
@@ -405,10 +405,10 @@ parse = function (s)
                 addLine(d,k)
                 ud = _k_.last(stack).d
                 var list = _k_.list(undense(d,v))
-                for (var _337_22_ = 0; _337_22_ < list.length; _337_22_++)
+                for (var _e_ = 0; _e_ < list.length; _e_++)
                 {
-                    e = list[_337_22_]
-                    var _338_31_ = inspect(e); dd = _338_31_[0]; dk = _338_31_[1]; dv = _338_31_[2]
+                    e = list[_e_]
+                    var _f_ = inspect(e); dd = _f_[0]; dk = _f_[1]; dv = _f_[2]
 
                     addLine(dd,dk,dv)
                 }
@@ -641,9 +641,9 @@ stringify = function (obj, options = {})
         if (opt.sort)
         {
             var list = _k_.list(Object.keys(o).sort())
-            for (var _503_18_ = 0; _503_18_ < list.length; _503_18_++)
+            for (var _10_ = 0; _10_ < list.length; _10_++)
             {
-                k = list[_503_18_]
+                k = list[_10_]
                 l.push(keyValue(k,o[k]))
             }
         }
@@ -697,7 +697,7 @@ stringify = function (obj, options = {})
                     {
                         s += '\n'
                     }
-                    s += (function () { var r_542_69_ = []; var list = _k_.list(o); for (var _542_69_ = 0; _542_69_ < list.length; _542_69_++)  { v = list[_542_69_];r_542_69_.push(ind + toStr(v,ind + indstr,true,visited))  } return r_542_69_ }).bind(this)().join('\n')
+                    s += (function () { var r_11_ = []; var list = _k_.list(o); for (var _12_ = 0; _12_ < list.length; _12_++)  { v = list[_12_];r_11_.push(ind + toStr(v,ind + indstr,true,visited))  } return r_11_ }).bind(this)().join('\n')
                 }
                 else if ((o.constructor != null ? o.constructor.name : undefined) === 'RegExp')
                 {

@@ -23,9 +23,9 @@ class Color
         colorized = ''
         index = 0
         var list = _k_.list(rngs)
-        for (var _40_16_ = 0; _40_16_ < list.length; _40_16_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            rng = list[_40_16_]
+            rng = list[_a_]
             while (index < rng.start)
             {
                 index += 1

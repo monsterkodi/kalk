@@ -66,7 +66,7 @@ class Tester
             {
                 return false
             }
-            for (var _71_25_ = i = 0, _71_29_ = a.length; (_71_25_ <= _71_29_ ? i < a.length : i > a.length); (_71_25_ <= _71_29_ ? ++i : --i))
+            for (var _a_ = i = 0, _b_ = a.length; (_a_ <= _b_ ? i < a.length : i > a.length); (_a_ <= _b_ ? ++i : --i))
             {
                 if (!this.sameObjects(a[i],b[i]))
                 {
@@ -186,9 +186,9 @@ class Tester
         var fail, summary
 
         var list = _k_.list(allfails)
-        for (var _173_17_ = 0; _173_17_ < list.length; _173_17_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            fail = list[_173_17_]
+            fail = list[_a_]
             console.log(_k_.R2(_k_.y5(' ' + fail.stack[0] + ' ')) + _k_.R1(_k_.y5(' ' + fail.stack.slice(1).join(_k_.r3(' ▸ ')) + ' ')))
             console.log(_k_.r5(this.showSpace(fail.lhs)))
             console.log(_k_.R1(_k_.r3(' ▸ ')))
@@ -222,7 +222,7 @@ class Tester
         split = ('' + s).split('\n')
         l = 0
         split = (function (o) {
-            var r_208_22_ = _k_.each_r(o)
+            var r_a_ = _k_.each_r(o)
             for (var k in o)
             {   
                 var m = (function (v)
@@ -234,10 +234,10 @@ class Tester
             })(o[k])
                 if (m != null)
                 {
-                    r_208_22_[k] = m
+                    r_a_[k] = m
                 }
             }
-            return typeof o == 'string' ? r_208_22_.join('') : r_208_22_
+            return typeof o == 'string' ? r_a_.join('') : r_a_
         })(split)
         split = split.filter(function (s)
         {
@@ -254,9 +254,9 @@ if (((globalThis.process != null ? globalThis.process.argv : undefined) != null)
     files = await fs.list(slash.path(_k_.dir(),'test'))
     fail = false
     var list = _k_.list(files)
-for (var _227_13_ = 0; _227_13_ < list.length; _227_13_++)
+for (var _a_ = 0; _a_ < list.length; _a_++)
 {
-    file = list[_227_13_]
+    file = list[_a_]
     if (slash.name(file.path) === 'utils')
     {
         continue

@@ -354,9 +354,9 @@ Title = (function ()
         }
         keypaths = sds.find.key(menu,'combo')
         var list = _k_.list(keypaths)
-        for (var _242_20_ = 0; _242_20_ < list.length; _242_20_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            keypath = list[_242_20_]
+            keypath = list[_a_]
             combos = sds.get(menu,keypath).split(' ')
             combos = combos.map(function (c)
             {

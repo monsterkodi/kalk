@@ -192,8 +192,6 @@ class Keys
         
     keyUp: info ->
         
-        log 'up' info
-        
         if info.key == 'shift'
             if @shiftFunctions
                 post.emit 'keys' 'numbers'

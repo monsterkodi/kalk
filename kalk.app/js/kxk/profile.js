@@ -1,5 +1,3 @@
-var _k_
-
 var profile
 
 
@@ -36,9 +34,9 @@ profile = (function ()
         b = t - profile.hrtime[id]
         f = 0.001
         var list = ['s','ms','μs']
-        for (var _29_14_ = 0; _29_14_ < list.length; _29_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            u = list[_29_14_]
+            u = list[_a_]
             if (u === 'μs' || b * f > 1)
             {
                 v = b * f

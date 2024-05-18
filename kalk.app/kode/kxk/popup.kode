@@ -80,8 +80,7 @@ function Popup
     close: (opt={}) =>
         
         if empty(@parent) or @parentMenu()?.elem?.classList.contains 'menu'
-            if 'skip' == @onClose?()
-                return
+            ⮐ if 'skip' == @onClose?()
         
         @popup?.close focus:false
         delete @popup
@@ -118,7 +117,7 @@ function Popup
     
     select: (item, opt={}) ->
         
-        return if not item?
+        ⮐ if not item?
         
         if @popup?
             @popup.close focus:false
@@ -247,7 +246,11 @@ function Popup
         
         stopEvent event
         
+        item = elem.upElem event.target, prop:'item'
+        log 'onPopupMouseUp' item
+        
         if @selected
+            log 'onPopupMouseUp' @selected
             @activate @selected
         
     onItemMouseUp: (event) => 
@@ -256,9 +259,13 @@ function Popup
         
         item = elem.upElem event.target, prop:'item'
         
+        log 'onItemMouseUp' item
+        
         if item
             if item.item.menu
                 @toggle item
+            else if item == 'close'
+                @close all:true focus:true
             else
                 @activate item
                 

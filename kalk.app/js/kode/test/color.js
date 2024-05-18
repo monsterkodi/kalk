@@ -15,9 +15,9 @@ toExport["color"] = function ()
     {
         s = ''
         var list = _k_.list('RGBCMYW')
-        for (var _19_14_ = 0; _19_14_ < list.length; _19_14_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            n = list[_19_14_]
+            n = list[_a_]
             l = n.toLowerCase()
             s += ke(`${n}${l}${c}(' ${n}${l}${c} ')`)
         }

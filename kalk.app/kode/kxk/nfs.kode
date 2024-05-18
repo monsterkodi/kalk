@@ -95,8 +95,7 @@ class NFS
     @info: p ○->
         
         try
-            stat =○ fsp.stat p
-            return stat
+            ⮐ ○ fsp.stat p
         catch err
             error "nfs.info -- " + String(err)
             
@@ -112,7 +111,7 @@ class NFS
             ○ fsp.mkdir p, recursive:true
         catch err
             if err.code != 'EEXIST'
-                error "nfs.mkdir -- " + String(err)
+                ⮐ error "nfs.mkdir -- " + String(err)
         p
         
     # 00000000  000   000  000   0000000  000000000   0000000  
@@ -126,9 +125,9 @@ class NFS
         try
             ⮐ if not p?
                 
-            p = slash.path slash.removeLinePos p
-            r =○ fsp.access p, fs.R_OK | fs.F_OK
-            s =○ fsp.stat p
+            p =  slash.path slash.removeLinePos p
+            r =○ fsp.access p, fs.R_OK | fs.F_OK # is this neccessary?
+            ⮐ ○ fsp.stat p
                             
         catch err
            # error "nfs.exists -- " + String(err)
@@ -190,21 +189,33 @@ class NFS
         if ○ NFS.isDir to
             to = slash.path to, slash.file from
           
-        # log 'nfs.copy' from, to
         ○ fsp.cp from, to, recursive:true
 
+    # 00     00   0000000   000   000  00000000  
+    # 000   000  000   000  000   000  000       
+    # 000000000  000   000   000 000   0000000   
+    # 000 0 000  000   000     000     000       
+    # 000   000   0000000       0      00000000  
+    
+    @move: from to ○-> 
+        
+        if ○ NFS.isDir to
+            to = slash.path to, slash.file from
+    
+        if ○ NFS.exists from
+            ○ fsp.rename from, to
+    
     # 000000000   0000000   0000000     0000000     
     #    000     000   000  000   000  000   000    
     #    000     000   000  000   000  000   000    
     #    000     000   000  000   000  000   000    
     #    000      0000000   0000000     0000000     
         
-    @pkg:           (p) ○-> error 'todo'
-    @git:           (p) ○-> error 'todo'
-    @isWritable:    (p) ○-> error 'todo'
-    @isReadable:    (p) ○-> error 'todo'
-    @duplicate:     (p) ○-> error 'todo'
-    @trash:         (p) ○-> error 'todo'
-    @move:       (p, d) ○-> error 'todo'
+    @pkg:        p ○-> error 'todo'
+    @git:        p ○-> error 'todo'
+    @isWritable: p ○-> error 'todo'
+    @isReadable: p ○-> error 'todo'
+    @duplicate:  p ○-> error 'todo'
+    @trash:      p ○-> error 'todo'
         
 export NFS

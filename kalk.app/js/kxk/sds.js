@@ -31,7 +31,7 @@ collect = function (object, filter, map, count = -1, keyPath = [], result = [])
     switch (object.constructor.name)
     {
         case "Array":
-            for (var _49_22_ = i = 0, _49_26_ = object.length; (_49_22_ <= _49_26_ ? i < object.length : i > object.length); (_49_22_ <= _49_26_ ? ++i : --i))
+            for (var _a_ = i = 0, _b_ = object.length; (_a_ <= _b_ ? i < object.length : i > object.length); (_a_ <= _b_ ? ++i : --i))
             {
                 v = object[i]
                 keyPath.push(i)

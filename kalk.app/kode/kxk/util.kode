@@ -162,7 +162,6 @@ util =
         for key,val of obj
             result.push [key, val]
         result
-        
     
     #  0000000  000      00000000  00000000  00000000   
     # 000       000      000       000       000   000  
@@ -172,4 +171,20 @@ util =
     
     sleep: ms ○-> ○ new Promise((r) => setTimeout(r, ms)); true
 
+    # 00     00   0000000   000000000  000   000    
+    # 000   000  000   000     000     000   000    
+    # 000000000  000000000     000     000000000    
+    # 000 0 000  000   000     000     000   000    
+    # 000   000  000   000     000     000   000    
+    
+    rad2deg:        r -> 180 * r / Math.PI
+    deg2rad:        d -> Math.PI * d / 180
+    
+    randInt:      r   -> Math.floor Math.random() * r
+    randIntRange: l h -> Math.floor l+Math.random()*(h-l+1)
+    randRange:    l h -> l+Math.random()*(h-l)
+    
+    absMax:       a b -> (Math.abs(a) >= Math.abs(b)) ? a : b
+    absMin:       a b -> (Math.abs(a)  < Math.abs(b)) ? a : b
+    
 export util

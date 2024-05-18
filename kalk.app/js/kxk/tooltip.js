@@ -40,9 +40,9 @@ Tooltip = (function ()
         var mutation
 
         var list = _k_.list(mutationList)
-        for (var _31_21_ = 0; _31_21_ < list.length; _31_21_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            mutation = list[_31_21_]
+            mutation = list[_a_]
             if (mutation.type === "childList")
             {
                 if (_k_.in(this.elem,mutation.removedNodes))

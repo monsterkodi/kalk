@@ -62,8 +62,8 @@ static void FSMonitorEventStreamCallback(ConstFSEventStreamRef streamRef, Watch*
 }
 
 - (Watch*)initPath:(NSString*)path;
-- (void)start;
-- (void)stop;
+- (void) start;
+- (void) stop;
 
 @property(nonatomic, assign) id<WatchDelegate>  delegate;
 @property(nonatomic, retain) NSString*          path;
@@ -79,7 +79,7 @@ static void FSMonitorEventStreamCallback(ConstFSEventStreamRef streamRef, Watch*
     return watch;
 }
 
-- (Watch*)initPath:(NSString*)path 
+- (Watch*) initPath:(NSString*)path 
 {
     if ((self = [super init])) 
     {
@@ -89,14 +89,14 @@ static void FSMonitorEventStreamCallback(ConstFSEventStreamRef streamRef, Watch*
     return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
     [self.delegate release];
     [self stop];
     [super dealloc];
 }
 
-- (void)start 
+- (void) start 
 {
     NSArray *paths = [NSArray arrayWithObject:self.path];
 
@@ -131,7 +131,7 @@ static void FSMonitorEventStreamCallback(ConstFSEventStreamRef streamRef, Watch*
     }
 }
 
-- (void)stop
+- (void) stop
 {
     FSEventStreamStop(streamRef);
     FSEventStreamInvalidate(streamRef);
@@ -140,6 +140,12 @@ static void FSMonitorEventStreamCallback(ConstFSEventStreamRef streamRef, Watch*
 }
 
 @end
+
+// 00     00   0000000   000   000  000  000000000   0000000   00000000   00000000  000   000  00000000  000   000  000000000
+// 000   000  000   000  0000  000  000     000     000   000  000   000  000       000   000  000       0000  000     000   
+// 000000000  000   000  000 0 000  000     000     000   000  0000000    0000000    000 000   0000000   000 0 000     000   
+// 000 0 000  000   000  000  0000  000     000     000   000  000   000  000          000     000       000  0000     000   
+// 000   000   0000000   000   000  000     000      0000000   000   000  00000000      0      00000000  000   000     000   
 
 static void FSMonitorEventStreamCallback( ConstFSEventStreamRef streamRef, 
                                           Watch* monitor, 

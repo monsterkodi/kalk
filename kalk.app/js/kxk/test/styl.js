@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 import styl from "../styl.js"
 
 toExport["styl"] = function ()

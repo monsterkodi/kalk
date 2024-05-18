@@ -19,9 +19,9 @@ for (names in langNoon)
 {
     keywords = langNoon[names]
     var list = _k_.list(names.split(/\s/))
-    for (var _29_12_ = 0; _29_12_ < list.length; _29_12_++)
+    for (var _a_ = 0; _a_ < list.length; _a_++)
     {
-        ext = list[_29_12_]
+        ext = list[_a_]
         if (!(_k_.in(ext,exts)))
         {
             exts.push(ext)
@@ -31,9 +31,9 @@ for (names in langNoon)
         {
             words = keywords[value]
             var list1 = _k_.list(words)
-            for (var _33_21_ = 0; _33_21_ < list1.length; _33_21_++)
+            for (var _b_ = 0; _b_ < list1.length; _b_++)
             {
-                word = list1[_33_21_]
+                word = list1[_b_]
                 lang[ext][word] = value
             }
         }

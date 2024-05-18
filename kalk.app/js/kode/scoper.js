@@ -28,9 +28,9 @@ class Scoper
         this.args.push({})
         this.vars.push(body.vars)
         var list = _k_.list(body.exps)
-        for (var _44_21_ = 0; _44_21_ < list.length; _44_21_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            e = list[_44_21_]
+            e = list[_a_]
             this.exp(e)
         }
         this.maps.pop()
@@ -47,9 +47,9 @@ class Scoper
         this.args.push({})
         this.vars.push(f.body.vars)
         var list = _k_.list((f.args != null ? f.args.parens.exps : undefined))
-        for (var _62_16_ = 0; _62_16_ < list.length; _62_16_++)
+        for (var _a_ = 0; _a_ < list.length; _a_++)
         {
-            arg = list[_62_16_]
+            arg = list[_a_]
             if (t = arg.text)
             {
                 this.args.slice(-1)[0][t] = t
@@ -67,9 +67,9 @@ class Scoper
             }
         }
         var list1 = _k_.list((f.body != null ? f.body.exps : undefined))
-        for (var _70_21_ = 0; _70_21_ < list1.length; _70_21_++)
+        for (var _b_ = 0; _b_ < list1.length; _b_++)
         {
-            e = list1[_70_21_]
+            e = list1[_b_]
             this.exp(e)
         }
         this.maps.pop()
@@ -91,18 +91,18 @@ class Scoper
             var arg, map
 
             var list = _k_.list(this.maps)
-            for (var _88_37_ = 0; _88_37_ < list.length; _88_37_++)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
             {
-                map = list[_88_37_]
+                map = list[_a_]
                 if (map[v])
                 {
                     return
                 }
             }
             var list1 = _k_.list(this.args)
-            for (var _89_37_ = 0; _89_37_ < list1.length; _89_37_++)
+            for (var _b_ = 0; _b_ < list1.length; _b_++)
             {
-                arg = list1[_89_37_]
+                arg = list1[_b_]
                 if (arg[v])
                 {
                     return
@@ -125,9 +125,9 @@ class Scoper
             if (e.length)
             {
                 var list = _k_.list(e)
-                for (var _100_46_ = 0; _100_46_ < list.length; _100_46_++)
+                for (var _c_ = 0; _c_ < list.length; _c_++)
                 {
-                    v = list[_100_46_]
+                    v = list[_c_]
                     this.exp(v)
                 }
             }
@@ -145,9 +145,9 @@ class Scoper
                     else if (op.lhs.object)
                     {
                         var list1 = _k_.list(op.lhs.object.keyvals)
-                        for (var _108_35_ = 0; _108_35_ < list1.length; _108_35_++)
+                        for (var _d_ = 0; _d_ < list1.length; _d_++)
                         {
-                            keyval = list1[_108_35_]
+                            keyval = list1[_d_]
                             if (keyval.type === 'var')
                             {
                                 insert(keyval.text,'curly')
@@ -157,9 +157,9 @@ class Scoper
                     else if (op.lhs.array)
                     {
                         var list2 = _k_.list(op.lhs.array.items)
-                        for (var _112_32_ = 0; _112_32_ < list2.length; _112_32_++)
+                        for (var _e_ = 0; _e_ < list2.length; _e_++)
                         {
-                            val = list2[_112_32_]
+                            val = list2[_e_]
                             if (val.type === 'var')
                             {
                                 insert(val.text,'array')
@@ -177,9 +177,9 @@ class Scoper
                 else
                 {
                     var list3 = ((_121_45_=(fv.array != null ? fv.array.items : undefined)) != null ? _121_45_ : e.for.vals)
-                    for (var _121_26_ = 0; _121_26_ < list3.length; _121_26_++)
+                    for (var _f_ = 0; _f_ < list3.length; _f_++)
                     {
-                        v = list3[_121_26_]
+                        v = list3[_f_]
                         if (v.text)
                         {
                             insert(v.text,'for')

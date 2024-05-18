@@ -1,6 +1,4 @@
 var toExport = {}
-var _k_
-
 var b, ext, lang, parse
 
 import kolor from "../kolor.js"
