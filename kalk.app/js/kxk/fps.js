@@ -15,7 +15,7 @@ class FPS
         opt.width = ((_15_20_=opt.width) != null ? _15_20_ : 130)
         opt.height = ((_16_20_=opt.height) != null ? _16_20_ : 15)
         this.topDown = opt.topDown
-        this.samples = opt.width * 2
+        this.samples = opt.width
         this.height = opt.height * 2
         this.elem = elem({class:'fps',parent:parent,width:opt.width,height:opt.height})
         this.canvas = elem('canvas',{class:'fpsCanvas',width:this.samples,height:this.height})

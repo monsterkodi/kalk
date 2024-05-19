@@ -6,7 +6,7 @@
     000   000  000   000  000   000  000   000   0000000 
 
     handles application initialization
-    handles sending and receiving messages to/from the application process
+    sends and receives messages from the application process
     provides shortcuts to internal modules
     sets itself in the global window scope
 ###

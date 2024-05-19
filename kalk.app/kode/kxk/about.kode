@@ -22,7 +22,7 @@ kakao.init ->
     main =$ '#main'
     main.classList.add 'app-drag-region' # make the window draggable anywhere
     
-    version = window.aboutVersion ? '1.0.0'
+    version = window.aboutVersion ? '1.0'
     
     elem 'div' class:'about' id:'about' parent:main, children:
         [

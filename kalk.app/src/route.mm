@@ -29,20 +29,86 @@
     NSString* route = [msg.body valueForKey:@"route"];
     NSArray*  args  = [msg.body valueForKey:@"args"];
 
-         if ([route isEqualToString:@"log"  ]) { NSLog(@"%ld %@ %@", (long)win.windowNumber, msg.name, msg.body); }
-    else if ([route isEqualToString:@"now"  ]) { reply = [NSNumber numberWithDouble:CFAbsoluteTimeGetCurrent()]; }
-    else if ([route isEqualToString:@"open" ]) {         [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[args objectAtIndex:0]]]; return; }
-    else if ([route hasPrefix:@"bundle."    ]) { reply = [Route bundle:     [route substringFromIndex:7]    args:args win:win]; }
-    else if ([route hasPrefix:@"window."    ]) { reply = [Route window:     [route substringFromIndex:7]    args:args win:win]; }
-    else if ([route hasPrefix:@"clipboard." ]) { reply = [Route clipboard:  [route substringFromIndex:10]   args:args win:win]; }
-    else if ([route hasPrefix:@"win."       ]) { reply = [Route window:     [route substringFromIndex:4]    args:args win:win]; }
-    else if ([route hasPrefix:@"app."       ]) {         [Route app:        [route substringFromIndex:4]    args:args win:win callback:callback]; return; }
-    else if ([route hasPrefix:@"fs."        ]) { reply = [FS    fs:         [route substringFromIndex:3]    args:args win:win]; }
-    else if ([route hasPrefix:@"js."        ]) { reply = [JS    js:         [route substringFromIndex:3]    args:args        ]; }
-    else if ([route hasPrefix:@"test."      ]) { reply = [Route test:       [route substringFromIndex:5]    args:args        ]; }
+         if ([route isEqualToString:@"log"    ]) { NSLog(@"%ld %@ %@", (long)win.windowNumber, msg.name, msg.body); }
+    else if ([route isEqualToString:@"now"    ]) { reply = [NSNumber numberWithDouble:CFAbsoluteTimeGetCurrent()]; }
+    else if ([route isEqualToString:@"open"   ]) { reply = [Route open:[args objectAtIndex:0]]; }
+    else if ([route isEqualToString:@"finder" ]) { reply = [Route finder:[args objectAtIndex:0]]; }
+    else if ([route hasPrefix:@"bundle."      ]) { reply = [Route bundle:     [route substringFromIndex:7]    args:args win:win]; }
+    else if ([route hasPrefix:@"window."      ]) { reply = [Route window:     [route substringFromIndex:7]    args:args win:win]; }
+    else if ([route hasPrefix:@"clipboard."   ]) { reply = [Route clipboard:  [route substringFromIndex:10]   args:args win:win]; }
+    else if ([route hasPrefix:@"win."         ]) { reply = [Route window:     [route substringFromIndex:4]    args:args win:win]; }
+    else if ([route hasPrefix:@"app."         ]) {         [Route app:        [route substringFromIndex:4]    args:args win:win callback:callback]; return; }
+    else if ([route hasPrefix:@"fs."          ]) { reply = [FS    fs:         [route substringFromIndex:3]    args:args win:win]; }
+    else if ([route hasPrefix:@"js."          ]) { reply = [JS    js:         [route substringFromIndex:3]    args:args        ]; }
+    else if ([route hasPrefix:@"test."        ]) { reply = [Route test:       [route substringFromIndex:5]    args:args        ]; }
     else NSLog(@"unknown request %@ %@", msg.name, msg.body);
     
     if (callback) callback(reply, nil);
+}
+
+// 00000000  000  000   000  0000000    00000000  00000000   
+// 000       000  0000  000  000   000  000       000   000  
+// 000000    000  000 0 000  000   000  0000000   0000000    
+// 000       000  000  0000  000   000  000       000   000  
+// 000       000  000   000  0000000    00000000  000   000  
+
++ (id) finder:(id)args
+{
+    if ([args isKindOfClass:[NSArray class]])
+    {
+        if ([args count] == 1)
+        {
+            NSString* path = [args objectAtIndex:0];
+            [[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:[path stringByDeletingLastPathComponent]];
+        }
+        else if ([args count] > 1)
+        {
+            NSMutableArray* urls = [NSMutableArray array];
+            for (NSString* arg in args)
+            {
+                [urls addObject:[NSURL fileURLWithPath:arg]];
+            }
+            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:urls];
+        }
+    }
+    else if ([args isKindOfClass:[NSString class]])
+    {
+        [[NSWorkspace sharedWorkspace] selectFile:args inFileViewerRootedAtPath:[args stringByDeletingLastPathComponent]];
+    }
+    return nil;
+}
+
+//  0000000   00000000   00000000  000   000  
+// 000   000  000   000  000       0000  000  
+// 000   000  00000000   0000000   000 0 000  
+// 000   000  000        000       000  0000  
+//  0000000   000        00000000  000   000  
+
++ (id) open:(id)args
+{
+    if ([args isKindOfClass:[NSString class]])
+    {
+        NSURL* url; 
+        
+        if ([args hasPrefix:@"/"])
+        {
+            url = [NSURL fileURLWithPath:args];
+        }
+        else
+        {
+            url = [NSURL URLWithString:args];
+        }
+        NSWorkspaceOpenConfiguration* configuration = [NSWorkspaceOpenConfiguration configuration];
+        [[NSWorkspace sharedWorkspace] openURL:url configuration:configuration completionHandler:^(NSRunningApplication *app, NSError *error) {}];
+    }
+    else if ([args isKindOfClass:[NSArray class]])
+    {
+        for (NSString* item in args)
+        {
+            [Route open:item];
+        }
+    }
+    return nil;
 }
 
 // 000   000  000  000   000  0000000     0000000   000   000  

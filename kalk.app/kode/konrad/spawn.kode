@@ -41,9 +41,8 @@ export (args) ○->
     ○ cpy "pyg/#{app}.pug"                      'pyg/index.pug'
     ○ cpy "js/#{app}.html"                      'js/index.html'
     ○ cpy "Contents/Resources/img/#{app}.icns"  'Contents/Resources/img/app.icns'
+    ○ cpy "Contents/#{app}.plist"               'Contents/Info.plist'
     
-    # TODO: patch info.plist
-        
     if app != 'ko'
         
         remove = [

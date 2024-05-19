@@ -7,6 +7,5 @@ let $ = kxk.$
 
 kakao.init(function ()
 {
-    new win
-    return elem({text:'func = () -> => a == b:{}, c()',parent:$('main')})
+    return new win
 })

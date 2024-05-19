@@ -39,6 +39,7 @@ export default async function (args)
     await cpy(`pyg/${app}.pug`,'pyg/index.pug')
     await cpy(`js/${app}.html`,'js/index.html')
     await cpy(`Contents/Resources/img/${app}.icns`,'Contents/Resources/img/app.icns')
+    await cpy(`Contents/${app}.plist`,'Contents/Info.plist')
     if (app !== 'ko')
     {
         remove = ['js/ko','kode/ko','pyg/ko','pyg/ko.pug','js/css/ko','Contents/Resources/img/ko.icns','Contents/Resources/img/ko.png','Contents/Resources/img/ko.pxm','Contents/Resources/img/menu_ko.png','Contents/Resources/menu_ko.noon','Contents/Resources/font/Lilex-Bold.woff2','Contents/Resources/font/devopicons.woff2','Contents/Resources/font/fa-regular-400.woff2','Contents/Resources/font/fa-solid-900.woff2','Contents/Resources/font/file-icons.woff2','Contents/Resources/font/fontawesome.woff2','Contents/Resources/font/mfixx.woff2','Contents/Resources/font/octicons.woff2']

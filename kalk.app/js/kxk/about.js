@@ -21,7 +21,7 @@ kakao.init(function ()
     }
     main = $('#main')
     main.classList.add('app-drag-region')
-    version = ((_25_34_=window.aboutVersion) != null ? _25_34_ : '1.0.0')
+    version = ((_25_34_=window.aboutVersion) != null ? _25_34_ : '1.0')
     return elem('div',{class:'about',id:'about',parent:main,children:[elem('img',{class:'image',src:window.aboutImage}),elem('div',{class:'version',id:'version',text:version,click:function ()
     {
         if (window.aboutURL)

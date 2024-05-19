@@ -16,7 +16,7 @@ class FPS
         opt.height  ?= 15
         
         @topDown = opt.topDown
-        @samples = opt.width*2
+        @samples = opt.width#*2
         @height  = opt.height*2
                     
         @elem = elem class:'fps' parent:parent, width:opt.width, height:opt.height

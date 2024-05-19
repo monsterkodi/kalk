@@ -19,4 +19,4 @@ kakao.init ->
 
     new win
 
-    elem text:'func = () -> => a == b:{}, c()' parent:$ 'main'
+    # elem text:'func = () -> => a == b:{}, c()' parent:$ 'main'
