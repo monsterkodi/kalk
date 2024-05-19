@@ -185,7 +185,17 @@ span.complex
 
 .key.multiply .key-wrap
 {
-    padding-top: 12px;
+    padding-top: 8px;
+}
+
+.key.hex.op1
+{
+    font-size: 48px;
+}
+
+.key.hex.op1 .key-wrap
+{
+    padding-bottom: 8px;
 }
 
 .key.function.atan
@@ -225,7 +235,7 @@ span.complex
 
 .key.clear .key-wrap
 {
-    top: 12px;
+    top: 18px;
     transform: translate(-50%, 0%);
 }
 

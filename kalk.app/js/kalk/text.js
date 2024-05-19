@@ -53,11 +53,11 @@ class Text
 
     static numbers = ['0','1','2','3','4','5','6','7','8','9']
 
-    static constants = [symbol.euler,'π','ϕ','°']
+    static constants = [symbol.euler,symbol.pi,symbol.phi,symbol.deg2rad]
 
     static ops = ['+','-','/','*','^','(']
 
-    static unfinished = ['.','+','-','/','*','^','(']
+    static unfinished = ['.','+','-','/','*','^','(','0x','0b','0o']
 
     static endsWith (txt, chars)
     {
@@ -91,6 +91,21 @@ class Text
     static isInteger (txt)
     {
         return /\d+/.test(txt)
+    }
+
+    static endsWithHex (txt)
+    {
+        return /0x[\dabcdef]*$/.test(txt)
+    }
+
+    static endsWithOct (txt)
+    {
+        return /0o[0-7]*$/.test(txt)
+    }
+
+    static endsWithBin (txt)
+    {
+        return /0b[01]*$/.test(txt)
     }
 
     static endsWithFloat (txt)
@@ -132,7 +147,7 @@ class Text
         {
             return popped
         }
-        if (this.endsWith(txt,['0']) && !(this.endsWith(popped,['.']) || this.endsWithNumber(popped)))
+        if (this.endsWith(txt,['0']) && !(this.endsWith(popped,['.']) || this.endsWithNumber(popped) || this.endsWithHex(popped) || this.endsWithOct(popped) || this.endsWithBin(popped)))
         {
             return popped
         }
@@ -140,6 +155,31 @@ class Text
         {
             return txt
         }
+    }
+
+    static makeTrailingHex (txt)
+    {
+        var num
+
+        if (Text.endsWithHex(txt))
+        {
+            return txt
+        }
+        if (Text.endsWithNumber(txt))
+        {
+            num = ''
+            while (Text.endsWithNumber(txt))
+            {
+                num += txt.slice(-1)[0]
+                txt = this.popChar(txt)
+            }
+            txt += '0x' + num
+        }
+        else
+        {
+            txt += '0x'
+        }
+        return txt
     }
 }
 

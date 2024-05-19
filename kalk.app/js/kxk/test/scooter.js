@@ -138,6 +138,19 @@ toExport["scooter"] = function ()
         compare(scooter('180°-π'),'0')
         compare(scooter('(1+√(5))/2-ϕ'),'0')
     })
+    section("hex", function ()
+    {
+        compare(scooter('hex(10)'),'0xa')
+        compare(scooter('hex(4*4)'),'0x10')
+        compare(scooter('hex(16^2-1)'),'0xff')
+        compare(scooter('0xa'),'10')
+        compare(scooter('0x10'),'16')
+        compare(scooter('0xff'),'255')
+        compare(scooter('hex(16.5)'),'0x10')
+        compare(scooter('hex(sqrt(257))'),'0x10')
+        compare(scooter('hex(-16.5)'),'-0x10')
+        compare(scooter('hex(10-100)'),'-0x5a')
+    })
 }
 toExport["scooter"]._section_ = true
 toExport._test_ = true

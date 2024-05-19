@@ -26,6 +26,12 @@ toExport["util"] = function ()
         b = ['c','d','e']
         compare(util.zip(a,b),[[1,'c'],[2,'d'],[4,'e']])
     })
+    section("fold", function ()
+    {
+        a = [1,2,3,4,5,6]
+        compare(util.fold(2,a),[[1,2],[3,4],[5,6]])
+        compare(util.fold(3,a),[[1,2,3],[4,5,6]])
+    })
     section("reversed", function ()
     {
         arr = [1,2,3]
@@ -142,8 +148,12 @@ toExport["util"] = function ()
     })
     section("toPairs", function ()
     {
-        obj = {a:1,b:2,c:3}
-        compare(util.toPairs(obj),[['a',1],['b',2],['c',3]])
+        compare(util.toPairs({a:1,b:2,c:3}),[['a',1],['b',2],['c',3]])
+        compare(util.toPairs([1,2,3,4,5]),[[1,2],[3,4]])
+    })
+    section("fromPairs", function ()
+    {
+        compare(util.fromPairs([['a',1],['b',2],['c',3]]),{a:1,b:2,c:3})
     })
     section("defaults", function ()
     {

@@ -44,6 +44,15 @@ util =
         for i in 0...maxLen
             result.push args.map (a) -> a[i]
         result
+        
+    fold: l a ->
+        
+        result = []
+        i = 0
+        while i <= a.length-l
+            result.push a.slice i,i+l
+            i += l
+        result
     
     reversed: arr -> arr.slice(0).reverse()
     
@@ -159,8 +168,19 @@ util =
     toPairs: obj ->
         
         result = []
-        for key,val of obj
-            result.push [key, val]
+        
+        if obj is obj
+            for key,val of obj
+                result.push [key, val]
+        else if obj is arr
+            result = util.fold 2 obj
+        result
+        
+    fromPairs: pairs ->
+        
+        result = {}
+        for pair in pairs
+            result[pair[0]] = pair[1]
         result
     
     #  0000000  000      00000000  00000000  00000000   

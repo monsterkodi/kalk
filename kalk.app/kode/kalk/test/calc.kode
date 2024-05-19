@@ -28,6 +28,8 @@ use .. ◆ symbol calc
             [[   '0.'                                                  ] [ symbol.sqrt, symbol.oneoverx, symbol.exp ]]   
             [['' '0.' '(' '4^' '6/' '7*'                               ] [ '*' '/' symbol.pow                       ]]
             [['' '0.' '(' '8°' '5.5'                                   ] [ symbol.dot                               ]]
+            [[   '0.'                                                  ] [ symbol.hex                               ]]
+            [[   '0x'                                                  ] [ '='                                      ]]
         ]
         for l in list
             for t in l[0]
@@ -52,7 +54,10 @@ use .. ◆ symbol calc
             [['' '0.' '1'         '5.5' '9/10+12' '8/' '5*'            ] [ '1''2''9''0'                 ]]
             [[             '1+2'        '9/10+12' '8/5'                ] [ symbol.close                 ]]
             [['' '-'  '+'  '1*' '2/' '3^' '4-'  '5+'                   ] [ symbol.open                  ]]
-            [[   'NaN' '+'  '1*' '2.0' '3.' '4-'  'sin('               ] [ symbol.backspace             ]]
+            [[   'NaN' '+'  '1*' '2.0' '3.' '4-'  'sin('               ] [ symbol.backspace, symbol.clear           ]]
+            [[''      '1'  '2+'  '2*' '5.5'                 symbol.phi ] [ symbol.hex, symbol.bin, symbol.oct       ]]
+            [['0'     '2+0' '0xf+0'                                    ] [ 'x' symbol.bin, symbol.oct               ]]
+            [[''      '1'  '2+'  '2*' '0x' '0xf'                       ] [ 'a''c''f'                    ]]
         ]
         for l in list
             for t in l[0]
@@ -147,6 +152,18 @@ use .. ◆ symbol calc
             'NaN':      '✘':''    '1':'1'     'sin':'sin('  '¹⧸ₓ':'1/'   '𝒆ˣ':'𝒆^'
             '1/':       '𝒆ˣ':'1/𝒆^'
             '1/':       '¹⧸ₓ':'1/1/'
+            '':         '⌗':'0x' '𝒷': '0b'
+            '16^2':     '⌗':'0x100'
+            '64^2':     '⌗':'0x1000'
+            '256^2':    '⌗':'0x10000'
+            '0xaa+':    '⌗':'0xaa+0x'
+            '0':        'x':'0x'
+            '0xf':      'f':'0xff'
+            '0xf0':     'f':'0xf0f'
+            '':         'f':'0xf'
+            '8':        'f':'0x8f'
+            '2+':       'f':'2+0xf'
+            '0x':       '𝒷': '0b' '𝓸': '0o'
 
         for t,keyResult of dict
             for key,result of keyResult

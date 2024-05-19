@@ -87,7 +87,7 @@ Store = (function ()
 
     Store.prototype["set"] = function (key, value)
     {
-        var _77_14_
+        var _78_14_
 
         if (!(_k_.isStr(key)))
         {
@@ -101,7 +101,11 @@ Store = (function ()
         {
             return
         }
-        this.data = ((_77_14_=this.data) != null ? _77_14_ : {})
+        if (_k_.empty(value))
+        {
+            return this.del(key)
+        }
+        this.data = ((_78_14_=this.data) != null ? _78_14_ : {})
         sds.set(this.data,this.keypath(key),value)
         this.delayedSave()
         return post.toWins('store',this.name,'set',key,value)

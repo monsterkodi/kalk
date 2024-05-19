@@ -26,7 +26,7 @@ function Title
         
         @elem.classList.add 'focus'
         
-        return if not @elem
+        ⮐ if not @elem
         
         post.on 'titlebar'      @onTitlebar
         post.on 'menuAction'    @onMenuAction

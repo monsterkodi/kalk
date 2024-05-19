@@ -16,7 +16,7 @@ symbol =
     sqrt:       '√'
     backspace:  '✘'
     func:       'ƒ'
-    clear:      'c'
+    clear:      'C'
     numbers:    'ℵ'
     rad2deg:    '∡'
     deg2rad:    '°'
@@ -24,7 +24,10 @@ symbol =
     close:      ')'
     pow:        '^'
     dot:        '.'
-
+    hex:        '⌗'
+    bin:        '𝒷'
+    oct:        '𝓸'
+    
 globalThis.symbol = symbol # 
 
 export symbol

@@ -90,14 +90,14 @@
 .sheet-line span.op1,
 .key.op1
 {
-    color: #66f;
+    color: #66d;
 }
 
 .input-text span.op2,
 .sheet-line span.op2,
 .key.op2
 {
-    color: #44f;
+    color: #44a;
 }
 
 .input-text span.bracket,
@@ -131,6 +131,53 @@
 .key.complex
 {
     color: #44a;
+}
+
+.input-text span.hex,
+.sheet-line span.hex,
+.key.hex
+{
+    color: #080;
+}
+
+.input-text span.hex.prefix,
+.sheet-line span.hex.prefix,
+.key.hex.prefix
+{
+    color: #040;
+}
+
+.input-text span.oct,
+.sheet-line span.oct,
+.key.oct
+{
+    color: #808;
+}
+
+.input-text span.oct.prefix,
+.sheet-line span.oct.prefix,
+.key.oct.prefix
+{
+    color: #404;
+}
+
+.input-text span.bin,
+.sheet-line span.bin,
+.key.bin
+{
+    color: #666;
+}
+
+.input-text span.bin.prefix,
+.sheet-line span.bin.prefix,
+.key.bin.prefix
+{
+    color: #333;
+}
+
+.key-table.hex tr td.key.digit
+{
+    color: #0a0;
 }
 
 .key

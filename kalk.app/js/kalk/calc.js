@@ -2,6 +2,7 @@ var _k_ = {empty: function (l) {return l==='' || l===null || l===undefined || l!
 
 import kxk from "../kxk.js"
 let scooter = kxk.scooter
+let fromPairs = kxk.fromPairs
 let kstr = kxk.kstr
 let post = kxk.post
 
@@ -11,14 +12,18 @@ class Calc
 {
     static activeKey (txt, key)
     {
-        var apply, clean, close, cOnst, deg2rad, dot, float, nuber, op, open, rad2deg, unfin, value
+        var apply, bin, clean, close, cOnst, deg2rad, dot, float, hex, int, num, oct, op, open, rad2deg, unfin, value
 
         clean = _k_.empty(txt)
         cOnst = text.endsWithConstant(txt)
         value = text.endsWithValue(txt)
         float = text.endsWithFloat(txt)
-        nuber = text.endsWithNumber(txt)
+        hex = text.endsWithHex(txt)
+        oct = text.endsWithOct(txt)
+        bin = text.endsWithBin(txt)
+        num = text.endsWithNumber(txt)
         unfin = text.endsWithUnfinished(txt)
+        int = num && !float && !oct && !bin
         open = txt.slice(-1)[0] === symbol.open
         close = txt.slice(-1)[0] === symbol.close
         deg2rad = txt.slice(-1)[0] === symbol.deg2rad
@@ -37,18 +42,33 @@ class Calc
                 return !cOnst && !deg2rad && !dot
 
             case '1':
+            case '0':
+                return !cOnst && !deg2rad
+
             case '2':
             case '3':
             case '4':
             case '5':
             case '6':
             case '7':
+                return !cOnst && !deg2rad && !bin
+
             case '8':
             case '9':
-            case '0':
-                return !cOnst && !deg2rad
+                return !cOnst && !deg2rad && !bin && !oct
 
+            case 'x':
+                return txt.slice(-1)[0] === '0' && !float && !hex && !bin && !oct
+
+            case 'a':
+            case 'b':
             case 'c':
+            case 'd':
+            case 'e':
+            case 'f':
+                return clean || hex || int || (unfin && !dot)
+
+            case symbol.clear:
             case symbol.backspace:
                 return !clean
 
@@ -73,6 +93,9 @@ class Calc
 
             case symbol.exp:
             case symbol.oneoverx:
+            case symbol.bin:
+            case symbol.oct:
+            case symbol.hex:
             case symbol.sqrt:
                 return open || apply || clean || (unfin && !dot)
 
@@ -87,7 +110,7 @@ class Calc
                 return !text.endsWith(txt,['+','-','.'])
 
             case '.':
-                return nuber && !float
+                return int
 
             case symbol.open:
                 return !dot && !open && !cOnst && !close && !value
@@ -125,7 +148,7 @@ class Calc
             }
         }
 
-        console.log('fallthrough false?',txt,key)
+        console.log('activeKey',txt,key)
         return false
     }
 
@@ -146,7 +169,7 @@ class Calc
 
     static textKey (txt, key)
     {
-        var clean, cOnst, f, float, nuber, open, unfin, value
+        var clean, cOnst, f, float, func, num, open, p, prfx, unfin, value
 
         if (!this.activeKey(txt,key))
         {
@@ -160,7 +183,7 @@ class Calc
         cOnst = text.endsWithConstant(txt)
         value = text.endsWithValue(txt)
         float = text.endsWithFloat(txt)
-        nuber = text.endsWithNumber(txt)
+        num = text.endsWithNumber(txt)
         unfin = text.endsWithUnfinished(txt)
         open = txt.slice(-1)[0] === symbol.open
         switch (key)
@@ -201,24 +224,41 @@ class Calc
             case symbol.exp:
                 open || clean ? txt += symbol.euler + '^' : txt = this.calc(symbol.euler + '^(' + txt + ')')
                 break
-            case '°':
-                txt += key
-                break
-            case '=':
-                txt = this.calc(txt)
+            case symbol.bin:
+            case symbol.oct:
+            case symbol.hex:
+                switch (key)
+                {
+                    case symbol.bin:
+                        prfx = '0b'
+                        func = 'bin'
+                        break
+                    case symbol.oct:
+                        prfx = '0o'
+                        func = 'oct'
+                        break
+                    case symbol.hex:
+                        prfx = '0x'
+                        func = 'hex'
+                        break
+                }
+
+                var list1 = ['0b','0o','0x']
+                for (var _b_ = 0; _b_ < list1.length; _b_++)
+                {
+                    p = list1[_b_]
+                    if (p !== prfx && txt.endsWith(p))
+                    {
+                        return txt.slice(0, -2) + prfx
+                    }
+                }
+                open || clean || unfin ? txt += prfx : txt = this.calc(func + '(' + txt + ')')
                 break
             case symbol.oneoverx:
                 open || clean || unfin ? txt += '1/' : txt = this.calc('1/(' + txt + ')')
                 break
-            case '∡':
+            case symbol.rad2deg:
                 txt = this.calc('∡(' + txt + ')')
-                break
-            case '+':
-            case '-':
-                txt += key
-                break
-            case '.':
-                txt += key
                 break
             case symbol.euler:
             case symbol.phi:
@@ -229,10 +269,15 @@ class Calc
                 }
                 txt += key
                 break
-            case '(':
-                txt += key
+            case '=':
+                txt = this.calc(txt)
                 break
-            case ')':
+            case '+':
+            case '-':
+            case '.':
+            case symbol.open:
+            case symbol.deg2rad:
+            case symbol.close:
                 txt += key
                 break
             default:
@@ -248,7 +293,15 @@ class Calc
             }
             else if (!text.endsWithConstant(txt))
             {
-                txt = text.removeZeroInfinity(txt) + key
+                if (key !== 'x')
+                {
+                    txt = text.removeZeroInfinity(txt)
+                }
+                if (_k_.in(key,'abcdef'))
+                {
+                    txt = text.makeTrailingHex(txt)
+                }
+                txt = txt + key
             }
         }
 

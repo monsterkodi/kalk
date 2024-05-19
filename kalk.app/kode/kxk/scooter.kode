@@ -131,6 +131,9 @@ scooter = str opt ->
         {PI, E, sqrt, pow, exp, cos, sin, tan, acos, asin, atan} = Math
         rad = d -> PI*d/180.0
         deg = r -> r*180.0/PI
+        hex = v -> i = parseInt v; ((i<0) ? '-' : '')+'0x'+Math.abs(i).toString(16)
+        oct = v -> i = parseInt v; ((i<0) ? '-' : '')+'0o'+Math.abs(i).toString(8)
+        bin = v -> i = parseInt v; ((i<0) ? '-' : '')+'0b'+Math.abs(i).toString(2)
         PHI = (1+sqrt(5))/2
         
         """

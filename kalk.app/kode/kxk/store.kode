@@ -73,6 +73,7 @@ function Store extends events
         ⮐ if not key is str
         ⮐ if isEqual @get(key), value
         ⮐ if @get(key) == value
+        ⮐ @del(key) if empty value
 
         @data ?= {}
         sds.set @data, @keypath(key), value

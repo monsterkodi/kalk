@@ -345,24 +345,24 @@ Win = (function ()
 
     Win.prototype["onKeyDown"] = function (event)
     {
-        var info, _203_21_, _203_38_
+        var info, _204_21_, _204_38_
 
         info = keyinfo.forEvent(event)
         info.event = event
         stopEvent(event)
         if ('unhandled' === window.titlebar.handleKeyInfo(info))
         {
-            return ((_203_21_=this.delegate) != null ? typeof (_203_38_=_203_21_.onWindowKeyDown) === "function" ? _203_38_(this,info) : undefined : undefined)
+            return ((_204_21_=this.delegate) != null ? typeof (_204_38_=_204_21_.onWindowKeyDown) === "function" ? _204_38_(this,info) : undefined : undefined)
         }
     }
 
     Win.prototype["onKeyUp"] = function (event)
     {
-        var info, _210_17_, _210_32_
+        var info, _211_17_, _211_32_
 
         info = keyinfo.forEvent(event)
         info.event = event
-        return ((_210_17_=this.delegate) != null ? typeof (_210_32_=_210_17_.onWindowKeyUp) === "function" ? _210_32_(this,info) : undefined : undefined)
+        return ((_211_17_=this.delegate) != null ? typeof (_211_32_=_211_17_.onWindowKeyUp) === "function" ? _211_32_(this,info) : undefined : undefined)
     }
 
     return Win

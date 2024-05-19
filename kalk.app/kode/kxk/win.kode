@@ -155,6 +155,7 @@ function Win
         ⮐ if @delegate?.onWindowMenuAction? @, action
             
         switch action.toLowerCase()
+            
             'focus next'     ➜ kakao 'window.focusNext'
             'focus previous' ➜ kakao 'window.focusPrev'
             'new window'     ➜ kakao 'window.new' slash.file document.URL

@@ -17,17 +17,10 @@ class Input
         this.onButton = this.onButton.bind(this)
         this.onResize = this.onResize.bind(this)
         this.clear = this.clear.bind(this)
-        this.view = $("#input")
+        this.view = $('#input')
         this.plain = ''
         post.on('resize',this.onResize)
         post.on('button',this.onButton)
-        post.on('menuAction',(function (action)
-        {
-            if (action === 'Clear')
-            {
-                return this.clear()
-            }
-        }).bind(this))
         this.input = elem({class:'input-text','tab-index':1})
         this.view.appendChild(elem({class:'input-frame',child:this.input}))
     }
@@ -88,6 +81,7 @@ class Input
 
     onButton (key)
     {
+        console.log('onButton',key)
         switch (key)
         {
             case 'ƒ':
@@ -96,7 +90,7 @@ class Input
             case 'ℵ':
                 return post.emit('keys','numbers')
 
-            case 'c':
+            case 'C':
                 return this.clear()
 
             default:

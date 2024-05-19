@@ -146,3 +146,19 @@ scoot = s -> Number.parseFloat scooter s
         scooter('180°-π')       ▸ '0'
         scooter('(1+√(5))/2-ϕ') ▸ '0'
         
+    ▸ hex
+    
+        scooter('hex(10)')      ▸ '0xa'
+        scooter('hex(4*4)')     ▸ '0x10'
+        scooter('hex(16^2-1)')  ▸ '0xff'
+
+        scooter('0xa')          ▸ '10'
+        scooter('0x10')         ▸ '16'
+        scooter('0xff')         ▸ '255'
+        
+        scooter('hex(16.5)')      ▸ '0x10'
+        scooter('hex(sqrt(257))') ▸ '0x10'
+        
+        scooter('hex(-16.5)')     ▸ '-0x10'
+        scooter('hex(10-100)')    ▸ '-0x5a'
+        

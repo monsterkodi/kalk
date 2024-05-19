@@ -13,19 +13,22 @@ class Color
     @: ->
         
         cfg = 
-            '=': 'equals'
-            'e[-+]': 'exponent'
-            '[\\.]': 'dot'
-            '[\\(\\)]': 'bracket'
-            '\\d+': 'digit' 
-            '°': 'digit' 
-            'i': 'complex'
-            '(sin|cos|a?tan|exp|log)': 'function'
-            'NaN': 'nan'
-            '[πx∞ϕ]': 'constant'
-            '[∡√^]': 'op0'
-            '[*/]': 'op1'
-            '[+-]': 'dot'
+            '(sin|cos|a?tan|exp|log|hex|oct|bin)': 'function'
+            '0x[0-9a-f]*':  'hex'
+            '0b[01]*':      'bin'
+            '0o[0-7]*':     'oct'
+            '=':            'equals'
+            'e[-+]':        'exponent'
+            '[\\.]':        'dot'
+            '[\\(\\)]':     'bracket'
+            '\\d+':         'digit' 
+            '°':            'digit' 
+            'i':            'complex'
+            'NaN':          'nan'
+            '[π∞ϕ]':        'constant'
+            '[∡√^]':        'op0'
+            '[*/]':         'op1'
+            '[+-]':         'op2'
             
         cfg[symbol.euler] = 'constant'
             
@@ -44,7 +47,18 @@ class Color
             if index > rng.start
                 continue
             clss = rng.clss ? 'text'
-            colorized += "<span class=\"#{clss}\">#{rng.match}</span>"
+            switch clss
+                'hex'
+                    colorized += "<span class=\"hex prefix\">0x</span>"
+                    colorized += "<span class=\"hex digit\">#{rng.match[2..]}</span>"
+                'bin'
+                    colorized += "<span class=\"bin prefix\">0b</span>"
+                    colorized += "<span class=\"bin digit\">#{rng.match[2..]}</span>"
+                'oct'
+                    colorized += "<span class=\"oct prefix\">0o</span>"
+                    colorized += "<span class=\"oct digit\">#{rng.match[2..]}</span>"
+                ➜ 
+                    colorized += "<span class=\"#{clss}\">#{rng.match}</span>"
             index = rng.start + rng.match.length
         while index < text.length
             index += 1

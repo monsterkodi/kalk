@@ -7,7 +7,7 @@
 ###
 
 use ../kakao
-use ../kxk ▪ $ win post stopEvent
+use ../kxk ▪ $ win kpos post popup stopEvent
 use ◆ symbol keys input sheet 
 
 window.WIN_MIN_WIDTH  = 476
@@ -22,6 +22,9 @@ function Delegate extends win.Delegate
         
         @aboutImage = kakao.bundle.img 'about_kalk.png'
         @aboutURL   = "https://github.com/monsterkodi/kalk"
+        
+        main =$ 'main'
+        main.addEventListener 'contextmenu' @onContextMenu
         
         post.on 'menuAction' @onMenuAction
         post.on 'calc'       @onCalc
@@ -46,6 +49,34 @@ function Delegate extends win.Delegate
         
         window.input.setText calc
         post.emit 'button' '='
+        
+    #  0000000   0000000   000   000  000000000  00000000  000   000  000000000  
+    # 000       000   000  0000  000     000     000        000 000      000     
+    # 000       000   000  000 0 000     000     0000000     00000       000     
+    # 000       000   000  000  0000     000     000        000 000      000     
+    #  0000000   0000000   000   000     000     00000000  000   000     000     
+    
+    onContextMenu: event => stopEvent event, @showContextMenu kpos event
+    showContextMenu: pos =>
+        
+        if not pos?
+            main =$ 'main'
+            pos = kpos main.getBoundingClientRect().left, main.getBoundingClientRect().top
+
+        items = [
+            text:   'Clear Log'
+            combo:  'k'
+        ,
+            text:   'Clear & Close Log'
+            combo:  'cmdctrl+k'
+        ]
+
+        opt = 
+            x:     pos.x
+            y:     pos.y
+            items: items
+            
+        popup.menu opt
 
     # 00     00  00000000  000   000  000   000   0000000    0000000  000000000  000   0000000   000   000  
     # 000   000  000       0000  000  000   000  000   000  000          000     000  000   000  0000  000  
@@ -60,14 +91,18 @@ function Delegate extends win.Delegate
             'Cut'       ➜ ⮐ @cut()
             'Copy'      ➜ ⮐ @cpy()
             'Paste'     ➜ ⮐ @paste()
-            'Clear All' ➜ ⮐ post.emit('sheet' 'collapse') and post.emit('menuAction' 'Clear')
-            'Clear Log' ➜ ⮐ post.emit('sheet' 'clear')
-            'Save'      ➜ ⮐ post.toMain 'saveBuffer'
+            
+            'Clear'             ➜ ⮐                                   post.emit 'button' symbol.clear
+            'Clear Log'         ➜ ⮐ post.emit('sheet' 'clear')    and post.emit 'button' symbol.clear
+            'Clear & Close Log' ➜ ⮐ post.emit('sheet' 'collapse') and post.emit 'button' symbol.clear
             
             'Sin' 'Cos' 
             'Tan' 'aTan' 
             'Log'       ➜ ⮐ post.emit 'button' action.toLowerCase()
             'Exp'       ➜ ⮐ post.emit 'button' symbol.exp
+            'Hex'       ➜ ⮐ post.emit 'button' symbol.hex
+            'Bin'       ➜ ⮐ post.emit 'button' symbol.bin
+            'Oct'       ➜ ⮐ post.emit 'button' symbol.oct
             'Deg2Rad'   ➜ ⮐ post.emit 'button' symbol.deg2rad
             'E'         ➜ ⮐ post.emit 'button' symbol.euler
             'PI'        ➜ ⮐ post.emit 'button' symbol.pi
@@ -105,8 +140,8 @@ function Delegate extends win.Delegate
         
         window.keys.keyUp info
         
-    onWindowBlur:  win      =>
-    onWindowFocus: win      =>
+    onWindowBlur:  win =>
+    onWindowFocus: win =>
     
     #  0000000   0000000   00000000   000   000        00000000    0000000    0000000  000000000  00000000    
     # 000       000   000  000   000   000 000         000   000  000   000  000          000     000         

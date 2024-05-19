@@ -13,12 +13,12 @@ class Input
 
     @: ->
         
-        @view = $ "#input"
+        @view =$ '#input'
         @plain = ''
         
         post.on 'resize' @onResize
         post.on 'button' @onButton
-        post.on 'menuAction' (action) => if action == 'Clear' then @clear()
+        # post.on 'menuAction' (action) => if action == 'Clear' then @clear()
         @input = elem class:'input-text' 'tab-index': 1
         @view.appendChild elem class:'input-frame' child:@input
                 
@@ -48,10 +48,12 @@ class Input
         
     onButton: key =>
         
+        log 'onButton' key
+        
         switch key
             'ƒ' ➜ post.emit 'keys' 'functions'
             'ℵ' ➜ post.emit 'keys' 'numbers'
-            'c' ➜ @clear()
+            'C' ➜ @clear()
                 ➜
                     if key in '()' ➜ @forceBracket = true
                     @setText calc.textKey @text(), key

@@ -10,7 +10,7 @@ toExport["calc"] = function ()
 {
     section("inactive", function ()
     {
-        list = [[['8°',symbol.phi],['0','1','2','3','4','5','6','7','8','9']],[['0.','8°',symbol.phi],[symbol.euler,symbol.pi,symbol.phi]],[['','0.'],[symbol.deg2rad]],[['','0.'],[symbol.rad2deg]],[['0.','(','2+2','((2+2)*3)'],[symbol.open]],[['','0.','(','4^','6/','7*','((2+2)*3)','666',symbol.phi],[symbol.close]],[['0.'],[symbol.sqrt,symbol.oneoverx,symbol.exp]],[['','0.','(','4^','6/','7*'],['*','/',symbol.pow]],[['','0.','(','8°','5.5'],[symbol.dot]]]
+        list = [[['8°',symbol.phi],['0','1','2','3','4','5','6','7','8','9']],[['0.','8°',symbol.phi],[symbol.euler,symbol.pi,symbol.phi]],[['','0.'],[symbol.deg2rad]],[['','0.'],[symbol.rad2deg]],[['0.','(','2+2','((2+2)*3)'],[symbol.open]],[['','0.','(','4^','6/','7*','((2+2)*3)','666',symbol.phi],[symbol.close]],[['0.'],[symbol.sqrt,symbol.oneoverx,symbol.exp]],[['','0.','(','4^','6/','7*'],['*','/',symbol.pow]],[['','0.','(','8°','5.5'],[symbol.dot]],[['0.'],[symbol.hex]],[['0x'],['=']]]
         var list1 = _k_.list(list)
         for (var _a_ = 0; _a_ < list1.length; _a_++)
         {
@@ -30,7 +30,7 @@ toExport["calc"] = function ()
     })
     section("active", function ()
     {
-        list = [[['1','(1+2)','5.5',symbol.phi],[symbol.deg2rad]],[['1','(1+2)','5.5',symbol.phi],[symbol.rad2deg]],[['1','(1+2)','5.5',symbol.phi],[symbol.pow]],[['','8°','1','(1+2)','5.5','9/10+12',symbol.phi],[symbol.sqrt,symbol.oneoverx,symbol.exp]],[['4-','5+','6/','7*','8^','sin('],[symbol.sqrt,symbol.oneoverx,symbol.exp]],[['1','(1+2)','5.5','9/10+12','8/','5*',symbol.phi],['+','-']],[['','0.','1','5.5','9/10+12','8/','5*'],['1','2','9','0']],[['1+2','9/10+12','8/5'],[symbol.close]],[['','-','+','1*','2/','3^','4-','5+'],[symbol.open]],[['NaN','+','1*','2.0','3.','4-','sin('],[symbol.backspace]]]
+        list = [[['1','(1+2)','5.5',symbol.phi],[symbol.deg2rad]],[['1','(1+2)','5.5',symbol.phi],[symbol.rad2deg]],[['1','(1+2)','5.5',symbol.phi],[symbol.pow]],[['','8°','1','(1+2)','5.5','9/10+12',symbol.phi],[symbol.sqrt,symbol.oneoverx,symbol.exp]],[['4-','5+','6/','7*','8^','sin('],[symbol.sqrt,symbol.oneoverx,symbol.exp]],[['1','(1+2)','5.5','9/10+12','8/','5*',symbol.phi],['+','-']],[['','0.','1','5.5','9/10+12','8/','5*'],['1','2','9','0']],[['1+2','9/10+12','8/5'],[symbol.close]],[['','-','+','1*','2/','3^','4-','5+'],[symbol.open]],[['NaN','+','1*','2.0','3.','4-','sin('],[symbol.backspace,symbol.clear]],[['','1','2+','2*','5.5',symbol.phi],[symbol.hex,symbol.bin,symbol.oct]],[['0','2+0','0xf+0'],['x',symbol.bin,symbol.oct]],[['','1','2+','2*','0x','0xf'],['a','c','f']]]
         var list4 = _k_.list(list)
         for (var _d_ = 0; _d_ < list4.length; _d_++)
         {
@@ -95,7 +95,7 @@ toExport["calc"] = function ()
     })
     section("textKey", function ()
     {
-        dict = {'':{'+':'+','-':'-','¹⧸ₓ':'1/','√':'√('},'log(':{'𝒆ˣ':'log(𝒆^'},'sin(':{'✘':''},'sin':{'✘':''},'√(':{'✘':''},'√':{'✘':''},'NaN':{'✘':'','1':'1','sin':'sin(','¹⧸ₓ':'1/','𝒆ˣ':'𝒆^'},'1/':{'𝒆ˣ':'1/𝒆^'},'1/':{'¹⧸ₓ':'1/1/'}}
+        dict = {'':{'+':'+','-':'-','¹⧸ₓ':'1/','√':'√('},'log(':{'𝒆ˣ':'log(𝒆^'},'sin(':{'✘':''},'sin':{'✘':''},'√(':{'✘':''},'√':{'✘':''},'NaN':{'✘':'','1':'1','sin':'sin(','¹⧸ₓ':'1/','𝒆ˣ':'𝒆^'},'1/':{'𝒆ˣ':'1/𝒆^'},'1/':{'¹⧸ₓ':'1/1/'},'':{'⌗':'0x','𝒷':'0b'},'16^2':{'⌗':'0x100'},'64^2':{'⌗':'0x1000'},'256^2':{'⌗':'0x10000'},'0xaa+':{'⌗':'0xaa+0x'},'0':{'x':'0x'},'0xf':{'f':'0xff'},'0xf0':{'f':'0xf0f'},'':{'f':'0xf'},'8':{'f':'0x8f'},'2+':{'f':'2+0xf'},'0x':{'𝒷':'0b','𝓸':'0o'}}
         for (t in dict)
         {
             keyResult = dict[t]

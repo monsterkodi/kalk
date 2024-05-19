@@ -34,9 +34,9 @@ class Text
         txt
       
     @numbers:     ['0' '1' '2' '3' '4' '5' '6' '7' '8' '9']
-    @constants:   [symbol.euler, 'π' 'ϕ' '°']
+    @constants:   [symbol.euler, symbol.pi, symbol.phi, symbol.deg2rad]
     @ops:         ['+' '-' '/' '*' '^' '(']
-    @unfinished:  ['.' '+' '-' '/' '*' '^' '(']
+    @unfinished:  ['.' '+' '-' '/' '*' '^' '(' '0x' '0b' '0o']
     
     @endsWith: txt chars -> 
         
@@ -52,8 +52,11 @@ class Text
             
         false
             
-    @popChar:            txt -> txt.substr 0, txt.length-1
+    @popChar:            txt -> txt.substr 0 txt.length-1
     @isInteger:          txt -> /\d+/.test txt
+    @endsWithHex:        txt -> /0x[\dabcdef]*$/.test txt
+    @endsWithOct:        txt -> /0o[0-7]*$/.test txt
+    @endsWithBin:        txt -> /0b[01]*$/.test txt
     @endsWithFloat:      txt -> /\.\d+$/.test txt
     @endsWithValue:      txt -> @endsWithNumber(txt) or @endsWithConstant(txt) or txt == '∞'
     @endsWithNumber:     txt -> @endsWith txt, @numbers
@@ -66,9 +69,28 @@ class Text
         
         ⮐ popped if txt == '∞'
         
-        if @endsWith(txt, ['0']) and not (@endsWith(popped, ['.']) or @endsWithNumber(popped))
-            popped 
+        if @endsWith(txt, ['0']) and not (
+            @endsWith(popped, ['.']) or 
+            @endsWithNumber(popped) or 
+            @endsWithHex(popped) or 
+            @endsWithOct(popped) or 
+            @endsWithBin(popped))
+                popped 
         else
             txt
+            
+    @makeTrailingHex: txt ->
+        
+        ⮐ txt if Text.endsWithHex txt
+        
+        if Text.endsWithNumber txt
+            num = ''
+            while Text.endsWithNumber txt
+                num += txt[-1]
+                txt = @popChar txt
+            txt += '0x' + num
+        else
+            txt += '0x'
+        txt
 
 export Text

@@ -43,6 +43,12 @@ use .. ◆ util
         b = ['c' 'd' 'e']
         
         util.zip a, b ▸ [[1 'c'],[2 'd'],[4 'e']]
+        
+    ▸ fold
+    
+        a = [1 2 3 4 5 6]
+        util.fold 2 a ▸ [[1 2], [3 4], [5 6]]
+        util.fold 3 a ▸ [[1 2 3], [4 5 6]]
     
     ▸ reversed
     
@@ -147,9 +153,13 @@ use .. ◆ util
         
     ▸ toPairs
     
-        obj = a:1 b:2 c:3
+        util.toPairs {a:1 b:2 c:3} ▸ [['a' 1],['b' 2],['c' 3]]
         
-        util.toPairs obj ▸ [['a' 1],['b' 2],['c' 3]]
+        util.toPairs [1 2 3 4 5] ▸ [[1 2],[3 4]]
+
+    ▸ fromPairs
+    
+        util.fromPairs [['a' 1],['b' 2],['c' 3]] ▸ a:1 b:2 c:3
         
     ▸ defaults
     

@@ -43,6 +43,18 @@ util = {isEqual:function (a, b)
         }))
     }
     return result
+},fold:function (l, a)
+{
+    var i, result
+
+    result = []
+    i = 0
+    while (i <= a.length - l)
+    {
+        result.push(a.slice(i,i + l))
+        i += l
+    }
+    return result
 },reversed:function (arr)
 {
     return arr.slice(0).reverse()
@@ -220,12 +232,12 @@ util = {isEqual:function (a, b)
     })
 },defaults:function (obj, def)
 {
-    var key, val, _141_21_
+    var key, val, _150_21_
 
     for (key in def)
     {
         val = def[key]
-        obj[key] = ((_141_21_=obj[key]) != null ? _141_21_ : val)
+        obj[key] = ((_150_21_=obj[key]) != null ? _150_21_ : val)
     }
     return obj
 },pickBy:function (obj, pred)
@@ -260,10 +272,29 @@ util = {isEqual:function (a, b)
     var key, result, val
 
     result = []
-    for (key in obj)
+    if (_k_.isObj(obj))
     {
-        val = obj[key]
-        result.push([key,val])
+        for (key in obj)
+        {
+            val = obj[key]
+            result.push([key,val])
+        }
+    }
+    else if (_k_.isArr(obj))
+    {
+        result = util.fold(2,obj)
+    }
+    return result
+},fromPairs:function (pairs)
+{
+    var pair, result
+
+    result = {}
+    var list = _k_.list(pairs)
+    for (var _19_ = 0; _19_ < list.length; _19_++)
+    {
+        pair = list[_19_]
+        result[pair[0]] = pair[1]
     }
     return result
 },sleep:async function (ms)

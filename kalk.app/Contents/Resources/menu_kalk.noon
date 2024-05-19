@@ -8,9 +8,9 @@
 kalk
     About                   cmdctrl+alt+/
     -
-    Clear                   c
+    Clear                   esc
     Clear Log               k
-    Clear All               cmdctrl+k
+    Clear & Close Log       cmdctrl+k
     --
     Quit                    cmdctrl+q
 
@@ -27,10 +27,10 @@ Edit
     -
     Op
 
-        Plus                     a p shift+=
+        Plus                     p shift+=
         Minus                   - s m shift+-
         Multiply                * t shift+8
-        Divide                  / d
+        Divide                  /
         Sqrt                    r shift+r
         Pow                     ^ shift+6
     Func
@@ -41,6 +41,9 @@ Edit
         Log                     shift+l
         Exp                     shift+x
         Deg2Rad                 shift+d
+        Hex                     # shift+3 h shift+h
+        Bin                     shift+b
+        Oct                     o shift+o
     Const
         E                       shift+e
         PI                      shift+p
