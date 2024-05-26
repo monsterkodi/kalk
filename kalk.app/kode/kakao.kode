@@ -17,7 +17,7 @@ use ◆ bundle
 function Kakao
 
     @init: cb ○->
-        
+                
         while not window.bundlePath # wait for valid bundle path
             ○ sleep 100
         bundle.path = window.bundlePath

@@ -1,1 +1,1 @@
-export default 745;
+export default 1306;

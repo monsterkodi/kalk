@@ -1,0 +1,418 @@
+// 0000000     0000000   00000000   000   000    
+// 000   000  000   000  000   000  000  000     
+// 000   000  000000000  0000000    0000000      
+// 000   000  000   000  000   000  000  000     
+// 0000000    000   000  000   000  000   000    
+
+clr                  = {} 
+clr.black            = #000000
+clr.gray-most-dark   = #181818
+clr.gray-super-dark  = #222222
+clr.gray-very-dark   = #282828
+clr.gray-dark        = #333333
+clr.gray-medium      = #555555
+clr.gray             = #888888
+clr.gray-bright      = #cccccc
+clr.gray-very-bright = #dddddd
+clr.white            = #ffffff
+clr.yellow-bright    = #ffff88
+clr.yellow           = #ffff00
+clr.orange-bright    = #ffaa00
+clr.orange           = #ff8800
+clr.red              = #ff0000
+clr.green-bright     = #00ff00
+clr.green            = #00aa00
+clr.green-dark       = #006600
+clr.blue-dark        = #2222aa
+clr.blue             = #4444ff
+clr.blue-medium      = #6666ff
+clr.blue-bright      = #8888ff
+clr.blue-very-bright = #aaaaff
+
+clr.background       = #222222
+
+body
+input
+    font-family       Arial, Verdana, sans-serif
+    
+body
+    background-color  clr.background
+    
+::selection
+    color             clr.yellow
+     
+// 000  000   000  00000000   000   000  000000000
+// 000  0000  000  000   000  000   000     000   
+// 000  000 0 000  00000000   000   000     000   
+// 000  000  0000  000        000   000     000   
+// 000  000   000  000         0000000      000   
+     
+.main-input
+    background-color  clr.gray-very-dark
+    color             clr.gray
+    border            1px solid clr.gray-very-dark
+    &:focus
+        background-color  clr.gray-very-dark
+        border            1px solid clr.gray-most-dark
+
+#master
+    color           clr.gray-dark
+    &:focus
+        box-shadow  0 0 10px clr.yellow
+        color       clr.orange
+        
+clr.site        = clr.green-dark       
+clr.site-medium = clr.green 
+clr.site-bright = clr.green-bright 
+#site
+    color                    clr.site
+    &:focus
+        box-shadow  0 0 10px clr.site-bright
+        color                clr.site-medium
+                
+clr.pattern        = clr.gray
+clr.pattern-medium = clr.white
+clr.pattern-bright = clr.white
+#pattern
+    color                    clr.pattern 
+    &:focus
+        box-shadow  0 0 10px clr.pattern-bright
+        color                clr.pattern-medium
+
+clr.password        = clr.blue-medium
+clr.password-medium = clr.blue-very-bright
+clr.password-bright = clr.blue-very-bright
+#password
+    color                    clr.password
+    &:focus
+        box-shadow  0 0 10px clr.password-bright
+        color                clr.password-medium
+    
+.ghost
+    font-weight     bold
+    color           rgba(255, 255, 255, 0.1)
+
+.timeout
+    background      rgba(255, 255, 255, 0.05)
+    
+// 0000000     0000000   00000000   0000000    00000000  00000000 
+// 000   000  000   000  000   000  000   000  000       000   000
+// 0000000    000   000  0000000    000   000  0000000   0000000  
+// 000   000  000   000  000   000  000   000  000       000   000
+// 0000000     0000000   000   000  0000000    00000000  000   000
+    
+.border
+    // border                1px solid clr.gray-very-dark
+    border                1px solid clr.background
+    background-color      clr.gray-dark
+
+#site-border
+#pattern-border
+#password-border
+#master-border
+    border               none
+    
+#master-border
+    &.focus
+        background-color  clr.orange
+        box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.5)
+
+#site-border
+    &.focus
+        background-color  clr.site-medium
+        box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.5)
+
+#pattern-border
+    &.focus
+        background-color  clr.pattern
+        box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.5)
+
+#password-border
+    &.focus
+        background-color  clr.password
+        box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.5)
+            
+// 000   0000000   0000000   000   000   0000000
+// 000  000       000   000  0000  000  000     
+// 000  000       000   000  000 0 000  0000000 
+// 000  000       000   000  000  0000       000
+// 000   0000000   0000000   000   000  0000000 
+    
+.lock    
+#lock
+    &.closed
+        color       clr.blue-medium
+    &.open
+        color       clr.orange
+
+.bool    
+    &.bool-true
+        color       clr.gray
+    &.bool-false
+        color       clr.gray-very-dark
+        
+.focus .bool
+    color       clr.white
+    &.bool-false
+        color       clr.gray-medium
+        
+#floppy
+    color           clr.white
+    &.saved
+        color       clr.gray-dark
+
+// 000000000  000   000  00000000   000000000  000      00000000
+//    000     000   000  000   000     000     000      000     
+//    000     000   000  0000000       000     000      0000000 
+//    000     000   000  000   000     000     000      000     
+//    000      0000000   000   000     000     0000000  00000000
+
+#turtle
+    &:focus
+        box-shadow       0px 0px 12px rgba(0, 0, 0, 0.5)
+    &:active
+        box-shadow       0px 0px  1px rgba(0, 0, 0, 0.1)
+        border  1px solid clr.gray-most-dark
+    background url(../../../Contents/Resources/img/turtle.png) no-repeat
+    background-size  contain
+        
+// 0000000    000   000  0000000    0000000    000      00000000
+// 000   000  000   000  000   000  000   000  000      000     
+// 0000000    000   000  0000000    0000000    000      0000000 
+// 000   000  000   000  000   000  000   000  000      000     
+// 0000000     0000000   0000000    0000000    0000000  00000000
+
+clr.bubble = rgba(0,0,0,0.38)
+clr.bubble-ask = rgba(0,0,0,0.8)
+
+#say-tri
+    border-left    20px solid transparent 
+    border-right   20px solid transparent 
+    border-bottom  20px solid clr.bubble
+
+#say
+    text-align        center
+    font-size         16px
+    text-shadow       2px 2px 5px black
+    color             clr.orange
+    background-color  clr.bubble        
+    
+#say b
+        color  clr.site-medium
+#say i
+        color  clr.pattern-medium
+        font-style  normal
+#say u
+        color  clr.password-medium
+        text-decoration  none
+#say p
+        margin-top  8px
+                
+#bubble.ask #say
+    background-color  clr.bubble-ask
+#bubble.ask #say-tri
+    border-bottom  20px solid clr.bubble-ask
+    
+.open
+    color  clr.blue-medium
+    &:hover
+        color  clr.blue-bright
+    
+// 0000000    000   000  000000000  000000000   0000000   000   000
+// 000   000  000   000     000        000     000   000  0000  000
+// 0000000    000   000     000        000     000   000  000 0 000
+// 000   000  000   000     000        000     000   000  000  0000
+// 0000000     0000000      000        000      0000000   000   000
+    
+.button
+
+    width                   50px
+    height                  40px
+    padding-top             6px
+    filter                  drop-shadow(0 0 2px rgba(0, 0, 0, 0.4))
+    color                   #444
+    &.current
+        filter              drop-shadow(0 0 3px rgba(200,200,200,0.2))
+        color               #aaa
+    &:hover
+        filter              drop-shadow(0 0 4px #fff)
+        color               #fff
+    &:active
+        filter              drop-shadow(0 0 4px rgba(255,255,0,0.5))
+        color               #ff0
+        
+#help
+    &:hover
+        filter              drop-shadow(0 0 4px rgba(100,100,255,0.5))
+        color               #88f
+    &:active
+        filter              drop-shadow(0 0 6px #888)
+        color               #fff
+        
+#prefs
+    &:focus
+        // box-shadow  0 0 10px clr.pattern-bright
+        color                clr.pattern-medium
+
+#stash
+#help
+    &:focus
+        // box-shadow  0 0 10px clr.site-bright
+        color                clr.site-medium
+    
+.button-border
+    background-color      clr.gray-super-dark
+    color                 clr.gray-dark
+    &.focus
+        color             clr.yellow
+        background-color  clr.orange        
+        // box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.5)
+    &.disabled
+        opacity           0.5
+        color             clr.gray-dark
+                
+//  0000000  000000000   0000000    0000000  000   000
+// 000          000     000   000  000       000   000
+// 0000000      000     000000000  0000000   000000000
+//      000     000     000   000       000  000   000
+// 0000000      000     000   000  0000000   000   000
+
+#vaultscroll
+#stashscroll
+    background     clr.gray-very-dark
+    
+#stashscroll
+    font-size      18px
+
+.stash-item-border        
+    & .site
+        color      clr.site                
+    &.focus .site   
+        color      clr.site-bright
+    & .pattern
+        color      clr.pattern-bright
+
+// 000   000   0000000   000   000  000      000000000
+// 000   000  000   000  000   000  000         000   
+//  000 000   000000000  000   000  000         000   
+//    000     000   000  000   000  000         000   
+//     0      000   000   0000000   0000000     000   
+
+.vault-item-border
+    border                1px solid clr.gray-very-dark
+    background-color      clr.gray-dark
+    &.focus
+        background-color  clr.orange
+
+.vault-item
+    border            none
+    background-color  clr.gray-very-dark    
+    color             clr.white
+    &:focus
+        color         clr.orange
+
+.vault-value
+    // border            1px solid clr.gray-very-dark
+    border            none
+    background-color  clr.gray-super-dark
+    color             clr.orange-bright
+    // box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.25)
+
+.vault-value:focus
+.vault-overlay    
+.vault-overlay.vault-key
+.vault-overlay.vault-value
+    border            1px solid clr.gray-very-dark
+    color             clr.black
+    background-color  clr.orange
+    box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.75)
+
+.vault-arrow
+    color             clr.gray-dark
+.vault-arrow.open
+    color             #444444
+.vault-item-border.focus .vault-arrow
+    color             clr.orange
+        
+// 00000000   00000000   00000000  00000000   0000000
+// 000   000  000   000  000       000       000     
+// 00000000   0000000    0000000   000000    0000000 
+// 000        000   000  000       000            000
+// 000        000   000  00000000  000       0000000 
+
+.pref-item-border
+    & .int
+    & .pref
+    & .shortcut
+        color      clr.pattern
+    &.focus .int
+    &.focus .pref   
+    &.focus .shortcut
+        color      clr.pattern-bright
+
+.pref-overlay 
+.pref-item
+.stash-item
+    border            none
+    background-color  clr.gray-dark    
+        
+.pref-overlay.int
+.pref-overlay.shortcut
+    padding-right     14px    
+    padding-left      14px    
+    color             clr.pattern-bright
+    background-color  clr.pattern
+    box-shadow        inset 2px 2px 17px rgba(0, 0, 0, 0.75)
+        
+//  0000000   0000000     0000000   000   000  000000000
+// 000   000  000   000  000   000  000   000     000   
+// 000000000  0000000    000   000  000   000     000   
+// 000   000  000   000  000   000  000   000     000   
+// 000   000  0000000     0000000    0000000      000   
+
+#info
+    color          clr.blue
+
+    & h1
+        color      clr.orange
+        
+        &:hover 
+            color   clr.yellow
+        &:active 
+            color  clr.yellow-bright
+        
+    & h2
+        color      clr.blue-bright
+    & sub
+        color      clr.gray-medium
+    & a
+    & .link
+        color      clr.blue
+        &:hover 
+            color  clr.orange
+        &:active 
+            color  clr.blue-very-bright
+
+#about-github
+    &:hover .github-svg
+        fill        clr.orange
+    &:active .github-svg
+        fill        clr.blue-very-bright
+
+.github-svg
+    fill            clr.blue
+    
+//  0000000   0000000  00000000    0000000   000      000     
+// 000       000       000   000  000   000  000      000     
+// 0000000   000       0000000    000   000  000      000     
+//      000  000       000   000  000   000  000      000     
+// 0000000    0000000  000   000   0000000   0000000  0000000 
+
+::-webkit-scrollbar-corner
+    background-color        clr.gray-very-dark
+
+::-webkit-scrollbar-thumb
+    background-color        clr.gray-very-dark
+    
+::-webkit-scrollbar-thumb:hover
+    background-color        clr.blue

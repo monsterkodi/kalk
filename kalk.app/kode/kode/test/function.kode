@@ -97,18 +97,24 @@ use ./utils ▪ kc ke kd
             function C
                 @a: ○->
                 b: ○->
+                c: ○=>
             """ ▸
             """
 
             C = (function ()
             {
                 function C ()
-                {}
-
+                {
+                    this["c"] = this["c"].bind(this)
+                }
+            
                 C["a"] = async function ()
                 {}
             
                 C.prototype["b"] = async function ()
+                {}
+            
+                C.prototype["c"] = async function ()
                 {}
             
                 return C

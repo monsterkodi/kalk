@@ -91,6 +91,12 @@ use .. ◆ util
         arr = [1 2 3]
         util.keepIf(arr, (i) -> i >= 2) ▸ [2 3]
         arr ▸ [2 3]
+        
+    ▸ splitWith
+    
+        arr = [1 2 3]
+        util.splitWith(arr, (i) -> i >= 2) ▸ [[2 3], [1]]
+        arr ▸ [1 2 3]
 
     ▸ findIf
     

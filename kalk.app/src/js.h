@@ -10,8 +10,6 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 
 @interface JS : NSObject
-{
-}
 
 + (id) js:(NSString*)req args:(NSArray*)args;
 + (int) run:(NSString*)scriptPath;

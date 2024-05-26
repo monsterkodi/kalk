@@ -18,7 +18,6 @@ class Input
         
         post.on 'resize' @onResize
         post.on 'button' @onButton
-        # post.on 'menuAction' (action) => if action == 'Clear' then @clear()
         @input = elem class:'input-text' 'tab-index': 1
         @view.appendChild elem class:'input-frame' child:@input
                 
@@ -47,8 +46,6 @@ class Input
         @input.style.fontSize = "#{fs}px"
         
     onButton: key =>
-        
-        log 'onButton' key
         
         switch key
             'ƒ' ➜ post.emit 'keys' 'functions'

@@ -1,0 +1,1233 @@
+###
+000000000  000   000  00000000   000000000  000      00000000    
+   000     000   000  000   000     000     000      000         
+   000     000   000  0000000       000     000      0000000     
+   000     000   000  000   000     000     000      000         
+   000      0000000   000   000     000     0000000  00000000    
+###
+
+use ../kakao
+use ../kxk  ▪ win about randInt uuid elem ffs keyinfo post prefs slash stopEvent $
+use ./tools ◆ urltools password cryptools
+
+window.WIN_WIDTH      = 366
+window.WIN_MIN_HEIGHT = 353
+window.WIN_MAX_HEIGHT = 490
+
+mstr            = undefined
+stashFile       = '~/.turtle'
+stash           = undefined
+stashExists     = false
+stashLoaded     = false
+currentPassword = undefined
+
+resetStash = ->
+    
+    stashLoaded = false
+    clearInput 'site'
+    clearInput 'password'
+    clearInput 'pattern'
+    updateFloppy()
+    stash =
+        pattern: ''
+        configs: {}
+        
+setWinHeight = h ○-> 
+    
+    info =○ kakao 'window.frameInfo'
+    kakao 'window.setFrame' x:info.frame.x, y:info.frame.y+info.frame.h-h, w:info.frame.w, h:h
+
+###
+ 0000000   000   000  000  00     00
+000   000  0000  000  000  000   000
+000000000  000 0 000  000  000000000
+000   000  000  0000  000  000 0 000
+000   000  000   000  000  000   000
+###
+
+masterStart = ->
+
+    startTimeout prefs.get 'timeout' 1    
+    if stashExists
+        $('turtle').disabled = false
+        updateSiteFromClipboard()
+        showSitePassword()
+        masterSitePassword()
+    else
+        showSettings()
+        $('buttons').style.display = 'none'
+
+masterAnim = ->
+    
+    master =$ 'master'
+    master.value = ''
+    setWinHeight WIN_MAX_HEIGHT
+    setTimeout masterStart, 300
+    
+masterFade = ->
+    
+    $('turtle').disabled = true
+    setWinHeight WIN_MIN_HEIGHT
+
+###
+000  000   000  00000000   000   000  000000000
+000  0000  000  000   000  000   000     000
+000  000 0 000  00000000   000   000     000
+000  000  0000  000        000   000     000
+000  000   000  000         0000000      000
+###
+
+masterConfirmed = ○->
+    
+    if mstr?.length
+        log 'masterConfirmed' mstr, stashExists
+        if stashExists
+            ○ readStash()
+            if stashLoaded
+                $('turtle').disabled = false
+                say()
+                masterAnim()
+                $('master-timeout')?.style.width = '100%'
+                $('master-timeout')?.style.left = '0%'
+            else
+                whisper ['oops?' 'what?' '...?' 'nope!'][randInt 3], 2000
+        else
+            say ['Well chosen!' 'Nice one!' 'Good choice!'][randInt 2],
+                'And your <span class="open" onclick="showHelp();">password pattern?</span>'
+            masterAnim()
+    true
+
+patternConfirmed = ->
+    
+    if $("pattern").value.length and stash.pattern != $("pattern").value
+        if stash.pattern == ''
+            say ['Also nice!' 'What a beautiful pattern!' 'The setup is done!'][randInt 2], 'Have fun generating passwords!' 5000
+            $('turtle').disabled = false
+        stash.pattern = $("pattern").value
+        writeStash()
+    else if stash.pattern == $("pattern").value
+        toggleSettings()
+
+masterChanged = ->
+    if stashExists
+        say()
+    else
+        say 'Hello!',
+            'What will be your <span class="open" onclick="showHelp();">master key?</span>'
+    logOut()
+
+patternChanged = ->
+    
+    updateFloppy()
+    masterSitePassword()
+
+savePattern = ○->
+    
+    site = $('site').value
+    hash = ○ cryptools.genHash site + mstr
+    stash.configs[hash].pattern = $('pattern').value
+    writeStash()
+    masterSitePassword()
+
+copyAndSavePattern = ○->
+    
+    copyPassword()
+
+    site = $('site').value
+        
+    hash = ○ cryptools.genHash site + mstr
+
+    if not stash.configs[hash]?
+        url = ○ cryptools.encrypt site, mstr
+        stash.configs[hash] = url:url
+        whisper '<u>password</u> copied and<br></i>pattern</i> remembered' 2000
+        savePattern()
+    else if stash.configs[hash].pattern != $('pattern').value
+        ⮐ if not ask 'Replace <i>'+stash.configs[hash].pattern+'</i>' 'with <i>'+$('pattern').value+'</i>?'
+        say 'Using <i>'+$('pattern').value+'</i>' 'for <b>'+site+'</b>' 2000
+        savePattern()
+
+copyPassword = ->
+    
+    resetTimeout()
+    pw = currentPassword
+    if pw?.length
+        kakao 'clipboard.write' pw
+        $("password").focus()
+        log 'currentPassword' currentPassword
+        whisper '<u>password</u> copied' 2000
+
+###
+00000000  000   000  00000000  000   000  000000000   0000000
+000       000   000  000       0000  000     000     000
+0000000    000 000   0000000   000 0 000     000     0000000
+000          000     000       000  0000     000          000
+00000000      0      00000000  000   000     000     0000000
+###
+
+initEvents = ->
+    
+    for input in document.querySelectorAll('input')
+        input.addEventListener 'focus' (e) -> $(e.target.id+'-border')?.classList.add 'focus'; true
+        input.addEventListener 'blur'  (e) -> $(e.target.id+'-border')?.classList.remove 'focus'; true
+        input.addEventListener 'input' (e) ->
+            $(e.target.id+'-ghost')?.style.opacity = if e.target.value.length then 0 else 1
+            true
+        if input.id != 'master'
+            input.addEventListener 'mouseenter' (e) -> $(e.target).focus()
+
+    for border in document.querySelectorAll('.border')
+        if border.id != 'master-border'
+            border.addEventListener 'mouseenter' (e) ->
+                $(e.target.id.substr(0,e.target.id.length-7)).focus()
+
+    $('master'  ).addEventListener 'input'      masterChanged
+    $('site'    ).addEventListener 'input'      siteChanged
+    $('pattern' ).addEventListener 'input'      patternChanged
+    $('turtle'  ).addEventListener 'click'      toggleStash
+    $('password').addEventListener 'mousedown'  copyPassword
+    $('turtle'  ).addEventListener 'mouseenter' (e) -> $('turtle').focus()
+    true
+
+###
+000       0000000    0000000   0000000    00000000  0000000
+000      000   000  000   000  000   000  000       000   000
+000      000   000  000000000  000   000  0000000   000   000
+000      000   000  000   000  000   000  000       000   000
+0000000   0000000   000   000  0000000    00000000  0000000
+###
+        
+window.onclose = (event) ->
+
+    prefs.save()
+
+window.onfocus = (event) ->
+
+    resetTimeout()
+    
+    if stashLoaded
+        updateSiteFromClipboard()
+        $("site")?.focus()
+        $("site")?.select()
+    else
+        $("master")?.focus()
+
+###
+000000000  000  00     00  00000000   0000000   000   000  000000000
+   000     000  000   000  000       000   000  000   000     000
+   000     000  000000000  0000000   000   000  000   000     000
+   000     000  000 0 000  000       000   000  000   000     000
+   000     000  000   000  00000000   0000000    0000000      000
+###
+
+timeoutInterval  = undefined
+timeoutInSeconds = 0
+timeoutDelay     = 0
+timeoutLast      = undefined
+
+timeoutPercent = pct ->
+    
+    if mto = $('master-timeout')
+        mto.style.width = pct+'%'
+        mto.style.left = (50-pct/2)+'%'
+
+timeoutTick = ->
+    
+    now = Date.now()
+    delta = (now - timeoutLast)/1000
+    timeoutLast = now
+    timeoutInSeconds -= delta
+    pct = 100 * timeoutInSeconds / timeoutDelay
+    timeoutPercent pct
+    if timeoutInSeconds <= 0
+        logOut()
+
+startTimeout = mins ->
+    
+    timeoutDelay = mins*60
+    stopTimeout()
+    resetTimeout()
+    if mins
+        timeoutLast = Date.now()
+        timeoutInterval = setInterval timeoutTick, 1000
+    timeoutPercent mins and 100 or 0
+
+stopTimeout = ->
+    
+    if timeoutInterval
+        clearInterval timeoutInterval
+        timeoutInterval = undefined
+    timeoutPercent 0
+
+resetTimeout = ->
+    
+    timeoutInSeconds = timeoutDelay
+    if timeoutInterval
+        timeoutPercent 100
+
+logOut = ->
+    
+    # log 'logout' $('master'), $('bubble')
+    stopTimeout()
+    if not $('bubble')? ➜ restoreBody()
+    mstr = $('master').value
+    setInput 'master' mstr
+    $('master').focus()
+    timeoutPercent 0
+    hideSitePassword()
+    hideSettings()
+    stashLoaded = false
+    masterFade()
+
+###
+0000000     0000000   0000000    000   000
+000   000  000   000  000   000   000 000
+0000000    000   000  000   000    00000
+000   000  000   000  000   000     000
+0000000     0000000   0000000       000
+###
+
+saveBody = ->
+
+    resetTimeout()
+    
+    ⮐ if not $('bubble')?
+    
+    savedFocus = document.activeElement.id
+    savedSite  = $('site')?.value
+    savedBody  = document.body.innerHTML
+
+    window.restoreBody = site ->
+        
+        resetTimeout()
+        document.body.innerHTML = savedBody
+        initEvents()
+        setInput 'pattern' stash.pattern
+        
+        if site?
+            hideSettings()
+            showSitePassword()
+            setInput 'site' site
+            masterSitePassword()
+            copyPassword()
+        else
+            setInput 'site' savedSite
+            $(savedFocus)?.focus()
+            masterSitePassword()
+            updateFloppy()
+            if $('settings').style.display != 'none'
+                showSettings()
+            if empty(stash.configs) and savedFocus == 'stash'
+                $('prefs').focus()
+
+initBody = name ->
+
+    saveBody()
+    lst    = elem class:'list'   id:name+'list'
+    scroll = elem class:'scroll' id:name+'scroll'
+    lst.appendChild scroll
+    lst.appendChild initButtons name
+    document.body.innerHTML = ''
+    document.body.appendChild lst
+
+###
+0000000    000   000  000000000  000000000   0000000   000   000   0000000
+000   000  000   000     000        000     000   000  0000  000  000
+0000000    000   000     000        000     000   000  000 0 000  0000000
+000   000  000   000     000        000     000   000  000  0000       000
+0000000     0000000      000        000      0000000   000   000  0000000
+###
+
+initInputBorder = inp ->
+    
+    inp.addEventListener 'focus'       (e) -> $(e.target.parentElement).classList.add 'focus'
+    inp.addEventListener 'blur'        (e) -> $(e.target.parentElement).classList.remove 'focus'
+    inp.addEventListener 'mouseenter'  (e) -> $(e.target).focus()
+
+initButtons = name ->
+
+    buttons  = elem id:'buttons' class:'buttons app-drag-region'
+    
+    if valid stash.configs
+        bttns = stash:'' vault:'' prefs:'' help:''
+    else                  
+        bttns =           vault:'' prefs:'' help:''
+    
+    for btn,icon of bttns
+        current = btn == name ? ' current' : ''
+        spn = elem 'span' class:'button-span'
+        brd = elem class:'button-border border' id:btn+'-border'
+        icn = elem id:btn, class:"button#{current}" text:icon
+        spn.appendChild brd
+        brd.appendChild icn
+        buttons.appendChild spn
+        icn.addEventListener 'click' onButton
+
+    buttons
+
+onButton = event ->
+    
+    switch event.target.id
+        'stash'   ➜ toggleStash()
+        'vault'   ➜ toggleVault()
+        'prefs'   ➜ togglePrefs()
+        'help'    ➜ showHelp()
+
+###
+ 0000000  000000000   0000000    0000000  000   000
+000          000     000   000  000       000   000
+0000000      000     000000000  0000000   000000000
+     000     000     000   000       000  000   000
+0000000      000     000   000  0000000   000   000
+###
+
+writeStash = ○->
+    
+    str = JSON.stringify stash
+    # log 'writeStash' stashFile, str, mstr
+    ○ cryptools.encryptFile stashFile, str, mstr
+    # log 'wroteStash' stashFile, str, mstr
+    updateFloppy()
+    if not stashLoaded
+        # log 'reread stash'
+        stash = ''
+        ○ readStash()
+        if stashLoaded and JSON.stringify(stash) == str
+            toggleSettings()
+
+readStash = ○->
+
+    try
+        # log 'readStash' stashFile, mstr
+        json = ○ cryptools.decryptFile stashFile, mstr
+        stashLoaded = true
+        stash = JSON.parse json
+        setInput 'pattern' stash.pattern
+        updateFloppy()
+
+    catch err
+        resetStash()
+
+###
+000      000   0000000  000000000
+000      000  000          000
+000      000  0000000      000
+000      000       000     000
+0000000  000  0000000      000
+###
+
+onStashKey = info ->
+
+    e = document.activeElement
+    switch info.combo
+        'right' 'down' ➜ ⮐ e?.parentElement?.nextSibling?.firstChild?.focus()
+        'left' 'up'    ➜ ⮐ e?.parentElement?.previousSibling?.firstChild?.focus()
+        'enter'        ➜ ⮐ restoreBody e?.nextSibling?.innerHTML
+        'command+backspace' 
+        'ctrl+backspace'
+            if e?.id?.length
+                if e.parentElement.nextSibling?
+                    e.parentElement.nextSibling.firstChild.focus()
+                else
+                    e.parentElement.previousSibling?.firstChild?.focus()
+                delete stash.configs[e.id]
+                e.parentElement.remove()
+                writeStash()
+                if empty stash.configs
+                    restoreBody()
+            ⮐ 
+                    
+    'unhandled'
+
+toggleStash = ->
+    
+    if $('stashlist')?
+        restoreBody()
+    else
+        showStash()
+
+showStash = ○->
+    
+    ⮐ if not stashLoaded
+    if empty stash.configs
+        showPrefs()
+        ⮐ 
+
+    initBody 'stash'
+
+    for hash,config of stash.configs
+        # log 'hash config' hash, config, mstr
+        site = ○ cryptools.decrypt config.url, mstr
+        item =            elem class: 'stash-item-border border'
+        item.appendChild  elem 'input', id: hash, type: 'button', class: 'stash-item'
+        siteSpan = item.appendChild elem 'span', class: 'site', text:site
+        lock = elem 'span' class: 'lock'
+        item.appendChild lock
+        if config.pattern == stash.pattern
+            lockClosed lock
+        else
+            lockOpen lock
+            item.appendChild elem 'span', class:'pattern', text:config.pattern
+
+        $('stashscroll').appendChild item
+
+        item.addEventListener 'mouseenter' (event) -> event.target.firstChild?.focus()
+        $(hash).addEventListener 'click'   (event) -> restoreBody event.target.nextSibling.innerHTML
+
+        initInputBorder $(hash)
+
+    $('stashscroll').firstChild.firstChild.focus()
+
+###
+000   000   0000000   000   000  000      000000000
+000   000  000   000  000   000  000         000
+ 000 000   000000000  000   000  000         000
+   000     000   000  000   000  000         000
+    0      000   000   0000000   0000000     000
+###
+
+onVaultKey = info ->
+    
+    e = document.activeElement
+
+    switch info.combo
+        
+        'command+n' 'ctrl+n'
+            
+            hash = uuid()
+            stash.vault[hash] = key: ""
+            addVaultItem hash, stash.vault[hash].key
+            $(hash).focus()
+            toggleVaultItem hash
+            editVaultKey hash
+            ⮐ 
+            
+        'down'  ➜ ⮐ e?.parentElement?.nextSibling?.nextSibling?.firstChild?.focus()
+        'up'    ➜ ⮐ e?.parentElement?.previousSibling?.previousSibling?.firstChild?.focus()
+        'left'  ➜ ⮐ closeVaultItem  e?.id
+        'right' ➜ ⮐ openVaultItem   e?.id
+        'space'
+            
+            if e?.id?
+                toggleVaultItem e.id
+                event.preventDefault()
+            ⮐ 
+                
+        'command+backspace' 'ctrl+backspace'
+            
+            if e?.id?.length
+                if e.parentElement.nextSibling?.nextSibling?
+                    e.parentElement.nextSibling.nextSibling.firstChild.focus()
+                else
+                    e.parentElement.previousSibling?.previousSibling?.firstChild?.focus()
+                delete stash.vault[e.id]
+                e.parentElement.nextSibling.remove()
+                e.parentElement.remove()
+                writeStash()
+            ⮐ 
+                
+    'unhandled'
+
+toggleVault = -> $('vaultlist')? ? restoreBody() : showVault()
+
+adjustValue = value ->
+    
+    value.style.height = 'auto'
+    value.style.height = value.scrollHeight+'px'
+    if value.scrollHeight < 46
+        value.style.height = '28px'
+
+vaultValue     = hash -> $(hash)?.parentElement?.nextSibling
+vaultArrow     = hash -> $(hash)?.nextSibling
+openVaultItem  = hash ->
+    
+    ⮐ if not elem.isElement vaultValue hash
+    
+    vaultValue(hash).style.display = 'block'
+    
+    vaultArrow(hash).innerHTML = '▾'
+    vaultArrow(hash).classList.add 'open'
+    
+closeVaultItem = hash ->
+    
+    ⮐ if not elem.isElement vaultValue hash
+    
+    vaultValue(hash).style.display = 'none'
+    
+    vaultArrow(hash).innerHTML = '▸'
+    vaultArrow(hash).classList.remove 'open'
+    
+toggleVaultItem = hash ->
+    
+    log 'toggleVaultItem' hash, vaultValue(hash), vaultValue(hash).style.display == 'none'
+    
+    vaultValue(hash).style.display == 'none' ? openVaultItem(hash) : closeVaultItem(hash)
+
+saveVaultKey = event ->
+    
+    input = $('.vault-key', event.parentElement)
+    stash.vault[input.id].key = event.value
+    input.value = stash.vault[input.id].key
+    writeStash()
+
+editVaultKey = hash ->
+    
+    border = $(hash).parentElement
+    inp = elem 'input',
+        class: 'vault-overlay vault-key'
+        type:  'input'
+        value: $('.vault-key', border).value
+
+    inp.addEventListener 'keydown' (event) ->
+        key = keyinfo.keynameForEvent event
+        switch key
+            'esc'
+                input = $('.vault-key' event.target.parentElement)
+                event.target.value = input.value
+                event.stopPropagation()
+                input.focus()
+            'enter'
+                input = $('.vault-key' event.target.parentElement)
+                saveVaultKey event.target
+                input.focus()
+                stopEvent event
+
+    inp.addEventListener 'change' (event) -> saveVaultKey event.target
+
+    inp.addEventListener 'blur' (event) -> event.target.remove()
+
+    border.appendChild inp
+    inp.focus()
+    inp.setSelectionRange inp.value.length, inp.value.length
+
+addVaultItem = hash vaultKey vaultValue ->
+    
+    item  = elem class: 'vault-item-border border'
+    input = elem 'input',
+        class: 'vault-item vault-key'
+        type:  'button'
+        id:    hash
+        value: vaultKey
+        
+    arrow = elem class:'vault-arrow' text:'▸'
+    item.appendChild input
+    item.appendChild arrow
+    $('vaultscroll').appendChild item
+    
+    value = elem 'textarea',
+        class: 'vault-value'
+        wrap:  'off'
+        rows:   1
+        
+    value.innerHTML = vaultValue or ''
+    
+    $('vaultscroll').appendChild value
+    adjustValue value
+    value.style.display = 'none'
+
+    initInputBorder input
+    
+    item.addEventListener  'mouseenter'  (e) -> e.target.firstChild?.focus()
+    arrow.addEventListener 'click'       (e) -> toggleVaultItem $(e.target).parentElement.firstChild.id
+    input.addEventListener 'click'       (e) -> toggleVaultItem $(e.target).id
+    input.addEventListener 'keydown'     (e) -> if keyinfo.keynameForEvent(e) == 'enter' then editVaultKey $(e.target).id
+    value.addEventListener 'focus'       (e) ->
+        selToEnd = -> @selectionStart = @selectionEnd = @value.length
+        setTimeout selToEnd.bind(e.target), 1
+    value.addEventListener 'input'       (e) -> adjustValue e.target
+    value.addEventListener 'change'      (e) ->
+        input = $('.vault-key' e.target.previousSibling)
+        stash.vault[input.id].value = e.target.value
+        writeStash()
+
+showVault = ->
+    
+    ⮐ if not stashLoaded
+
+    initBody 'vault'
+
+    if not stash.vault? or empty Object.keys(stash.vault)
+        stash.vault = {}
+        stash.vault[uuid()] =
+            key:   "title"
+            value: "some secret"
+
+    for vaultHash in Object.keys stash.vault
+        addVaultItem vaultHash, stash.vault[vaultHash].key, stash.vault[vaultHash].value
+
+    $('vaultscroll').firstChild.firstChild.focus()
+
+###
+00000000   00000000   00000000  00000000   0000000
+000   000  000   000  000       000       000
+00000000   0000000    0000000   000000    0000000
+000        000   000  000       000            000
+000        000   000  00000000  000       0000000
+###
+
+prefInfo =
+    timeout:   type:'int'  text:'autoclose delay' min:1 
+    mask:      type:'bool' text:'mask locked passwords' 
+    confirm:   type:'bool' text:'confirm changes'       
+
+togglePrefs = ->
+    
+    if $('prefslist')?
+        restoreBody()
+    else
+        showPrefs()
+
+showPrefs = ->
+    
+    ⮐ if not stashLoaded
+
+    initBody 'prefs'
+    
+    border  = elem id:'pattern-border' class:'border' children:
+        [
+            elem 'input' id:'pattern' class:'main-input' type:'input' name:'pattern'
+        ,   elem 'span' children:
+            [
+                elem id:'floppy' class:'ghost'
+            ,   elem id:'pattern-ghost' class:'ghost' text:'pattern'
+            ]
+        ]
+    
+    $('.list').insertBefore border, $('buttons')
+    
+    $('pattern').addEventListener 'input' patternChanged
+    initInputBorder $('pattern')
+      
+    setInput 'pattern' stash.pattern
+    updateFloppy()
+
+    for key, pref of prefInfo
+        
+        value = prefs.get key
+        item  = elem class: 'pref-item-border border'
+        input = elem 'input' id:key, type:'button' class:'pref-item'
+        
+        item.appendChild input
+        item.appendChild elem 'span' class:'pref' text:pref.text
+        
+        switch pref.type
+            'bool'
+                bool = elem 'span' class: 'bool'
+                item.appendChild bool
+                setBool bool, value
+            'int'
+                item.appendChild elem 'span' class:'int' text:value ? value+' min' : 'never'
+            'shortcut'
+                item.appendChild elem 'span' class:'shortcut' text:value
+
+        $('prefsscroll').appendChild item
+
+        initInputBorder input
+        
+        input.addEventListener 'click' (event) ->
+            key = event.target.id
+            pref = prefInfo[key]
+            
+            switch pref.type
+                
+                'bool'
+                    
+                    prefs.set key, not prefs.get key
+                    bool =$ '.bool' event.target.parentElement
+                    setBool bool, prefs.get key
+                    
+                'int'
+
+                    # 000  000   000  000000000
+                    # 000  0000  000     000
+                    # 000  000 0 000     000
+                    # 000  000  0000     000
+                    # 000  000   000     000
+
+                    inputChanged = (event) ->
+                        input    = $('input.pref-item', event.target.parentElement)
+                        prefKey  = input.id
+                        intValue = parseInt event.target.value
+                        intValue = 0 if isNaN intValue
+                        intValue = Math.max(prefInfo[prefKey].min, intValue) if prefInfo[prefKey].min? and intValue
+                        $('.int', event.target.parentElement).innerHTML = intValue and intValue+' min' or 'never'
+                        prefs.set prefKey, intValue
+                        if prefKey == 'timeout'
+                            startTimeout intValue
+                        event.preventDefault()
+                        input.focus()
+
+                    border = event.target.parentElement
+                    intValue = parseInt $('.int', event.target.parentElement).innerHTML
+                    intValue = 0 if isNaN intValue
+                    inp = elem 'input' class:'pref-overlay int' value: intValue
+
+                    inp.addEventListener 'blur' (event) -> event.target.remove()
+                    inp.addEventListener 'change' inputChanged
+                    inp.addEventListener 'keydown' (event) ->
+                        key = keyinfo.keynameForEvent event
+                        event.stopPropagation()
+                        if '+' not in key
+                            switch key
+                                'esc'
+                                    event.target.value = $('.int' event.target.parentElement)
+                                    event.preventDefault()
+                                    $('input' event.target.parentElement).focus()
+                                'up' 'down'
+                                    prefKey = $('input' event.target.parentElement).id
+                                    inc = prefInfo[prefKey].inc or 1
+                                    newValue = parseInt(event.target.value) + (key == 'up' and inc or -inc)
+                                    newValue = Math.max(newValue, prefInfo[prefKey].min) if prefInfo[prefKey].min?
+                                    event.target.value = newValue
+                                    event.preventDefault()
+                                'enter'
+                                    inputChanged event
+                                '0' '1' '2' '3' '4' '5' '6' '7' '8' '9' 'enter' 'backspace' 'left' 'right' 'tab'
+                                    1
+                                ➜ 
+                                    event.preventDefault()
+
+                    border.appendChild inp
+                    inp.focus()
+
+                'shortcut'
+
+                    #  0000000  000   000   0000000   00000000   000000000   0000000  000   000  000000000
+                    # 000       000   000  000   000  000   000     000     000       000   000     000
+                    # 0000000   000000000  000   000  0000000       000     000       000   000     000
+                    #      000  000   000  000   000  000   000     000     000       000   000     000
+                    # 0000000   000   000   0000000   000   000     000      0000000   0000000      000
+
+                    border = event.target.parentElement
+                    msg = elem 'input',
+                        class: 'pref-overlay shortcut'
+                        type:  'button'
+                        value: 'press the shortcut'
+
+                    msg.addEventListener 'keydown' (event) ->
+
+                        { mod, key, combo } = keyinfo.forEvent event
+                        
+                        input = $('input', event.target.parentElement)
+                        
+                        if combo.indexOf('+') >= 0 and key != ''
+                            
+                            stopEvent event
+                            $('.shortcut', event.target.parentElement).innerHTML = combo
+                            prefKey = input.id
+                            prefs.set prefKey, combo
+                            input.focus()
+                            
+                        else if not keyinfo.isModifier(key) and key != ''
+                            
+                            switch key
+                                'esc', 'enter', 'tab'
+                                    stopEvent event
+                                    input.focus()
+                                'backspace'
+                                    $('.shortcut', event.target.parentElement).innerHTML = ''
+                                    prefs.set prefKey, ''
+                                    input.focus()
+                                ➜ 
+                                    event.target.value = 'no modifier'
+                                    event.stopPropagation()
+                        else
+                            event.target.value = keyinfo.modifiersForEvent event
+                            
+                    msg.addEventListener 'blur' (event) ->
+                        event.target.remove()
+                        
+                    border.appendChild msg
+                    msg.focus()
+
+    $('prefsscroll').firstChild.firstChild.focus()
+
+onPrefsKey = info ->
+
+    if active = document.activeElement
+        
+        if active.id == 'pattern'
+            switch info.combo
+                'enter' 
+                    stash.pattern = $("pattern").value
+                    writeStash()
+                    ⮐ 
+                ➜ ⮐ 'unhandled' 
+        
+        # log 'active' active, active.id, active.className
+        switch info.combo
+            'right' 'down'
+                ($('input' $(active.parentElement?.nextSibling?.firstChild.id))? or
+                active.parentElement?.nextSibling?.firstChild).focus()
+                ⮐ 
+            'left' 'up'
+                if active.id == 'ok'
+                    $('input' active.parentElement.parentElement.previousSibling).focus()
+                else
+                    active.parentElement?.previousSibling?.firstChild?.focus()
+                ⮐ 
+    'unhandled'
+
+###
+000   000  00000000  000      00000000
+000   000  000       000      000   000
+000000000  0000000   000      00000000
+000   000  000       000      000
+000   000  00000000  0000000  000
+###
+
+openUrl  = url -> kakao 'open' url
+showHelp =     -> kakao 'open' "https://monsterkodi.github.io/password-turtle/manual.html"
+
+window.showHelp = showHelp
+
+###
+ 0000000  000  000000000  00000000
+000       000     000     000
+0000000   000     000     0000000
+     000  000     000     000
+0000000   000     000     00000000
+###
+
+setSite = site ->
+    
+    setInput 'site' site
+    siteChanged()
+
+siteChanged = ->
+
+    if $("site").value.length == 0
+        hideLock()
+        clearInput 'password'
+        ⮐ 
+    masterSitePassword()
+
+updateSiteFromClipboard = ○->
+    
+    clipboardContent = ○ kakao 'clipboard.get'
+
+    if domain = urltools.extractDomain clipboardContent
+        setSite domain
+
+makePassword = hash config -> password.make hash, config.pattern
+
+showPassword = config ○->
+    
+    url  = ○ cryptools.decrypt config.url, mstr
+    hash = ○ cryptools.genHash url + mstr
+    pass = currentPassword = makePassword hash, config
+    if hasLock() and prefs.get 'mask'
+        pass = rpad currentPassword.length, '' '●'
+    if url  ==  trim $("site").value
+        setInput 'password' pass
+
+masterSitePassword = ○->
+    
+    ⮐ if not $("site")
+    
+    site = trim $("site").value
+    
+    if not site?.length or not mstr?.length
+        clearInput 'password'
+        hideLock()
+        ⮐ ""
+
+    hash = ○ cryptools.genHash site + mstr
+
+    if stash.configs?[hash]?
+
+        config = stash.configs[hash]
+        if config.pattern == stash.pattern
+            lockClosed $('lock')
+        else
+            lockOpen $('lock')
+    else
+
+        config = {}
+        config.url = ○ cryptools.encrypt site, mstr
+        config.pattern = $('pattern').value
+        hideLock()
+
+    currentSite = trim $("site").value
+    if currentSite == site
+        showPassword config
+
+clearSitePassword = ○->
+                    
+    site = $('site').value
+    hash = ○ cryptools.genHash site + mstr
+    
+    if stash.configs[hash]?
+        if ask 'Forget <i>'+stash.configs[hash].pattern+'</i>' 'for <b>'+site+'</b>?'
+            delete stash.configs[hash]
+            say 'The <b>' + site + '</b>' '<i>pattern</i> is forgotten' 2000
+            writeStash()
+            masterSitePassword()
+    
+###
+ 0000000  00000000  000000000  000000000  000  000   000   0000000    0000000
+000       000          000        000     000  0000  000  000        000
+0000000   0000000      000        000     000  000 0 000  000  0000  0000000
+     000  000          000        000     000  000  0000  000   000       000
+0000000   00000000     000        000     000  000   000   0000000   0000000
+###
+
+toggleSettings = ->
+    
+    resetTimeout()
+    if not $('bubble')?
+        restoreBody()
+        if $('settings').style.display == 'none'
+            hideSitePassword()
+            showSettings()
+    else if stashLoaded
+        if $('settings').style.display != 'none'
+            hideSettings()
+            showSitePassword()
+        else
+            hideSitePassword()
+            showSettings()
+
+showSettings = ->
+    
+    $('buttons')?.remove()
+    updateFloppy()
+    $('settings').appendChild initButtons()
+    $('settings').style.display = 'initial'
+    $('pattern').focus()
+    updateStashButton()
+
+hideSettings = ->
+    
+    $('settings').style.display = 'none'
+    $('buttons')?.remove()
+    say() if stashExists
+    if $('pattern').value.length == 0 and stash?.pattern
+        setInput 'pattern' stash.pattern
+        patternChanged()     
+                
+hideSitePassword = ->
+    
+    $('site-border').style.opacity = 0
+    $('site-border').classList.add 'no-pointer'
+    $('site').disabled = true
+    $('password-border').style.opacity = 0
+    $('password-border').classList.add 'no-pointer'
+    $('password').disabled = true
+
+showSitePassword = ->
+    
+    ⮐ if not $('site-border')?
+    
+    $('site-border').style.opacity = 1
+    $('site-border').classList.remove 'no-pointer'
+    $('site').disabled = false
+    $('password-border').style.opacity = 1
+    $('password-border').classList.remove 'no-pointer'
+    $('password').disabled = false
+    $('site').focus()
+
+clearInput = input -> setInput input, ''
+
+setInput = input value ->
+    
+    $(input).value = value
+    if ghost =$ input+'-ghost'
+        ghost.style.opacity = (value.length == 0 and 1 or 0)
+
+hasLock = ->
+    
+    $('lock').classList.contains('open') or $('lock').classList.contains('closed')
+
+hideLock = ->
+    
+    $('lock').classList.remove 'open'
+    $('lock').classList.remove 'closed'
+
+lockClosed = e ->
+
+    e.innerHTML = '<span></span>'
+    e.classList.remove 'open'
+    e.classList.add 'closed'
+
+lockOpen = e ->
+
+    e.innerHTML = '<span></span>'
+    e.classList.remove 'closed'
+    e.classList.add 'open'
+
+setBool = e b ->
+    
+    e.innerHTML =      b ? '<span></span>' : '<span></span>'
+    e.classList.remove b ? 'bool-false'     : 'bool-true'
+    e.classList.add    b ? 'bool-true'      : 'bool-false'
+
+updateFloppy = ->
+    
+    if floppy =$ 'floppy'
+        floppy.innerHTML = ''
+        if stash?.pattern != $("pattern").value or stash?.pattern == ''
+            floppy.classList.remove 'saved'
+        else
+            floppy.classList.add 'saved'
+
+updateStashButton = ->
+    if empty stash.configs
+        $('stash')?.disabled = true
+        $('stash-border')?.classList.add 'disabled'
+    else
+        $('stash')?.disabled = false
+        $('stash-border')?.classList.remove 'disabled'
+
+###
+000000000   0000000   000      000   000
+   000     000   000  000      000  000
+   000     000000000  000      0000000
+   000     000   000  000      000  000
+   000     000   000  0000000  000   000
+###
+
+unsay = undefined
+
+whisper = (boo) ->
+    clearTimeout(unsay) if unsay?
+    unsay = undefined
+    if arguments.length > 1
+        unsay = setTimeout say, arguments[1]
+    $('bubble').className = 'whisper'
+    $('say').innerHTML = boo
+
+say = () ->
+    clearTimeout(unsay) if unsay?
+    unsay = undefined
+    if arguments.length == 0
+        $('say').innerHTML += ' '
+        $('bubble').className = 'silent'
+    else
+        al = [].slice.call arguments, 0
+        if al.length == 3
+            delay = al.pop()
+            unsay = setTimeout say, delay
+        $('bubble').className = "say"
+        $('say').innerHTML = al.join "<br>"
+
+ask = ->
+    if prefs.get 'confirm', true
+        if not $('say').innerHTML.endsWith(arguments[arguments.length-1])
+            say.apply say, arguments
+            $('bubble').className = "ask"
+            return false
+    true
+
+function Delegate #extends win.Delegate
+    
+    @: ->
+        
+        @aboutImage = kakao.bundle.img 'about_turtle.png'
+        @aboutURL   = "https://github.com/monsterkodi/password-turtle"
+        
+        main =$ 'main'
+        
+    onWindowWillShow: ->
+    
+        initEvents()
+        
+        $("master").blur()
+        $("master").focus()
+        
+        hideSitePassword()
+        hideSettings()
+        resetStash()
+        
+        ffs.exists(stashFile).then (exists) ->
+
+            stashExists = exists
+            if not stashExists
+                masterChanged()
+
+    onWindowWithoutStash: ->  
+        
+        kakao 'window.setSize' window.WIN_WIDTH, window.WIN_MIN_HEIGHT
+        kakao 'window.center'
+        
+    onWindowRestoreFrameFromStash: win stashFrame -> 
+    
+        frame = copy stashFrame
+        frame.y = frame.y + frame.h - WIN_MIN_HEIGHT
+        frame.h = WIN_MIN_HEIGHT
+        kakao 'window.setFrame' frame, true
+        true
+        
+    onWindowCreated: =>
+        
+        kakao 'window.setMinSize' window.WIN_WIDTH, window.WIN_MIN_HEIGHT
+        kakao 'window.setMaxSize' window.WIN_WIDTH, window.WIN_MAX_HEIGHT
+        
+    ###
+    000   000  00000000  000   000  0000000     0000000   000   000  000   000
+    000  000   000        000 000   000   000  000   000  000 0 000  0000  000
+    0000000    0000000     00000    000   000  000   000  000000000  000 0 000
+    000  000   000          000     000   000  000   000  000   000  000  0000
+    000   000  00000000     000     0000000     0000000   00     00  000   000
+    ###
+    
+    onWindowKeyDown: win info ->
+    
+        { mod, key, combo, char } = info
+    
+        # log 'onWindowKeyDown' combo, info
+        
+        resetTimeout()
+    
+        switch combo
+            'command+w' 'ctrl+w'  ➜ ⮐ kakao 'window.close'
+            'command+q' 'ctrl+q'  ➜ ⮐ kakao 'app.quit'
+            'command+.' 'ctrl+.'  ➜ ⮐ toggleAbout()
+            'command+alt+i'       ➜ ⮐ kakao 'window.toggleInspector'
+            'esc'
+                if not $('bubble')? ➜ ⮐ restoreBody()
+                else if $('settings').style.display != 'none' ➜ ⮐ toggleSettings()
+                else 
+                    ⮐ kakao 'window.hide'
+    
+        if $('stashlist')? ➜ ⮐ onStashKey info
+        if $('vaultlist')? ➜ ⮐ onVaultKey info
+        if $('prefslist')? ➜ ⮐ onPrefsKey info
+        
+        ⮐ if not $('site')?
+            
+        e = document.activeElement
+        
+        if e == $('password')
+            switch combo
+                'command+backspace' 'ctrl+backspace'
+                    clearSitePassword()                    
+                    ⮐ 
+                'left' 'right' 'up' 'down'
+                    $('site').focus()
+                    $('site').setSelectionRange 0, $('site').value.length
+                    event.preventDefault()
+                    ⮐ 
+    
+        if e == $('master') and not $('master').value.length
+            if key in ['backspace' 'enter']
+                logOut()
+                ⮐ 
+        
+        switch key
+            'enter'
+                switch e.id
+                    "master"   ➜ ⮐ masterConfirmed()
+                    "site"     ➜ ⮐ valid $('site').value ? copyPassword() : toggleStash()
+                    "password" ➜ ⮐ copyAndSavePattern()
+                    "pattern"  ➜ ⮐ patternConfirmed()
+                    
+        'unhandled'
+    
+    onWindowKeyUp: win info -> 'unhandled'
+    
+kakao.init ->
+    
+    new win new Delegate
+    @
+    

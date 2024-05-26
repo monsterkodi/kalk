@@ -16,7 +16,7 @@ use ◆ sds menu keyinfo slash post noon
                                 
 function Title
     
-    @: (@opt) ->
+    @: @opt ->
         
         @opt ?= {}
         
@@ -24,9 +24,9 @@ function Title
         
         @elem =$ @opt.elem ? "#titlebar"
         
-        @elem.classList.add 'focus'
-        
         ⮐ if not @elem
+        
+        @elem.classList.add 'focus'
         
         post.on 'titlebar'      @onTitlebar
         post.on 'menuAction'    @onMenuAction
@@ -216,7 +216,7 @@ function Title
         
     menuVisible: => @menu.elem.style.display != 'none'
     showMenu:    => @menu.elem.style.display = 'inline-block'; @menu?.focus?(); prefs.set 'menu' true
-    hideMenu:    => @menu?.close(); @menu.elem.style.display = 'none'; prefs.set 'menu' false
+    hideMenu:    => @menu?.close(); prefs.set 'menu' false; if (@menu?.elem) then @menu.elem.style.display = 'none'
     toggleMenu:  => if @menuVisible() then @hideMenu() else @showMenu()
     openMenu:    => if @menuVisible() then @hideMenu() else @showMenu(); @menu.open()
 

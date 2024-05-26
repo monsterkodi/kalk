@@ -40,8 +40,8 @@ class Sheet
     {
         var info
 
-        info = await kakao('win.frameInfo')
-        kakao('win.setFrame',{x:info.frame.x,y:info.frame.y,w:476,h:window.WIN_MIN_HEIGHT})
+        info = await kakao('window.frameInfo')
+        kakao('window.setFrame',{x:info.frame.x,y:info.frame.y,w:476,h:window.WIN_MIN_HEIGHT})
         return this
     }
 
@@ -49,12 +49,12 @@ class Sheet
     {
         var add, info, spaceAbove
 
-        info = await kakao('win.frameInfo')
+        info = await kakao('window.frameInfo')
         spaceAbove = (info.screen.h + info.screen.y) - (info.frame.h + info.frame.y)
         if (spaceAbove > 34)
         {
             add = this.view.scrollHeight - this.view.getBoundingClientRect().height + 4
-            kakao('win.setFrame',{x:info.frame.x,y:info.frame.y,w:476,h:_k_.max(656,info.frame.h + add)})
+            kakao('window.setFrame',{x:info.frame.x,y:info.frame.y,w:476,h:_k_.max(656,info.frame.h + add)})
         }
         return this
     }

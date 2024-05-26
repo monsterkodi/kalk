@@ -35,9 +35,10 @@
     else if ([route isEqualToString:@"finder" ]) { reply = [Route finder:[args objectAtIndex:0]]; }
     else if ([route hasPrefix:@"bundle."      ]) { reply = [Route bundle:     [route substringFromIndex:7]    args:args win:win]; }
     else if ([route hasPrefix:@"window."      ]) { reply = [Route window:     [route substringFromIndex:7]    args:args win:win]; }
+    // else if ([route hasPrefix:@"win."         ]) { reply = [Route window:     [route substringFromIndex:4]    args:args win:win]; }
     else if ([route hasPrefix:@"clipboard."   ]) { reply = [Route clipboard:  [route substringFromIndex:10]   args:args win:win]; }
-    else if ([route hasPrefix:@"win."         ]) { reply = [Route window:     [route substringFromIndex:4]    args:args win:win]; }
     else if ([route hasPrefix:@"app."         ]) {         [Route app:        [route substringFromIndex:4]    args:args win:win callback:callback]; return; }
+    else if ([route hasPrefix:@"status."      ]) { reply = [Route status:     [route substringFromIndex:7]    args:args win:win]; }
     else if ([route hasPrefix:@"fs."          ]) { reply = [FS    fs:         [route substringFromIndex:3]    args:args win:win]; }
     else if ([route hasPrefix:@"js."          ]) { reply = [JS    js:         [route substringFromIndex:3]    args:args        ]; }
     else if ([route hasPrefix:@"test."        ]) { reply = [Route test:       [route substringFromIndex:5]    args:args        ]; }
@@ -133,11 +134,12 @@
     if ([req isEqualToString:@"snapshot"      ]) { return [win snapshot:arg0]; }
     if ([req isEqualToString:@"close"         ]) { [win performClose:nil]; return nil; }
     if ([req isEqualToString:@"reload"        ]) { [win reload];           return nil; }
+    if ([req isEqualToString:@"raise"         ]) { [[NSApplication sharedApplication] activate]; [win orderFrontRegardless]; [win makeKeyAndOrderFront:nil]; NSLog(@"raise"); return nil; }
     if ([req isEqualToString:@"maximize"      ]) { [win zoom:nil];         return nil; }
     if ([req isEqualToString:@"minimize"      ]) { [win miniaturize:nil];  return nil; }
     if ([req isEqualToString:@"center"        ]) { [win center];           return nil; }
     if ([req isEqualToString:@"setTopLeft"    ]) { [win setTopLeft:arg0];  return nil; }
-    if ([req isEqualToString:@"setFrame"      ]) { [win setFrame:arg0];    return nil; }
+    if ([req isEqualToString:@"setFrame"      ]) { [win setFrame:arg0 immediate:arg1];    return nil; }
     if ([req isEqualToString:@"setSize"       ]) { [win setWidth:[arg0 longValue] height:[arg1 longValue]];  return nil; }
     if ([req isEqualToString:@"setMinSize"    ]) { [win setContentMinSize:CGSizeMake([arg0 longValue], [arg1 longValue])]; return nil; }
     if ([req isEqualToString:@"setMaxSize"    ]) { [win setContentMaxSize:CGSizeMake([arg0 longValue], [arg1 longValue])]; return nil; }
@@ -171,6 +173,22 @@
         return nil; 
     }
     
+    return nil;
+}
+
+//  0000000  000000000   0000000   000000000  000   000   0000000  
+// 000          000     000   000     000     000   000  000       
+// 0000000      000     000000000     000     000   000  0000000   
+//      000     000     000   000     000     000   000       000  
+// 0000000      000     000   000     000      0000000   0000000   
+
++ (id) status:(NSString*)req args:(NSArray*)args win:(Win*)win
+{
+    if ([req isEqualToString:@"icon"])
+    {
+        [[[App get] status] snapshot:win.view rect:[args objectAtIndex:0]];
+    }
+
     return nil;
 }
 
@@ -218,11 +236,7 @@
     id app = [NSApplication sharedApplication];
     if ([req isEqualToString:@"quit"])
     {
-        for (Win* win in [App wins])
-        {
-            [win close];
-        }
-        [app terminate:nil];
+        [[App get] quit];
     }
     else if ([req isEqualToString:@"sh"])
     {
@@ -276,6 +290,19 @@
     {
         [self send:msg win:win];
     }
+}
+
++ (void) emit:(NSString*)name arg:(id)arg
+{
+    [Route emit:name args:[NSArray arrayWithObject:arg]];
+}
+
++ (void) emit:(NSString*)name args:(NSArray*)args
+{
+    NSMutableDictionary* msg = [NSMutableDictionary dictionary];
+    [msg setObject:name forKey:@"name"];
+    [msg setObject:args forKey:@"args"];
+    [Route emit:msg];
 }
 
 //  0000000  00000000  000   000  0000000    

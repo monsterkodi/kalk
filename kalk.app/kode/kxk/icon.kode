@@ -1,0 +1,26 @@
+###
+    000   0000000   0000000   000   000    
+    000  000       000   000  0000  000    
+    000  000       000   000  000 0 000    
+    000  000       000   000  000  0000    
+    000   0000000   0000000   000   000    
+###
+
+use ../kakao
+use ../kxk ▪ win elem post $
+    
+kakao.init ->
+    
+    new win onWindowWillShow: ->
+        
+        frame = x:-300 y:0 w:400 h:40
+        kakao 'window.setFrame' frame, true
+                
+        icon = kakao.bundle.img window.statusIcon ? 'menu_kakao.png'
+        document.body.appendChild elem 'img' src:icon, width:'22px' height:'22px'
+        
+        requestAnimationFrame -> 
+            kakao 'status.icon' x:0 y:-8 w:22 h:38
+            requestAnimationFrame ->
+                kakao 'window.close'
+        

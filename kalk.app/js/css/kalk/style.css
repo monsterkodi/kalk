@@ -145,7 +145,6 @@ span.complex
     text-align: center;
     border-radius: 10px;
     -webkit-user-select: none;
-    -webkit-app-region: no-drag;
 }
 
 .key:not(.inactive)

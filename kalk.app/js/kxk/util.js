@@ -1,4 +1,4 @@
-var _k_ = {isArr: function (o) {return Array.isArray(o)}, isObj: function (o) {return !(o == null || typeof o != 'object' || o.constructor.name !== 'Object')}, max: function () { var m = -Infinity; for (var a of arguments) { if (Array.isArray(a)) {m = _k_.max.apply(_k_.max,[m].concat(a))} else {var n = parseFloat(a); if(!isNaN(n)){m = n > m ? n : m}}}; return m }, list: function (l) {return l != null ? typeof l.length === 'number' ? l : [] : []}, empty: function (l) {return l==='' || l===null || l===undefined || l!==l || typeof(l) === 'object' && Object.keys(l).length === 0}, in: function (a,l) {return (typeof l === 'string' && typeof a === 'string' && a.length ? '' : []).indexOf.call(l,a) >= 0}, isStr: function (o) {return typeof o === 'string' || o instanceof String}}
+var _k_ = {isArr: function (o) {return Array.isArray(o)}, isObj: function (o) {return !(o == null || typeof o != 'object' || o.constructor.name !== 'Object')}, max: function () { var m = -Infinity; for (var a of arguments) { if (Array.isArray(a)) {m = _k_.max.apply(_k_.max,[m].concat(a))} else {var n = parseFloat(a); if(!isNaN(n)){m = n > m ? n : m}}}; return m }, empty: function (l) {return l==='' || l===null || l===undefined || l!==l || typeof(l) === 'object' && Object.keys(l).length === 0}, list: function (l) {return l != null ? typeof l.length === 'number' ? l : [] : []}, in: function (a,l) {return (typeof l === 'string' && typeof a === 'string' && a.length ? '' : []).indexOf.call(l,a) >= 0}, isStr: function (o) {return typeof o === 'string' || o instanceof String}}
 
 var util
 
@@ -95,14 +95,37 @@ util = {isEqual:function (a, b)
     {
         return !pred(m)
     })
+},splitWith:function (arr, pred)
+{
+    var exc, inc, item
+
+    inc = []
+    exc = []
+    if (!_k_.empty(arr) && _k_.isArr(arr))
+    {
+        var list = _k_.list(arr)
+        for (var _10_ = 0; _10_ < list.length; _10_++)
+        {
+            item = list[_10_]
+            if (pred(item))
+            {
+                inc.push(item)
+            }
+            else
+            {
+                exc.push(item)
+            }
+        }
+    }
+    return [inc,exc]
 },findIf:function (arr, pred)
 {
     var v
 
     var list = _k_.list(arr)
-    for (var _10_ = 0; _10_ < list.length; _10_++)
+    for (var _11_ = 0; _11_ < list.length; _11_++)
     {
-        v = list[_10_]
+        v = list[_11_]
         if (pred(v))
         {
             return v
@@ -115,10 +138,10 @@ util = {isEqual:function (a, b)
     if (!_k_.empty(arr) && _k_.isArr(arr))
     {
         var list = _k_.list(items)
-        for (var _11_ = 0; _11_ < list.length; _11_++)
+        for (var _12_ = 0; _12_ < list.length; _12_++)
         {
-            item = list[_11_]
-            for (var _12_ = index = arr.length - 1, _13_ = 0; (_12_ <= _13_ ? index <= 0 : index >= 0); (_12_ <= _13_ ? ++index : --index))
+            item = list[_12_]
+            for (var _13_ = index = arr.length - 1, _14_ = 0; (_13_ <= _14_ ? index <= 0 : index >= 0); (_13_ <= _14_ ? ++index : --index))
             {
                 if (cmp(arr[index],item))
                 {
@@ -134,9 +157,9 @@ util = {isEqual:function (a, b)
 
     result = []
     var list = _k_.list(arr)
-    for (var _14_ = 0; _14_ < list.length; _14_++)
+    for (var _15_ = 0; _15_ < list.length; _15_++)
     {
-        item = list[_14_]
+        item = list[_15_]
         if (!(_k_.in(item,result)))
         {
             result.push(item)
@@ -149,14 +172,14 @@ util = {isEqual:function (a, b)
 
     result = []
     var list = _k_.list(arr)
-    for (var _15_ = 0; _15_ < list.length; _15_++)
+    for (var _16_ = 0; _16_ < list.length; _16_++)
     {
-        item = list[_15_]
+        item = list[_16_]
         add = true
         var list1 = _k_.list(result)
-        for (var _16_ = 0; _16_ < list1.length; _16_++)
+        for (var _17_ = 0; _17_ < list1.length; _17_++)
         {
-            ritem = list1[_16_]
+            ritem = list1[_17_]
             if (util.isEqual(item,ritem))
             {
                 add = false
@@ -183,14 +206,14 @@ util = {isEqual:function (a, b)
     }
     result = []
     var list = _k_.list(arr)
-    for (var _17_ = 0; _17_ < list.length; _17_++)
+    for (var _18_ = 0; _18_ < list.length; _18_++)
     {
-        item = list[_17_]
+        item = list[_18_]
         add = true
         var list1 = _k_.list(result)
-        for (var _18_ = 0; _18_ < list1.length; _18_++)
+        for (var _19_ = 0; _19_ < list1.length; _19_++)
         {
-            ritem = list1[_18_]
+            ritem = list1[_19_]
             if (prop(item) === prop(ritem))
             {
                 add = false
@@ -232,12 +255,12 @@ util = {isEqual:function (a, b)
     })
 },defaults:function (obj, def)
 {
-    var key, val, _150_21_
+    var key, val, _162_21_
 
     for (key in def)
     {
         val = def[key]
-        obj[key] = ((_150_21_=obj[key]) != null ? _150_21_ : val)
+        obj[key] = ((_162_21_=obj[key]) != null ? _162_21_ : val)
     }
     return obj
 },pickBy:function (obj, pred)
@@ -291,9 +314,9 @@ util = {isEqual:function (a, b)
 
     result = {}
     var list = _k_.list(pairs)
-    for (var _19_ = 0; _19_ < list.length; _19_++)
+    for (var _1a_ = 0; _1a_ < list.length; _1a_++)
     {
-        pair = list[_19_]
+        pair = list[_1a_]
         result[pair[0]] = pair[1]
     }
     return result
@@ -304,6 +327,9 @@ util = {isEqual:function (a, b)
         return setTimeout(r,ms)
     }).bind(this))
     return true
+},uuid:function ()
+{
+    return crypto.randomUUID()
 },rad2deg:function (r)
 {
     return 180 * r / Math.PI

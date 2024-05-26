@@ -1,0 +1,172 @@
+###
+ 0000000  00000000   000   000  00000000   000000000   0000000    0000000   000       0000000
+000       000   000   000 000   000   000     000     000   000  000   000  000      000     
+000       0000000      00000    00000000      000     000   000  000   000  000      0000000 
+000       000   000     000     000           000     000   000  000   000  000           000
+ 0000000  000   000     000     000           000      0000000    0000000   0000000  0000000 
+###
+
+use ../../kxk ▪ ffs slash
+
+encoder   = new TextEncoder()
+decoder   = new TextDecoder()
+
+str2bytes = str  -> encoder.encode str
+bytes2str = data -> decoder.decode data
+    
+cryptName = 'AES-GCM' # 'AES-CBC'
+cryptVect = str2bytes 'password-turtle!'
+
+cryptAlgo = name:cryptName, iv:cryptVect
+    
+# 0000000    000   000  000000000  00000000   0000000       000            000   000  00000000  000   000  
+# 000   000   000 000      000     000       000              000          000   000  000        000 000   
+# 0000000      00000       000     0000000   0000000            000        000000000  0000000     00000    
+# 000   000     000        000     000            000         000          000   000  000        000 000   
+# 0000000       000        000     00000000  0000000        000            000   000  00000000  000   000  
+
+bytes2hex = array ->
+    
+    buff = new Uint8Array array
+    hexs = new Array buff.length
+
+    for i in 0...buff.length
+        hexs[i] = buff[i].toString(16).padStart 2 '0'
+
+    hexs.join ''
+    
+# 000   000  00000000  000   000        000           0000000    000   000  000000000  00000000   0000000  
+# 000   000  000        000 000           000         000   000   000 000      000     000       000       
+# 000000000  0000000     00000              000       0000000      00000       000     0000000   0000000   
+# 000   000  000        000 000           000         000   000     000        000     000            000  
+# 000   000  00000000  000   000        000           0000000       000        000     00000000  0000000   
+
+hex2bytes = str ->
+    
+    buff = new Uint8Array str.length/2
+    for i in 0...str.length/2
+        buff[i] = parseInt str[i*2..(i*2+1)], 16
+    buff
+    
+#  0000000   00000000  000   000  000   000   0000000    0000000  000   000  
+# 000        000       0000  000  000   000  000   000  000       000   000  
+# 000  0000  0000000   000 0 000  000000000  000000000  0000000   000000000  
+# 000   000  000       000  0000  000   000  000   000       000  000   000  
+#  0000000   00000000  000   000  000   000  000   000  0000000   000   000  
+
+genHash = str ○->
+
+    hash = ○ crypto.subtle.digest "SHA-512" str2bytes str
+    bytes2hex hash
+    
+#  0000000   00000000  000   000  000   000  00000000  000   000  
+# 000        000       0000  000  000  000   000        000 000   
+# 000  0000  0000000   000 0 000  0000000    0000000     00000    
+# 000   000  000       000  0000  000  000   000          000     
+#  0000000   00000000  000   000  000   000  00000000     000     
+
+genKey = str ○->
+    
+    algo = 
+        name:       'PBKDF2'
+        salt:       cryptVect
+        iterations: 100000
+        hash:       'SHA-256'
+        
+    derive =
+        name:       cryptName
+        length:     256
+    
+    key = ○ crypto.subtle.importKey 'raw' str2bytes(str), 'PBKDF2' false  ['deriveBits' 'deriveKey']
+    ○ crypto.subtle.deriveKey algo, key, derive, true, ['encrypt' 'decrypt']
+
+# 00000000  000   000   0000000  00000000   000   000  00000000   000000000  
+# 000       0000  000  000       000   000   000 000   000   000     000     
+# 0000000   000 0 000  000       0000000      00000    00000000      000     
+# 000       000  0000  000       000   000     000     000           000     
+# 00000000  000   000   0000000  000   000     000     000           000     
+
+encrypt = str key ○->
+    
+    cryptKey = ○ genKey key
+    cipher   = ○ crypto.subtle.encrypt cryptAlgo, cryptKey, str2bytes str
+    bytes2hex cipher
+    
+# 0000000    00000000   0000000  00000000   000   000  00000000   000000000  
+# 000   000  000       000       000   000   000 000   000   000     000     
+# 000   000  0000000   000       0000000      00000    00000000      000     
+# 000   000  000       000       000   000     000     000           000     
+# 0000000    00000000   0000000  000   000     000     000           000     
+
+decrypt = str key ○->
+    
+    cryptKey = ○ genKey key
+    cipher = ○ crypto.subtle.decrypt cryptAlgo, cryptKey, hex2bytes str
+    bytes2str cipher
+    
+#test = ○->
+#    
+#    byt = str2bytes 'hello from bytes'
+#    log 'byt' bytes2str byt
+#    
+#    hxd = hex str2bytes 'ugga'
+#    log 'unhex' str2bytes('ugga'), hxd, unhex(hxd), bytes2str unhex hxd
+#    
+#    key = genKey 'secret'
+#    enc = ○ encrypt 'hello' key
+#    dec = ○ decrypt enc, key
+#    log 'dec' dec
+#    
+#test()
+    
+# 00000000  000   000   0000000  00000000   000   000  00000000   000000000       00000000  000  000      00000000  
+# 000       0000  000  000       000   000   000 000   000   000     000          000       000  000      000       
+# 0000000   000 0 000  000       0000000      00000    00000000      000          000000    000  000      0000000   
+# 000       000  0000  000       000   000     000     000           000          000       000  000      000       
+# 00000000  000   000   0000000  000   000     000     000           000          000       000  0000000  00000000  
+
+encryptFile = file str key ○->
+    
+    encrypted = ○ encrypt str, key
+    decrypted = ○ decrypt encrypted, key
+    
+    if decrypted == str
+    
+        file = slash.untilde slash.path file
+        
+        ○ ffs.write file, encrypted
+        
+    else
+        log "can't decrypt encrypted?" decrypted, encrypted
+    
+# 0000000    00000000   0000000  00000000   000   000  00000000   000000000       00000000  000  000      00000000  
+# 000   000  000       000       000   000   000 000   000   000     000          000       000  000      000       
+# 000   000  0000000   000       0000000      00000    00000000      000          000000    000  000      0000000   
+# 000   000  000       000       000   000     000     000           000          000       000  000      000       
+# 0000000    00000000   0000000  000   000     000     000           000          000       000  0000000  00000000  
+
+decryptFile = file key ○->
+    
+    file = slash.untilde slash.path file
+    
+    if ○ ffs.fileExists file
+        
+        try
+            encrypted = ○ ffs.read file
+        catch err
+            error "can't read file" file, err
+            ⮐ 
+            
+        try
+            ⮐ ○ decrypt encrypted, key
+        catch err
+            error "can't decrypt file" file, err
+    else
+        error "no such file:" file
+    
+export
+    encrypt:     encrypt
+    decrypt:     decrypt
+    encryptFile: encryptFile
+    decryptFile: decryptFile
+    genHash:     genHash

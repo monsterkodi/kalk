@@ -29,7 +29,7 @@ class Keys
     
     numberKeys: ->
                 
-        @setKeys 'numbers' [ # ▾ style
+        @setKeys 'numbers' [ #              ▾ style
             @row [
                     @key symbol.clear,      'tall clear'
                     @key symbol.sqrt,       'op0 sqrt'
@@ -71,7 +71,7 @@ class Keys
     
     functionKeys: ->
         
-        @setKeys 'functions' [ # ▾ style
+        @setKeys 'functions' [ #            ▾ style
             @row [
                     @key symbol.clear,      'tall clear'
                     @key symbol.hex,        'op1 hex'
@@ -114,7 +114,7 @@ class Keys
     
     hexKeys: ->
         
-        @setKeys 'hex' [ # ▾ style
+        @setKeys 'hex' [ #                  ▾ style
             @row [
                     @key symbol.clear,      'tall clear'
                     @key 'a'                'hex letter'

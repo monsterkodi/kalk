@@ -4,6 +4,36 @@ import pug from "../pug.js"
 toExport["pug"] = function ()
 {
     compare(pug('doctype html'),'<!DOCTYPE html>\n')
+    compare(pug(`html
+    head
+        style
+            body {
+                color: #ff0;
+            }`),`<html>
+    <head>
+        <style>
+            body {
+                color: #ff0;
+            }
+        </style>
+    </head>
+</html>
+`)
+    compare(pug(`html
+    head
+        styl
+            body
+                color #ff0`),`<html>
+    <head>
+        <style>
+            body
+            {
+                color: #ff0;
+            }
+        </style>
+    </head>
+</html>
+`)
     compare(pug(`doctype html
 html
     head
@@ -11,6 +41,19 @@ html
 <html>
     <head></head>
     <body></body>
+</html>
+`)
+    compare(pug(`html
+    body
+        input type="submit" name="" value="" id="turtle" disabled
+        span
+            hello`),`<html>
+    <body>
+        <input type="submit" name="" value="" id="turtle" disabled></input>
+        <span>
+            hello
+        </span>
+    </body>
 </html>
 `)
     compare(pug(`doctype html

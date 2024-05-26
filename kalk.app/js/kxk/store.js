@@ -22,6 +22,8 @@ Store = (function ()
     {
         var _24_22_, _25_22_
 
+        this["save"] = this["save"].bind(this)
+        this["load"] = this["load"].bind(this)
         this["reload"] = this["reload"].bind(this)
         this["clear"] = this["clear"].bind(this)
         this["delayedSave"] = this["delayedSave"].bind(this)

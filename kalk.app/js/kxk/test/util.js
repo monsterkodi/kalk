@@ -79,6 +79,15 @@ toExport["util"] = function ()
         }),[2,3])
         compare(arr,[2,3])
     })
+    section("splitWith", function ()
+    {
+        arr = [1,2,3]
+        compare(util.splitWith(arr,function (i)
+        {
+            return i >= 2
+        }),[[2,3],[1]])
+        compare(arr,[1,2,3])
+    })
     section("findIf", function ()
     {
         arr = [1,2,3]

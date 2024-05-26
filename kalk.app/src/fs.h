@@ -10,8 +10,6 @@
 #include "win.h"
 
 @interface FS : NSObject
-{
-}
 
 + (id) fs:(NSString*)req args:(NSArray*)args win:(Win*)win;
 

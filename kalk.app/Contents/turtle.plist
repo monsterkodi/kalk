@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key> <string>turtle</string>
+    <key>CFBundleExecutable</key> <string>kakao</string>
+    <key>CFBundleIconFile</key> <string>img/app.icns</string>
+    <key>CFBundleIdentifier</key> <string>app.turtle</string>
+    <key>CFBundleInfoDictionaryVersion</key> <string>6.0</string>
+    <key>CFBundleName</key> <string>turtle.app</string>
+    <key>CFBundlePackageType</key> <string>APPL</string>
+    <key>CFBundleShortVersionString</key> <string>1.1.0</string>
+    <key>CFBundleVersion</key> <string>1.1.0</string>
+    <key>LSApplicationCategoryType</key> <string>public.app-category.utilities</string>
+    <key>LSMinimumSystemVersion</key> <string>10.15</string>
+    <key>NSAllowsArbitraryLoadsInWebContent</key> <true/>
+    <key>NSDesktopFolderUsageDescription</key> <string>gimmi axxess! no trust me? :)</string>
+    <key>NSAppTransportSecurity</key> <dict>
+        <key>NSAllowsArbitraryLoadsInWebContent</key> <true/>
+        <key>NSAllowsArbitraryLoads</key> <true/>
+        <key>NSAllowsLocalNetworking</key> <true/>
+        <key>NSExceptionDomains</key> <dict>
+            <key>127.0.0.1</key> <dict>
+                <key>NSIncludesSubdomains</key> <false/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key> <true/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPSLoads</key> <true/>
+                <key>NSTemporaryExceptionMinimumTLSVersion</key> <string>1.0</string>
+                <key>NSTemporaryExceptionRequiresForwardSecrecy</key> <false/>
+			</dict>
+            <key>localhost</key> <dict>
+                <key>NSIncludesSubdomains</key> <false/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key> <true/>
+                <key>NSTemporaryExceptionAllowsInsecureHTTPSLoads</key> <true/>
+                <key>NSTemporaryExceptionMinimumTLSVersion</key> <string>1.0</string>
+                <key>NSTemporaryExceptionRequiresForwardSecrecy</key> <false/>
+			</dict>
+		</dict>
+	</dict>
+    <key>NSHighResolutionCapable</key> <true/>
+    <key>NSHumanReadableCopyright</key> <string>Copyright © 2024</string>
+    <key>NSSupportsAutomaticGraphicsSwitching</key> <true/>
+</dict>
+</plist>

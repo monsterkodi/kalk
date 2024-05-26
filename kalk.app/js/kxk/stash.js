@@ -108,6 +108,10 @@ Stash = (function ()
             this.data = data
             post.emit('stashLoaded')
         }
+        else
+        {
+            post.emit('stashMissing')
+        }
         return this.data
     }
 

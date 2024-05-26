@@ -35,11 +35,11 @@ Title = (function ()
         this.opt = ((_21_13_=this.opt) != null ? _21_13_ : {})
         pkg = this.opt.pkg
         this.elem = $(((_25_27_=this.opt.elem) != null ? _25_27_ : "#titlebar"))
-        this.elem.classList.add('focus')
         if (!this.elem)
         {
             return
         }
+        this.elem.classList.add('focus')
         post.on('titlebar',this.onTitlebar)
         post.on('menuAction',this.onMenuAction)
         post.on('window.blur',this.onWindowBlur)
@@ -302,11 +302,14 @@ Title = (function ()
 
     Title.prototype["hideMenu"] = function ()
     {
-        var _219_25_
+        var _219_25_, _219_69_
 
         ;(this.menu != null ? this.menu.close() : undefined)
-        this.menu.elem.style.display = 'none'
-        return prefs.set('menu',false)
+        prefs.set('menu',false)
+        if (((this.menu != null ? this.menu.elem : undefined)))
+        {
+            return this.menu.elem.style.display = 'none'
+        }
     }
 
     Title.prototype["toggleMenu"] = function ()

@@ -81,7 +81,6 @@ class Input
 
     onButton (key)
     {
-        console.log('onButton',key)
         switch (key)
         {
             case 'ƒ':

@@ -27,6 +27,7 @@ Delegate = (function ()
     {
         var main
 
+        this["paste"] = this["paste"].bind(this)
         this["cut"] = this["cut"].bind(this)
         this["cpy"] = this["cpy"].bind(this)
         this["currentSelection"] = this["currentSelection"].bind(this)
@@ -47,6 +48,10 @@ Delegate = (function ()
         main = $('main')
         main.addEventListener('contextmenu',this.onContextMenu)
         post.on('menuAction',this.onMenuAction)
+        post.on('status.click',function ()
+        {
+            return kakao('window.raise')
+        })
         post.on('calc',this.onCalc)
         return Delegate.__super__.constructor.apply(this, arguments)
     }
@@ -58,14 +63,15 @@ Delegate = (function ()
 
     Delegate.prototype["onWindowWithoutStash"] = function ()
     {
-        kakao('win.setSize',window.WIN_MIN_WIDTH,window.WIN_MIN_HEIGHT)
-        return kakao('win.center')
+        kakao('window.setSize',window.WIN_MIN_WIDTH,window.WIN_MIN_HEIGHT)
+        return kakao('window.center')
     }
 
     Delegate.prototype["onWindowCreated"] = function ()
     {
-        kakao('win.setMinSize',window.WIN_MIN_WIDTH,window.WIN_MIN_HEIGHT)
-        return kakao('win.setMaxSize',window.WIN_MIN_WIDTH,6666)
+        kakao('window.setMinSize',window.WIN_MIN_WIDTH,window.WIN_MIN_HEIGHT)
+        kakao('window.setMaxSize',window.WIN_MIN_WIDTH,6666)
+        return kakao('window.new','icon','window.statusIcon = "menu_kalk.png"')
     }
 
     Delegate.prototype["onWindowResize"] = function ()

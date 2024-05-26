@@ -9,26 +9,9 @@
 #import "fs.h"
 #import "win.h"
 #import "app.h"
+#import "util.h"
 #import "route.h"
 #import "bundle.h"
-
-NSDictionary* dictForRect(NSRect rect)
-{
-    id dict = [NSMutableDictionary dictionary];
-    [dict setObject:[NSNumber numberWithFloat:rect.origin.x]    forKey:@"x"];
-    [dict setObject:[NSNumber numberWithFloat:rect.origin.y]    forKey:@"y"];
-    [dict setObject:[NSNumber numberWithFloat:rect.size.width]  forKey:@"w"];
-    [dict setObject:[NSNumber numberWithFloat:rect.size.height] forKey:@"h"];
-    return dict;
-}
-
-NSDictionary* dictForSize(NSSize size)
-{
-    id dict = [NSMutableDictionary dictionary];
-    [dict setObject:[NSNumber numberWithFloat:size.width]  forKey:@"w"];
-    [dict setObject:[NSNumber numberWithFloat:size.height] forKey:@"h"];
-    return dict;
-}
 
 @interface WinDelegate : NSObject <NSWindowDelegate> {}
 @end
@@ -58,10 +41,19 @@ NSDictionary* dictForSize(NSSize size)
 - (void)  windowDidResignKey: (NSNotification *)notification { [Route send:@"window.blur"  win:(Win*)notification.object]; }
 - (void)  windowDidBecomeMain:(NSNotification *)notification { /*NSLog(@"window.main"); */ }
 - (void)  windowDidResignMain:(NSNotification *)notification { /*NSLog(@"window.resign main"); */ }
-- (void)  windowWillClose:    (NSNotification *)notification { [Route send:@"window.close" win:(Win*)notification.object]; }
-- (BOOL)  windowShouldClose:  (NSWindow*)window 
+- (void)  windowWillClose:    (NSNotification *)notification 
 { 
-    if ([[App wins] count] == 1) // make sure the application closes if the last kakao window closes.
+    BOOL shouldStash = [[App get] shouldWindowSaveStash:notification.object];
+    id msg = [NSMutableDictionary dictionary];
+    [msg setObject:@"window.close" forKey:@"name"];
+    [msg setObject:[NSArray arrayWithObject:[NSNumber numberWithBool:shouldStash]] forKey:@"args"];
+    
+    [Route send:msg win:(Win*)notification.object];
+}
+
+- (BOOL) windowShouldClose:(NSWindow*)window 
+{ 
+    if ([[App wins] count] <= 1) // make sure the application closes if the last kakao window closes.
         [[NSApplication sharedApplication] terminate:self]; // don't want to keep it alive with just debugger windows.
     return YES; 
 }
@@ -132,6 +124,10 @@ NSDictionary* dictForSize(NSSize size)
     }
     else
     {
+        if (![urlString hasSuffix:@".html"])
+        {
+            urlString = [urlString stringByAppendingString:@".html"];
+        }
         url = [Bundle jsURL:urlString];
     }
     
@@ -266,17 +262,24 @@ NSDictionary* dictForSize(NSSize size)
 }
 
 - (void) setFrame:(id)frame
+{                                
+    [[self delegate] windowShouldZoom:self toFrame:rectForDict(frame)];
+}
+
+- (void) setFrame:(id)frame immediate:(id)immediate
 {
-    // [self setFrame:CGRectMake(  [[frame objectForKey:@"x"] floatValue], 
-                                // [[frame objectForKey:@"y"] floatValue], 
-                                // [[frame objectForKey:@"w"] floatValue], 
-                                // [[frame objectForKey:@"h"] floatValue]) display:NO animate:NO];
-                                
-    [[self delegate] windowShouldZoom:self toFrame:
-        CGRectMake([[frame objectForKey:@"x"] floatValue], 
-                   [[frame objectForKey:@"y"] floatValue], 
-                   [[frame objectForKey:@"w"] floatValue], 
-                   [[frame objectForKey:@"h"] floatValue])];
+    BOOL instant = NO;
+    
+    if (immediate) instant = [immediate boolValue];
+    
+    if (instant)
+    {
+        [self setFrame:rectForDict(frame) display:NO animate:NO];
+    }
+    else
+    {
+        [self setFrame:frame];
+    }
 }
 
 - (void) setTopLeft:(id)topLeft
@@ -362,7 +365,7 @@ NSDictionary* dictForSize(NSSize size)
 // 000   000  000  0000000    0000000    
 
 
-- (void)framerateDrop:(long)ms
+- (void) framerateDrop:(long)ms
 {
 }
 
@@ -386,7 +389,7 @@ NSDictionary* dictForSize(NSSize size)
             [[WKWebsiteDataStore defaultDataStore] // nuke the cache and then reload 
                 removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] 
                 modifiedSince:[NSDate dateWithTimeIntervalSince1970:0] 
-                completionHandler:^() { [self.view reload]; } // reloadFromOrigin?
+                completionHandler:^() { [self.view reloadFromOrigin]; [Route send:@"window.didReload" win:self]; } // reloadFromOrigin?
             ];
     });
 }

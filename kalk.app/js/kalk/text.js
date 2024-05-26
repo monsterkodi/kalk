@@ -51,14 +51,6 @@ class Text
         return txt
     }
 
-    static numbers = ['0','1','2','3','4','5','6','7','8','9']
-
-    static constants = [symbol.euler,symbol.pi,symbol.phi,symbol.deg2rad]
-
-    static ops = ['+','-','/','*','^','(']
-
-    static unfinished = ['.','+','-','/','*','^','(','0x','0b','0o']
-
     static endsWith (txt, chars)
     {
         var c
@@ -82,6 +74,14 @@ class Text
         }
         return false
     }
+
+    static numbers = ['0','1','2','3','4','5','6','7','8','9']
+
+    static constants = [symbol.euler,symbol.pi,symbol.phi,symbol.deg2rad]
+
+    static ops = ['+','-','/','*','^','(']
+
+    static unfinished = ['.','+','-','/','*','^','(','0x','0b','0o']
 
     static popChar (txt)
     {

@@ -10,8 +10,6 @@
 #import <WebKit/WebKit.h>
 
 @interface View : WKWebView <WKScriptMessageHandler, WKScriptMessageHandlerWithReply>
-{
-}
 
 @property (assign) id inspector;
 

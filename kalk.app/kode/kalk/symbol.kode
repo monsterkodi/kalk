@@ -10,7 +10,7 @@ symbol =
 
     pi:         'π'
     phi:        'ϕ'
-    euler:      '𝒆' #'ℇ'
+    euler:      '𝒆'
     exp:        '𝒆ˣ'
     oneoverx:   '¹⧸ₓ'
     sqrt:       '√'
@@ -28,6 +28,6 @@ symbol =
     bin:        '𝒷'
     oct:        '𝓸'
     
-globalThis.symbol = symbol # 
+globalThis.symbol = symbol
 
 export symbol

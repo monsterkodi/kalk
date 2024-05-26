@@ -787,7 +787,7 @@ class Renderer
             {
                 m.keyval.val.func.name.text = 'static ' + name.slice(1)
             }
-            else if ((m.keyval.val.func != null ? m.keyval.val.func.arrow.text : undefined) === '=>')
+            else if (_k_.in((m.keyval.val.func != null ? m.keyval.val.func.arrow.text : undefined),['=>','○=>']))
             {
                 bind.push(m)
             }

@@ -1,7 +1,7 @@
 var toExport = {}
 var _k_ = {k: { f:(r,g,b)=>'\x1b[38;5;'+(16+36*r+6*g+b)+'m', F:(r,g,b)=>'\x1b[48;5;'+(16+36*r+6*g+b)+'m', r:(i)=>(i<6)&&_k_.k.f(i,0,0)||_k_.k.f(5,i-5,i-5), R:(i)=>(i<6)&&_k_.k.F(i,0,0)||_k_.k.F(5,i-5,i-5), g:(i)=>(i<6)&&_k_.k.f(0,i,0)||_k_.k.f(i-5,5,i-5), G:(i)=>(i<6)&&_k_.k.F(0,i,0)||_k_.k.F(i-5,5,i-5), b:(i)=>(i<6)&&_k_.k.f(0,0,i)||_k_.k.f(i-5,i-5,5), B:(i)=>(i<6)&&_k_.k.F(0,0,i)||_k_.k.F(i-5,i-5,5), y:(i)=>(i<6)&&_k_.k.f(i,i,0)||_k_.k.f(5,5,i-5), Y:(i)=>(i<6)&&_k_.k.F(i,i,0)||_k_.k.F(5,5,i-5), m:(i)=>(i<6)&&_k_.k.f(i,0,i)||_k_.k.f(5,i-5,5), M:(i)=>(i<6)&&_k_.k.F(i,0,i)||_k_.k.F(5,i-5,5), c:(i)=>(i<6)&&_k_.k.f(0,i,i)||_k_.k.f(i-5,5,5), C:(i)=>(i<6)&&_k_.k.F(0,i,i)||_k_.k.F(i-5,5,5), w:(i)=>'\x1b[38;5;'+(232+(i-1)*3)+'m', W:(i)=>'\x1b[48;5;'+(232+(i-1)*3+2)+'m', wrap:(open,close,reg)=>(s)=>open+(~(s+='').indexOf(close,4)&&s.replace(reg,open)||s)+close, F256:(open)=>_k_.k.wrap(open,'\x1b[39m',new RegExp('\\x1b\\[39m','g')), B256:(open)=>_k_.k.wrap(open,'\x1b[49m',new RegExp('\\x1b\\[49m','g'))}};_k_.r5=_k_.k.F256(_k_.k.r(5));_k_.g5=_k_.k.F256(_k_.k.g(5))
 
-var a2h, ansi, diss, n, s
+var a2h, ansi, blockFillets, diss, lineFillets, lines, n, r, s, text
 
 import kstr from "../kstr.js"
 
@@ -193,6 +193,27 @@ ${_k_.g5('green')}`,`<span style="color:#ff0000;">red</span>
         compare(kstr.fillet(' abc.def '),[{match:'abc',index:1,length:3,word:true},{match:'.',index:4,length:1,word:false},{match:'def',index:5,length:3,word:true}])
         compare(kstr.fillet(' a_c.,:__def '),[{match:'a_c',index:1,length:3,word:true},{match:'.,:',index:4,length:3,word:false},{match:'__def',index:7,length:5,word:true}])
         compare(kstr.fillet('1-2'),[{match:'1',index:0,length:1,word:true},{match:'-',index:1,length:1,word:false},{match:'2',index:2,length:1,word:true}])
+    })
+    section("unfillet", function ()
+    {
+        compare(kstr.unfillet(kstr.fillet(' a_c.,:__def ')),'a_c.,:__def')
+    })
+    section("blockFillets", function ()
+    {
+        text = `hello
+    world`
+        lines = text.split('\n')
+        lineFillets = lines.map(function (line)
+        {
+            return kstr.fillet(line)
+        })
+        blockFillets = kstr.blockFillets(lineFillets)
+        compare(blockFillets,[{line:0,indent:0,fillet:[{match:'hello',index:0,length:5,word:true}],blocks:[{line:1,indent:4,fillet:[{match:'world',index:4,length:5,word:true}],blocks:[]}]}])
+        section("unfilletBlocks", function ()
+        {
+            r = kstr.unfilletBlocks(blockFillets)
+            compare(r,text + '\n')
+        })
     })
 }
 toExport["kstr"]._section_ = true

@@ -27,6 +27,7 @@ function Delegate extends win.Delegate
         main.addEventListener 'contextmenu' @onContextMenu
         
         post.on 'menuAction' @onMenuAction
+        post.on 'status.click' -> kakao 'window.raise'
         post.on 'calc'       @onCalc
         
     onWindowWillShow: ->
@@ -35,13 +36,14 @@ function Delegate extends win.Delegate
 
     onWindowWithoutStash: ->  
         
-        kakao 'win.setSize'    window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
-        kakao 'win.center'
+        kakao 'window.setSize'    window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
+        kakao 'window.center'
         
     onWindowCreated: =>
         
-        kakao 'win.setMinSize' window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
-        kakao 'win.setMaxSize' window.WIN_MIN_WIDTH, 6666
+        kakao 'window.setMinSize' window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
+        kakao 'window.setMaxSize' window.WIN_MIN_WIDTH, 6666
+        kakao 'window.new' 'icon' 'window.statusIcon = "menu_kalk.png"'
         
     onWindowResize: => post.emit 'resize'
         

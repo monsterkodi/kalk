@@ -627,7 +627,7 @@ class Renderer
                 con = m
             else if name?.startsWith '@'
                 m.keyval.val.func.name.text = 'static ' + name[1..]
-            else if m.keyval.val.func?.arrow.text == '=>'
+            else if m.keyval.val.func?.arrow.text in ['=>' '○=>']
                 bind.push m
 
         if (bind.length or @fncnName) and not con  # found some methods to bind or old school class, but no constructor
@@ -701,7 +701,7 @@ class Renderer
         @varstack.pop()
 
         @ded()
-        
+                
         if n.arrow.text == '=>' and not n.name
             s = "(#{s}).bind(this)"
         

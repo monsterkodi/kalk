@@ -18,7 +18,6 @@ class Color
             '0b[01]*':      'bin'
             '0o[0-7]*':     'oct'
             '=':            'equals'
-            'e[-+]':        'exponent'
             '[\\.]':        'dot'
             '[\\(\\)]':     'bracket'
             '\\d+':         'digit' 

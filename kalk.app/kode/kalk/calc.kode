@@ -184,13 +184,12 @@ class Calc
             symbol.deg2rad
             symbol.close    ➜ txt += key
             ➜
-                # log 'switch else key' key
                 if key in text.unfinished
                     if not empty txt
                         if not text.endsWithUnfinished(txt)
                             txt += key
                 else if not text.endsWithConstant(txt)
-                    # log "add key #{key}"
+
                     if key != 'x'
                         txt = text.removeZeroInfinity txt
                         

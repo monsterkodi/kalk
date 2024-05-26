@@ -10,14 +10,14 @@ class Color
         var cfg
 
         this.colorize = this.colorize.bind(this)
-        cfg = {'(sin|cos|a?tan|exp|log|hex|oct|bin)':'function','0x[0-9a-f]*':'hex','0b[01]*':'bin','0o[0-7]*':'oct','=':'equals','e[-+]':'exponent','[\\.]':'dot','[\\(\\)]':'bracket','\\d+':'digit','°':'digit','i':'complex','NaN':'nan','[π∞ϕ]':'constant','[∡√^]':'op0','[*/]':'op1','[+-]':'op2'}
+        cfg = {'(sin|cos|a?tan|exp|log|hex|oct|bin)':'function','0x[0-9a-f]*':'hex','0b[01]*':'bin','0o[0-7]*':'oct','=':'equals','[\\.]':'dot','[\\(\\)]':'bracket','\\d+':'digit','°':'digit','i':'complex','NaN':'nan','[π∞ϕ]':'constant','[∡√^]':'op0','[*/]':'op1','[+-]':'op2'}
         cfg[symbol.euler] = 'constant'
         this.config = matchr.config(cfg)
     }
 
     colorize (text)
     {
-        var clss, colorized, index, rng, rngs, _49_28_
+        var clss, colorized, index, rng, rngs, _48_28_
 
         rngs = matchr.ranges(this.config,text)
         colorized = ''
@@ -35,7 +35,7 @@ class Color
             {
                 continue
             }
-            clss = ((_49_28_=rng.clss) != null ? _49_28_ : 'text')
+            clss = ((_48_28_=rng.clss) != null ? _48_28_ : 'text')
             switch (clss)
             {
                 case 'hex':

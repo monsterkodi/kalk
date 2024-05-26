@@ -132,6 +132,31 @@ str.blockFillets = function (lineFillets)
     return blocks
 }
 
+str.unfilletBlock = function (block)
+{
+    var s
+
+    s = ''
+    s += str.unfillet(block.fillet)
+    s += '\n'
+    s += str.unfilletBlocks(block.blocks)
+    return s
+}
+
+str.unfilletBlocks = function (blocks)
+{
+    var b, s
+
+    s = ''
+    var list = _k_.list(blocks)
+    for (var _e_ = 0; _e_ < list.length; _e_++)
+    {
+        b = list[_e_]
+        s += _k_.rpad(b.indent,'') + str.unfilletBlock(b)
+    }
+    return s
+}
+
 str.splice = function (s, i, c, r = '')
 {
     return s.slice(0,i) + r + s.slice(i + Math.abs(c))
@@ -293,9 +318,9 @@ str.time = function (t)
             f = 1
             o = {ms:1000,second:60,minute:60,hour:24,day:30,month:12,year:0}
             var list = _k_.list(Object.keys(o))
-            for (var _e_ = 0; _e_ < list.length; _e_++)
+            for (var _f_ = 0; _f_ < list.length; _f_++)
             {
-                k = list[_e_]
+                k = list[_f_]
                 num = parseInt(t / f)
                 f *= o[k]
                 if (k === 'year' || t < f)
@@ -312,9 +337,9 @@ str.time = function (t)
             thsnd = BigInt(1000)
             f = thsnd
             var list1 = ['ns','μs','ms','second']
-            for (var _f_ = 0; _f_ < list1.length; _f_++)
+            for (var _10_ = 0; _10_ < list1.length; _10_++)
             {
-                k = list1[_f_]
+                k = list1[_10_]
                 if (k === 'seconds' || t < f)
                 {
                     num = parseInt(thsnd * t / f)
@@ -344,7 +369,7 @@ STRIPANSI = /\x1B[[(?);]{0,2}(;?\d)*./g
 
 str.stripAnsi = function (s)
 {
-    var _305_13_
+    var _320_13_
 
     return (typeof s.replace === "function" ? s.replace(STRIPANSI,'') : undefined)
 }

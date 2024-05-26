@@ -62,16 +62,22 @@ D = (function ()
     {
         compare(kc(`function C
     @a: ○->
-    b: ○->`),`
+    b: ○->
+    c: ○=>`),`
 C = (function ()
 {
     function C ()
-    {}
+    {
+        this["c"] = this["c"].bind(this)
+    }
 
     C["a"] = async function ()
     {}
 
     C.prototype["b"] = async function ()
+    {}
+
+    C.prototype["c"] = async function ()
     {}
 
     return C

@@ -1,0 +1,436 @@
+
+// 000000000  000   000  00000000   000000000  000      00000000    
+//    000     000   000  000   000     000     000      000         
+//    000     000   000  0000000       000     000      0000000     
+//    000     000   000  000   000     000     000      000         
+//    000      0000000   000   000     000     0000000  00000000    
+
+input-transition()
+    -webkit-transition  all 0.4s ease-in-out
+ghost-transition()
+    -webkit-transition  all 0.8s ease-in-out    
+fast-transition()
+    -webkit-transition  all 0.2s ease-in-out
+bubble-transition()
+    -webkit-transition  all 0.5s ease-in-out    
+no-transition()
+    -webkit-transition  none
+    
+center-xy()
+    position            absolute
+    left                50%
+    top                 50%
+    transform           translate(-50%, -50%)
+    
+@font-face
+    font-family            FontAwesomeSolid
+    font-weight            normal
+    font-style             normal
+    src                    url("../../../Contents/Resources/font/fa-solid-900.woff2")
+
+@font-face
+    font-family            FontAwesomeRegular
+    font-weight            normal
+    font-style             normal
+    src                    url("../../../Contents/Resources/font/fa-regular-400.woff2")
+    
+body
+    margin              0px
+    height              100%
+    overflow            hidden
+    -webkit-user-select none
+
+input 
+textarea
+    outline             none
+    
+#password
+#turtle
+.button
+.vault-item
+.vault-arrow
+.stash-item
+.pref-item
+    cursor              pointer
+
+a
+    text-decoration     none
+
+.no-pointer
+    pointer-events      none
+
+.main-input
+    input-transition()
+    border-radius       2px
+    font-size           24px
+    padding-left        6px
+    padding-right       6px
+    width               100%
+    box-sizing          border-box
+    text-align          center
+    height              35px
+    
+#site
+#pattern
+    padding-top         0px
+    padding-bottom      3px
+        
+.ghost
+    ghost-transition()
+    pointer-events  none
+    position        absolute
+    left            0
+    right           0
+    text-align      left
+    font-size       24px
+    top             12px
+    padding-left    20px
+
+.timeout-box
+    pointer-events  none
+    position        absolute
+    top             23px
+    left            20px
+    right           20px
+    
+.timeout
+    -webkit-transition all 0.3s linear
+    pointer-events  none
+    border-radius   2px
+    height          9px
+    position        absolute
+        
+#lock
+#password-ghost
+    fast-transition()
+    
+.lock    
+#lock
+    font-family     FontAwesomeSolid
+    top             14px
+    opacity         0    
+    &.closed
+    &.open
+        opacity     1
+        
+#prefslist
+    font-size       18px
+    
+#pref 
+    transform       translateY(-2px)
+        
+.bool
+    & span
+        padding     4px
+        margin      -4px
+        display     inline-block
+        transform   translateY(-4pxqw)
+    font-family     fontMono
+    font-size       22px
+    opacity         0    
+    &.bool-true
+    &.bool-false
+        opacity     1
+        opacity     1
+    
+// 0000000     0000000   00000000   0000000    00000000  00000000   
+// 000   000  000   000  000   000  000   000  000       000   000  
+// 0000000    000   000  0000000    000   000  0000000   0000000    
+// 000   000  000   000  000   000  000   000  000       000   000  
+// 0000000     0000000   000   000  0000000    00000000  000   000  
+
+.border
+    input-transition()
+    position        relative
+    padding         10px
+    box-sizing      border-box
+    border-radius   4px
+
+#password-border
+#pattern-border
+#master-border
+#site-border
+    height          55px      
+    margin-bottom   12px
+    margin-left     12px
+    margin-right    12px
+
+#turtle
+    -webkit-transition box-shadow 0.1s ease-in-out
+    margin          12px
+    width           340px
+    height          260px
+    background-size cover
+    border          none
+    border-radius   3px
+
+#bubble
+    bubble-transition()
+    position        absolute
+    top             170px    
+    right           27px
+    &.ask
+    &.say
+        pointer-events  all
+        opacity         1
+    &.whisper
+        pointer-events  all
+        opacity         1 
+    &.silent
+        pointer-events  none
+        opacity         0
+
+#say-tri
+    bubble-transition()
+    position       absolute
+    width          0
+    height         0
+    right          33px
+
+#say-box
+    bubble-transition()
+    position          relative
+    top               20px
+    right             0
+    left              0
+
+#say
+    bubble-transition()
+    padding           14px
+    max-height        46px
+    min-width         90px
+    overflow          hidden
+    
+.whisper #say
+    padding           10px
+    padding-right     14px
+    
+.silent #say
+    font-size         1px
+    
+.open:hover
+    cursor  pointer
+
+//  0000000   0000000  00000000    0000000   000      000      
+// 000       000       000   000  000   000  000      000      
+// 0000000   000       0000000    000   000  000      000      
+//      000  000       000   000  000   000  000      000      
+// 0000000    0000000  000   000   0000000   0000000  0000000  
+
+scrollWidth = 6px
+
+::-webkit-scrollbar
+    width                   scrollWidth
+::-webkit-scrollbar
+    height                  scrollWidth  
+    background-color        transparent
+::-webkit-scrollbar-track
+    background-color        transparent
+    
+#settings
+    position  absolute
+    left      0
+    right     0
+    
+.list
+    display         flex
+    flex-direction  column
+    position        absolute
+    left            12px
+    right           12px
+    top             12px
+    bottom          2px
+    border-radius   8px
+
+.scroll
+    width           100%
+    flex            1 1 0
+    overflow-x      hidden
+    overflow-y      auto
+    border-top-left-radius  8px
+    border-top-right-radius 8px
+    
+.buttons
+    flex           0 0 50px
+    display        flex
+    font-family     fontMono
+    font-size       26px
+    
+.buttons span
+    flex           1 1 0
+    text-align     center
+    position       relative
+
+.button-border
+    center-xy()
+
+.button
+    center-xy()
+    input-transition()
+    box-sizing        border-box
+    border-radius     2px
+
+#floppy
+    font-family     fontMono
+    font-size       24px
+    text-align      right
+    padding-right   20px
+
+.vault-item-border
+    no-transition()
+    box-sizing      border-box
+    padding         5px
+    position        relative
+    pointer-events  all
+
+.vault-arrow
+    font-size       30px
+    position        absolute
+    font-family     fontMono
+    left            15px
+    top             1px
+
+.vault-item
+    font-size       18px
+    pointer-events  all
+    text-align      left
+    width           100%
+    height          34px
+    padding-left    41px
+    
+.vault-value
+    box-sizing      border-box
+    position        relative
+    pointer-events  all
+    // left            50px
+    // width           296px
+    // max-width       296px
+    width           100%
+    min-height      10px
+    text-align      left
+    padding-left    8px
+    padding-right   8px
+    padding-top     4px
+    padding-bottom  8px
+    font-size       14px
+    resize          none 
+    overflow-x      auto 
+    overflow-y      hidden
+
+.vault-overlay 
+    box-sizing      border-box
+    font-size       18px
+    pointer-events  all
+    position        absolute
+    left            32px
+    width           296px
+    top             0px
+    bottom          0px
+    margin          5px
+    text-align      left
+    padding-left    8px
+    padding-right   8px
+    padding-top     0px
+    padding-bottom  1px
+
+
+.stash-item-border
+    no-transition()
+    padding   5px
+    & .site
+    & .lock    
+    & .pattern
+        position        absolute
+        pointer-events  none
+        top             7px
+    & .site
+        left       10px
+    & .lock
+        left       0
+        right      0
+        text-align  center
+    & .pattern
+        left       60%
+
+.pref-item-border
+    no-transition()
+    padding   5px
+    & .int
+        position        absolute
+        pointer-events  none
+        top             13px
+    & .shortcut
+    & .bool
+    & .pref    
+        position        absolute
+        pointer-events  none
+        top             11px
+    & .pref        
+        top        13px
+        left       20px
+    & .int
+    & .shortcut
+    & .bool
+        right      20px
+
+.pref-item
+    width          100%
+    height         32px
+    
+.pref-overlay.shortcut
+.pref-overlay.int
+.pref-overlay 
+    box-sizing      border-box
+    pointer-events  all
+    position        absolute
+    right           0
+    top             0
+    bottom          0
+    width           40%
+    margin          6px
+    padding-top     4px
+
+.pref-overlay.shortcut
+    cursor          cell    
+    font-size       10px        
+
+.pref-overlay.int
+    cursor          text    
+    text-align      right
+    font-size       17px        
+    
+.stash-item
+    width           100%
+    height          24px
+                
+//  0000000   0000000     0000000   000   000  000000000  
+// 000   000  000   000  000   000  000   000     000     
+// 000000000  0000000    000   000  000   000     000     
+// 000   000  000   000  000   000  000   000     000     
+// 000   000  0000000     0000000    0000000      000     
+
+#info
+    text-align      center
+    position        relative
+    top             150px
+    
+    & h1
+        margin-top    33px
+        margin-bottom 9px
+        &:hover 
+            cursor  pointer
+    & .link
+        &:hover 
+            cursor  pointer
+    
+#githubLink
+    margin-top      130px
+    &:hover
+        cursor      pointer
+    
+#about-github
+    margin-top      30px
+    margin-bottom   40px    
+    pointer-events  all
+
+    

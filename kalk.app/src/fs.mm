@@ -7,26 +7,17 @@
 */
 
 #import "fs.h"
+#import "util.h"
 #import "route.h"
 #import "bundle.h"
-
-NSString* typeForNSFileType(NSString* fileType)
-{
-    if ([fileType isEqualToString:NSFileTypeDirectory])
-    {
-        return @"dir";
-    }
-    else
-    {
-        return @"file";
-    }
-}
 
 @implementation FS
 
 + (id) fs:(NSString*)req args:(NSArray*)args win:(Win*)win
 {
     NSString* path = [Bundle path];
+    
+    // NSLog(@"fs %@", req);
     
     if ([args count] && [[args objectAtIndex:0] isKindOfClass:[NSString class]]) 
     {
@@ -211,6 +202,11 @@ NSString* typeForNSFileType(NSString* fileType)
     if ([req isEqualToString:@"write"])
     {
         NSString* text = [args objectAtIndex:1];
+        if (![text isKindOfClass:[NSString class]])
+        {
+            NSLog(@"fs.write -- argument is not a string! %@", text);
+            return nil;
+        }
         NSData* data = [text dataUsingEncoding:NSUTF8StringEncoding];
         id error;
         if ([data writeToFile:path options:NSDataWritingAtomic error:&error])

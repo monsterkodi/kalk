@@ -30,22 +30,20 @@ class Sheet
         
     compact: ○->
         
-        info =○ kakao 'win.frameInfo'
-        kakao 'win.setFrame' x:info.frame.x, y:info.frame.y, w:476 h:window.WIN_MIN_HEIGHT
+        info =○ kakao 'window.frameInfo'
+        kakao 'window.setFrame' x:info.frame.x, y:info.frame.y, w:476 h:window.WIN_MIN_HEIGHT
         @
         
     expand: ○->
         
-        # @view.style.display = 'flex'
-        
-        info =○ kakao 'win.frameInfo'
+        info =○ kakao 'window.frameInfo'
 
         spaceAbove = (info.screen.h + info.screen.y) - (info.frame.h + info.frame.y)
 
         if spaceAbove > 34
             
             add = @view.scrollHeight-@view.getBoundingClientRect().height+4
-            kakao 'win.setFrame' x:info.frame.x, y:info.frame.y, w:476 h:max 656, info.frame.h+add
+            kakao 'window.setFrame' x:info.frame.x, y:info.frame.y, w:476 h:max 656, info.frame.h+add
         @
         
     clear: =>
@@ -55,8 +53,6 @@ class Sheet
         @
             
     onSheet: action =>
-        
-        # log 'onSheet action' action, action.text, kstr action.val
         
         if
             action == 'clear'    ➜ ⮐ @clear()

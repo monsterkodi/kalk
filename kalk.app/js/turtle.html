@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>turtle</title>
+        <meta charset='utf-8'>
+        <link rel="stylesheet" href="./css/style.css"        type="text/css">
+        <link rel="stylesheet" href="./css/dark.css"         type="text/css">
+        <link rel="stylesheet" href="./css/turtle/style.css" type="text/css">
+        <link rel="stylesheet" href="./css/turtle/dark.css"  type="text/css">
+    </head>
+    <body class='app-drag-region'>
+        <div id="bubble" class='silent'>
+            <div id="say-tri"></div>
+            <div id="say-box">
+                <div id="say"></div>
+            </div>
+        </div>
+        <div class='turtle app-drag-region'>
+            <input class='app-drag-region' type="submit" name="" value="" id='turtle' disabled></input>
+        </div>
+        <div id="master-border" class='border'>
+            <input class='main-input' type='password' name='master' id='master' tabindex=0></input>
+            <div id="master-ghost" class='ghost'>
+                master
+            </div>
+            <div class='timeout-box'>
+                <div id="master-timeout" class='timeout'></div>
+            </div>
+        </div>
+        <div id="settings">
+            <div id="pattern-border" class='border'>
+                <input id='pattern' class='main-input' type='input' name='pattern'></input>
+                <span>
+                    <div id="floppy" class='ghost'></div>
+                    <div id="pattern-ghost" class='ghost'>
+                        pattern
+                    </div>
+                </span>
+            </div>
+        </div>
+        <div id="site-border" class='border'>
+            <input id='site' class='main-input' type='input' name='site'></input>
+            <div id="site-ghost" class='ghost'>
+                site
+            </div>
+        </div>
+        <div id="password-border" class='border'>
+            <input id='password' class='main-input' type='button' name='password'></input>
+            <div id="lock" class='ghost'></div>
+            <div id="password-ghost" class='ghost'>
+                password
+            </div>
+        </div>
+    </body>
+    <script type="module" src="./turtle/turtle.js"></script>
+</html>

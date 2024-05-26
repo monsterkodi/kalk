@@ -3,7 +3,134 @@ html lang="en"
     head
         title about
         meta charset='utf-8'
-        link rel='stylesheet' href='./css/about.css' type='text/css'
+        styl
+            //  0000000   0000000     0000000   000   000  000000000  
+            // 000   000  000   000  000   000  000   000     000     
+            // 000000000  0000000    000   000  000   000     000     
+            // 000   000  000   000  000   000  000   000     000     
+            // 000   000  0000000     0000000    0000000      000     
+            
+            bgColor             = #1c1c1c
+            frameColor          = #1a1a1a
+            bgColor             = #0c0c0c
+            frameColor          = #0a0a0a
+            textBlurColor       = #444
+            textActiveColor     = #999
+            textFocusColor      = #fff
+            
+            frameWidth          = 6px
+            frameRadius         = 10px
+            borderRadius        = 10px
+            frameBorder         = frameWidth solid frameColor
+            bodyBorder          = 0px solid frameColor
+            
+            fadeInAnim()       
+                animation       300ms ease-in-out fadeIn
+            
+            @font-face 
+                font-family     titlebarFont
+                font-weight     normal
+                font-style      normal
+                src             url("../../Contents/Resources/font/Bahnschrift.woff")
+            
+            @font-face 
+                font-family     fontMono
+                font-weight     normal
+                font-style      normal
+                // src             url("../../Contents/Resources/font/IosevkaCustom-Regular.woff2")
+                src             url("../../Contents/Resources/font/MesloLGS-NF-Regular.woff2")
+                
+            fill-abs()
+                position            absolute
+                bottom              0
+                right               0
+                left                0
+                top                 0
+                margin              0
+                padding             0
+                    
+            // 0000000     0000000   0000000    000   000
+            // 000   000  000   000  000   000   000 000 
+            // 0000000    000   000  000   000    00000  
+            // 000   000  000   000  000   000     000   
+            // 0000000     0000000   0000000       000   
+            
+            body
+                fill-abs()
+                overflow            hidden
+                color               textFocusColor
+                border              bodyBorder
+                border-radius       borderRadius
+                animation           300ms ease-in fadeIn
+                font-family         fontMono
+                font-size           14px
+                
+            // 00     00   0000000   000  000   000  
+            // 000   000  000   000  000  0000  000  
+            // 000000000  000000000  000  000 0 000  
+            // 000 0 000  000   000  000  000  0000  
+            // 000   000  000   000  000  000   000  
+            
+            #main
+                fill-abs()
+                border              frameBorder
+                border-radius       frameRadius
+                background-color    bgColor
+                -webkit-user-select none
+                padding             frameWidth
+                overflow            auto
+                pointer-events      auto
+                
+            //  0000000   0000000     0000000   000   000  000000000  
+            // 000   000  000   000  000   000  000   000     000     
+            // 000000000  0000000    000   000  000   000     000     
+            // 000   000  000   000  000   000  000   000     000     
+            // 000   000  0000000     0000000    0000000      000     
+            
+            .about 
+                text-align          center
+                cursor              pointer
+                outline-width       0
+                overflow            hidden
+                
+            .image 
+                pointer-events      none
+                position            absolute
+                height              80%
+                max-height          80%
+                left                50%
+                top                 49%
+                transform           translate(-50%, -50%)
+            
+            .version 
+                position            absolute
+                bottom              7%
+                left                0
+                right               0
+                text-align          center
+                font-family         Verdana, sans-serif
+                text-decoration     none
+                color               rgb(50, 50, 50)
+            
+            .version:hover 
+                color               rgb(205, 205, 205)
+            
+            //    0000000   000   000  000  00     00   0000000   000000000  000   0000000   000   000
+            //   000   000  0000  000  000  000   000  000   000     000     000  000   000  0000  000
+            //   000000000  000 0 000  000  000000000  000000000     000     000  000   000  000 0 000
+            //   000   000  000  0000  000  000 0 000  000   000     000     000  000   000  000  0000
+            //   000   000  000   000  000  000   000  000   000     000     000   0000000   000   000
+                        
+            @keyframes fadeIn
+                0%
+                    opacity         0
+                100%  
+                    opacity         1
+                    
+            *
+                outline-width       0
+                outline-style       none
+                
     body
         #main tabindex=0
     

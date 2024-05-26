@@ -16,10 +16,11 @@
 
 @interface App ()
 
-@property (readwrite,retain) Watch* watchHome;
-@property (readwrite,retain) Watch* watch;
-@property (readwrite,assign) BOOL isBuildingApp;
-@property (readwrite,retain) NSString* fileToLoad;
+@property (readwrite,retain) Watch*     watchHome;
+@property (readwrite,retain) Watch*     watch;
+@property (readwrite,retain) NSString*  fileToLoad;
+@property (readwrite,assign) BOOL       isBuildingApp;
+@property (readwrite,assign) BOOL       isQuitting;
 
 + (void) moveStashWins;
 
@@ -94,35 +95,24 @@
 {
     if (self.fileToLoad)
     {
-        NSMutableDictionary* msg = [NSMutableDictionary dictionary];
-        NSArray* args = [NSArray arrayWithObject:self.fileToLoad];
-        [msg setObject:@"loadFile" forKey:@"name"];
-        [msg setObject:args forKey:@"args"];
-        [Route emit:msg];
+        [Route emit:@"loadFile" arg:self.fileToLoad];
     }
+    
+    self.status = [[Status alloc] init];
 }
 
 - (BOOL) application:(NSApplication*)sender openFile:(NSString*)filename
 {
     self.fileToLoad = filename;
     
-    NSMutableDictionary* msg = [NSMutableDictionary dictionary];
-    NSArray* args = [NSArray arrayWithObject:filename];
-    [msg setObject:@"loadFile" forKey:@"name"];
-    [msg setObject:args forKey:@"args"];
-    [Route emit:msg];
+    [Route emit:@"loadFile" arg:filename];
     
     return YES;
 }
 
 - (void) application:(NSApplication*)sender openFiles:(NSArray*)files
 {
-    NSMutableDictionary* msg = [NSMutableDictionary dictionary];
-    [msg setObject:@"loadFiles" forKey:@"name"];
-    NSArray* args = [NSArray arrayWithObject:files];
-    [msg setObject:args forKey:@"args"];
-    
-    [Route emit:msg];
+    [Route emit:@"loadFiles" arg:files];
 }
 
 // 000   000  000  000   000   0000000
@@ -219,10 +209,7 @@
             
             // NSLog(@"%@ %@", type, change.path);
             
-            [msg setObject:@"fs.change" forKey:@"name"];
-            [msg setObject:args forKey:@"args"];
-
-            [Route emit:msg];
+            [Route emit:@"fs.change" args:args];
         }
 
         return;
@@ -557,9 +544,26 @@
 //    000     000       000   000  000 0 000  000  000  0000  000   000     000     000
 //    000     00000000  000   000  000   000  000  000   000  000   000     000     00000000
 
+-(void) quit
+{
+    self.isQuitting = YES;
+    
+    for (Win* win in [App wins])
+    {
+        [win close];
+    }
+    [[NSApplication sharedApplication] terminate:nil];
+}
+
+-(BOOL) shouldWindowSaveStash:(Win*)win
+{
+    if (self.isQuitting) return YES; // in quitting mode, all windows should save their stash
+    
+    return [[self wins] count] <= 1; // only the last window should save its stash
+}
+
 -(NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication*)sender
 {
-    // NSLog(@"terminate %@", sender);
     return NSTerminateNow;
 }
 

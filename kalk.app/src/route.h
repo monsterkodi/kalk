@@ -12,13 +12,13 @@
 #import "win.h"
 
 @interface Route : NSObject
-{
-}
 
-+ (void) emit:(id)msg;               // send string or object to js in web views of all windows
-+ (void) send:(id)msg win:(Win*)win; // send string or object to js in web view of win
-+ (void) message:(WKScriptMessage*)msg win:(Win*)win; // message received from js in web view of win
-// message recieved from js in web view of win that expects a callback
-+ (void) request:(WKScriptMessage*)msg callback:(Callback)callback win:(Win*)win; 
++ (void) emit:(id)msg;                                  // send string or object to js in web views of all windows
++ (void) emit:(NSString*)name arg:(id)arg;              // send message with single argument to views of all windows
++ (void) emit:(NSString*)name args:(NSArray*)args;      // send message with multiple arguments to views of all windows
++ (void) send:(id)msg win:(Win*)win;                    // send string or object to js in web view of win
+
++ (void) message:(WKScriptMessage*)msg win:(Win*)win;                               // js in webview sent a message
++ (void) request:(WKScriptMessage*)msg callback:(Callback)callback win:(Win*)win;   //   ... and expects a callback
 
 @end

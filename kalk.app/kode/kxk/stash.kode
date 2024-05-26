@@ -88,6 +88,9 @@ function Stash
         if valid data
             @data = data
             post.emit 'stashLoaded'
+        else
+            post.emit 'stashMissing'
+            
         @data
             
     #  0000000   0000000   000   000  00000000

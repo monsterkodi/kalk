@@ -5,11 +5,14 @@ var pug, render
 import kstr from "./kstr.js"
 let unfillet = kstr.unfillet
 let blockFillets = kstr.blockFillets
+let unfilletBlocks = kstr.unfilletBlocks
+
+import styl from "./styl.js"
 
 
 render = function (block, text)
 {
-    var args, b, fromIndex, idt, p, t
+    var args, b, fromIndex, idt, p, t, tag
 
     idt = _k_.rpad(block.indent)
     args = ''
@@ -27,28 +30,37 @@ render = function (block, text)
     {
         args += ' ' + unfillet(block.fillet.slice(fromIndex))
     }
+    tag = block.fillet[0].match
     t = ((function ()
     {
-        switch (block.fillet[0].match)
+        switch (tag)
         {
             case 'doctype':
                 return `<!DOCTYPE ${block.fillet[1].match}>\n`
 
             case 'title':
-                return `<${block.fillet[0].match}>${block.fillet[1].match}</${block.fillet[0].match}>\n`
+                return `<${tag}>${block.fillet[1].match}</${tag}>\n`
 
             case 'meta':
             case 'link':
+            case 'style':
+            case 'input':
             case 'script':
             case 'head':
             case 'body':
+            case 'div':
             case 'span':
             case 'html':
-                return `<${block.fillet[0].match}${args}>`
+                return `<${tag}${args}>`
 
             case '#':
                 return `<div id=\"${block.fillet[1].match}\"${args}>`
 
+            case 'styl':
+                return "<style>"
+
+            default:
+                return unfillet(block.fillet) + '\n'
         }
 
     }).bind(this))()
@@ -58,18 +70,29 @@ render = function (block, text)
     }
     if (!_k_.empty(block.blocks))
     {
-        text += '\n'
-        var list = _k_.list(block.blocks)
-        for (var _a_ = 0; _a_ < list.length; _a_++)
+        switch (tag)
         {
-            b = list[_a_]
-            text += render(b,'')
+            case 'style':
+                text += '\n' + unfilletBlocks(block.blocks)
+                break
+            case 'styl':
+                text += styl(unfilletBlocks(block.blocks))
+                break
+            default:
+                text += '\n'
+                var list = _k_.list(block.blocks)
+            for (var _a_ = 0; _a_ < list.length; _a_++)
+            {
+                b = list[_a_]
+                text += render(b,'')
+            }
         }
+
         text += idt
     }
     p = ((function ()
     {
-        switch (block.fillet[0].match)
+        switch (tag)
         {
             case 'link':
             case 'meta':
@@ -78,9 +101,15 @@ render = function (block, text)
             case 'script':
             case 'head':
             case 'body':
+            case 'style':
+            case 'div':
             case 'span':
+            case 'input':
             case 'html':
-                return `</${block.fillet[0].match}>\n`
+                return `</${tag}>\n`
+
+            case 'styl':
+                return "</style>\n"
 
             case '#':
                 return "</div>\n"

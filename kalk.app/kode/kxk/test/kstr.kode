@@ -241,3 +241,45 @@ use .. ◆ kstr
         kstr.fillet ' a_c.,:__def ' ▸ [{match:'a_c' index:1 length:3 word:true}, {match:'.,:' index:4 length:3 word:false}, {match:'__def' index:7 length:5 word:true}]
         kstr.fillet '1-2' ▸ [{match:'1' index:0 length:1 word:true}, {match:'-' index:1 length:1 word:false}, {match:'2' index:2 length:1 word:true}]
         
+    ▸ unfillet
+    
+        kstr.unfillet kstr.fillet ' a_c.,:__def ' ▸ 'a_c.,:__def'
+        
+    ▸ blockFillets
+    
+        text = """
+            hello
+                world
+            """
+        lines = text.split '\n'
+        lineFillets = lines.map (line) -> kstr.fillet line
+        
+        blockFillets = kstr.blockFillets lineFillets
+        blockFillets ▸ [
+            line:   0
+            indent: 0
+            fillet: [
+                match:   'hello'
+                index:   0
+                length:  5
+                word:    true
+                ] 
+            blocks: [
+                line:  1
+                indent: 4
+                fillet: [
+                    match:  'world'
+                    index:  4
+                    length:  5
+                    word:  true
+                    ]
+                blocks: []
+                ]
+            ]
+            
+        ▸ unfilletBlocks 
+        
+            r = kstr.unfilletBlocks blockFillets
+            r ▸ text + '\n'
+        
+        

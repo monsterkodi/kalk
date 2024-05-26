@@ -203,6 +203,21 @@ toExport["class"] = function ()
     {}
 }
 `)
+        compare(kc(`class E extends e
+
+    @: ->
+
+    asyncBound: ○=>`),`class E extends e
+{
+    constructor ()
+    {
+        this.asyncBound = this.asyncBound.bind(this)
+    }
+
+    async asyncBound ()
+    {}
+}
+`)
     })
     section("extends", function ()
     {

@@ -11,7 +11,9 @@ use ./kode ◆ tester
 
 mods = ['kxk' 'kode' 'kolor' 'ko' 'kalk']
 
-if process.argv[-1] == 'help'
+lastArg = process.argv[-1]
+
+if lastArg == 'help'
     
     log """
     
@@ -31,28 +33,29 @@ tests = {}; for m in mods ➜ tests[m] = true
 
 hdr = (h) -> log G2 y8 ' ' + rpad(33 h) + ' '
 
-if process.argv[-1] == 'brief'
+if 
+    lastArg == 'brief'
     
-    tester.logSections = false
+        tester.logSections = false
 
-else if process.argv[-1] == 'silent'
+    lastArg == 'silent'
     
-    tester.logSections = false
-    tester.logModules = false
+        tester.logSections = false
+        tester.logModules = false
     
-else if process.argv[-1] in mods
+    lastArg in mods
     
-    for m in mods ➜ tests[m] = m == process.argv[-1]
+        for m in mods ➜ tests[m] = m == lastArg
     
-else if process.argv[-1] != ◆file
+    lastArg != ◆file
     
-    for m in mods ➜ tests[m] = false
+        for m in mods ➜ tests[m] = false
+            
+        hdr process.argv[-1]
         
-    hdr process.argv[-1]
-    
-    file = slash.path ◆dir, '..' process.argv[-1]
-    test =○ import(file)
-    tester.test test.default
+        file = slash.path ◆dir, '..' lastArg
+        test =○ import(file)
+        tester.test test.default
     
 for mod in mods
     if tests[mod]
@@ -62,32 +65,4 @@ for mod in mods
             test =○ import(file.path)
             tester.test test.default
         
-# if tests.kxk
-    # hdr 'kxk'
-    # files =○ fs.list slash.path ◆dir, 'kxk/test'
-    # for file in files
-        # test =○ import(file.path)
-        # tester.test test.default
-
-# if tests.kode
-    # hdr 'kode'
-    # files =○ fs.list slash.path ◆dir, 'kode/test'
-    # for file in files
-        # test =○ import(file.path)
-        # tester.test test.default
-#         
-# if tests.kolor
-    # hdr 'kolor'
-    # files =○ fs.list slash.path ◆dir, 'kolor/test'
-    # for file in files
-        # test =○ import(file)
-        # tester.test test.default
-
-# if tests.ko
-    # hdr 'ko'
-    # files =○ fs.list slash.path ◆dir, 'ko/test'
-    # for file in files
-        # test =○ import(file.path)
-        # tester.test test.default
-                
 tester.summarize()

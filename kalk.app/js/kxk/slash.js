@@ -1,10 +1,7 @@
 var _k_ = {empty: function (l) {return l==='' || l===null || l===undefined || l!==l || typeof(l) === 'object' && Object.keys(l).length === 0}, isStr: function (o) {return typeof o === 'string' || o instanceof String}, in: function (a,l) {return (typeof l === 'string' && typeof a === 'string' && a.length ? '' : []).indexOf.call(l,a) >= 0}}
 
-var sep
-
 import os from "./os.js"
 
-sep = '/'
 class Slash
 {
     static sep = '/'
@@ -452,23 +449,23 @@ class Slash
 
     static home ()
     {
-        var _316_35_
+        var _314_35_
 
-        return ((_316_35_=globalThis.homeDir) != null ? _316_35_ : process.env.HOME)
+        return ((_314_35_=globalThis.homeDir) != null ? _314_35_ : process.env.HOME)
     }
 
     static user ()
     {
-        var _317_35_
+        var _315_35_
 
-        return ((_317_35_=globalThis.useName) != null ? _317_35_ : process.env.USER)
+        return ((_315_35_=globalThis.useName) != null ? _315_35_ : process.env.USER)
     }
 
     static tmpdir ()
     {
-        var _318_35_
+        var _316_35_
 
-        return ((_318_35_=globalThis.tmpDir) != null ? _318_35_ : '/tmp')
+        return ((_316_35_=globalThis.tmpDir) != null ? _316_35_ : '/tmp')
     }
 
     static tmpfile (ext)

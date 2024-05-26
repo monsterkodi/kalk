@@ -76,6 +76,18 @@ util =
 
     keepIf: arr pred -> util.pullIf arr, (m) -> not pred m
     
+    splitWith: arr pred ->
+        
+        inc = []
+        exc = []
+        
+        if valid arr and arr is arr
+            for item in arr
+                if pred(item) ➜ inc.push item
+                  else exc.push item
+            
+        [inc, exc]
+    
     findIf: arr pred -> for v in arr ➜ ⮐ v if pred v
         
     pullAll: arr items cmp=util.isEqual ->
@@ -190,6 +202,8 @@ util =
     # 0000000   0000000  00000000  00000000  000        
     
     sleep: ms ○-> ○ new Promise((r) => setTimeout(r, ms)); true
+    
+    uuid: -> crypto.randomUUID()
 
     # 00     00   0000000   000000000  000   000    
     # 000   000  000   000     000     000   000    
