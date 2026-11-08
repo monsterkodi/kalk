@@ -118,7 +118,8 @@ use .. ◆ slash
         slash.parse('/a')         ▸ path:'/a'         dir: '/'    file: 'a'     name: 'a' ext: ''
         
         user = slash.user()
-        slash.parse('~') ▸ path:'~' dir:'/Users' file:user, name:user, ext: ''
+        homeDir = slash.dir slash.home()
+        slash.parse('~') ▸ path:'~' dir:homeDir, file:user, name:user, ext: ''
         
         if slash.win()
             

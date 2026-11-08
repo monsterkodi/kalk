@@ -60,9 +60,11 @@ if
 for mod in mods
     if tests[mod]
         hdr mod
-        files =○ fs.list slash.path ◆dir, mod, 'test'
-        for file in files
-            test =○ import(file.path)
-            tester.test test.default
+        dir = slash.path ◆dir, mod, 'test'
+        if fs.dirExists dir
+            files =○ fs.list dir
+            for file in files
+                test =○ import(file.path)
+                tester.test test.default
         
 tester.summarize()

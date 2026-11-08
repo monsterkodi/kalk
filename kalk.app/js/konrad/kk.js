@@ -202,9 +202,46 @@ class kk
 
     static launch (args = [])
     {
-        var cmd, opt
+        var child, cmd, electronArgs, monitor, monitors, opt, scale
 
         console.log('🚀')
+        if (os.platform !== 'Darwin')
+        {
+            cmd = slash.path(kk.appPath(),'node_modules/.bin/electron')
+            scale = process.env.KALK_SCALE
+            if (!scale)
+            {
+                try
+                {
+                    monitors = JSON.parse((child_process.execSync('hyprctl monitors -j',{encoding:'utf8'})))
+                    monitor = monitors.find(function (m)
+                    {
+                        return m.focused
+                    }) || monitors[0]
+                    if ((monitor != null ? monitor.scale : undefined))
+                    {
+                        scale = `${monitor.scale}`
+                    }
+                }
+                catch (err)
+                {
+                    err
+                }
+            }
+            if (!scale)
+            {
+                scale = '1'
+            }
+            electronArgs = ['.','--ozone-platform=x11','--force-device-scale-factor=' + scale].concat(args)
+            opt = {cwd:kk.appPath(),detached:true,stdio:'ignore'}
+            child = child_process.spawn(cmd,electronArgs,opt)
+            child.on('error',function (err)
+            {
+                console.error('could not launch electron',err.message)
+            })
+            child.unref()
+            return child
+        }
         cmd = slash.path(_k_.dir(),'../../Contents/MacOS/kakao')
         opt = {shell:true,detached:true}
         return child_process.spawn(cmd,args,opt)

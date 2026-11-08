@@ -66,12 +66,19 @@ class Keyinfo
         return ''
 
     @convertCmdCtrl: (combo) ->
-        
-        index = combo.indexOf 'cmdctrl'
-        if index >= 0
-            combo = combo.replace 'cmdctrl' 'command'
-            combo = combo.replace 'alt+command' 'command+alt'
-        combo
+
+        command = globalThis.kalkCommandKey
+        order = ['command' 'alt' 'ctrl' 'shift']
+        normalize = (c) =>
+            c = c.replace /cmdctrl/g command or 'command'
+            if command
+                c = c.replace /command/g command
+            parts = c.split '+'
+            mods = parts.filter (p) => @isModifier p
+            keys = parts.filter (p) => not @isModifier p
+            mods = Array.from(new Set mods).sort (a,b) -> order.indexOf(a) - order.indexOf(b)
+            mods.concat(keys).join '+'
+        combo.split(' ').map(normalize).join ' '
                 
     @keynameForEvent: (event) ->
         

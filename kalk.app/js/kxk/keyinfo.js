@@ -99,20 +99,40 @@ class Keyinfo
 
     static convertCmdCtrl (combo)
     {
-        var index
+        var command, normalize, order
 
-        index = combo.indexOf('cmdctrl')
-        if (index >= 0)
+        command = globalThis.kalkCommandKey
+        order = ['command','alt','ctrl','shift']
+        normalize = (function (c)
         {
-            combo = combo.replace('cmdctrl','command')
-            combo = combo.replace('alt+command','command+alt')
-        }
-        return combo
+            var keys, mods, parts
+
+            c = c.replace(/cmdctrl/g,command || 'command')
+            if (command)
+            {
+                c = c.replace(/command/g,command)
+            }
+            parts = c.split('+')
+            mods = parts.filter((function (p)
+            {
+                return this.isModifier(p)
+            }).bind(this))
+            keys = parts.filter((function (p)
+            {
+                return !this.isModifier(p)
+            }).bind(this))
+            mods = Array.from(new Set(mods)).sort(function (a, b)
+            {
+                return order.indexOf(a) - order.indexOf(b)
+            })
+            return mods.concat(keys).join('+')
+        }).bind(this)
+        return combo.split(' ').map(normalize).join(' ')
     }
 
     static keynameForEvent (event)
     {
-        var _105_45_, _96_33_
+        var _103_33_, _112_45_
 
         switch (event.code)
         {
@@ -210,7 +230,7 @@ class Keyinfo
 
     static characterForEvent (event)
     {
-        var _110_20_
+        var _117_20_
 
         if ((event.key != null ? event.key.length : undefined) === 1)
         {

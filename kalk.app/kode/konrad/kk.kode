@@ -182,6 +182,23 @@ class kk
     @launch: args=[] ->
         
         log '🚀'
+        if os.platform != 'Darwin'
+            cmd = slash.path kk.appPath(), 'node_modules/.bin/electron'
+            scale = process.env.KALK_SCALE
+            if not scale
+                try
+                    monitors = JSON.parse (child_process.execSync 'hyprctl monitors -j', encoding:'utf8')
+                    monitor = monitors.find((m)->m.focused) or monitors[0]
+                    scale = "#{monitor.scale}" if monitor?.scale
+                catch err
+                    err
+            scale = '1' if not scale
+            electronArgs = ['.' '--ozone-platform=x11' '--force-device-scale-factor=' + scale].concat args
+            opt = {cwd:kk.appPath(), detached:true, stdio:'ignore'}
+            child = child_process.spawn cmd, electronArgs, opt
+            child.on 'error' (err) -> error 'could not launch electron', err.message
+            child.unref()
+            return child
         cmd = slash.path ◆dir, '../../Contents/MacOS/kakao'
         opt = shell:true detached:true
         

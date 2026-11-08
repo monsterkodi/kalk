@@ -1,7 +1,7 @@
 var toExport = {}
 var _k_ = {dir: function () { let url = import.meta.url.substring(7); let si = url.lastIndexOf('/'); return url.substring(0, si); }}
 
-var home, user
+var home, homeDir, user
 
 import slash from "../slash.js"
 
@@ -80,7 +80,8 @@ toExport["slash"] = function ()
         compare(slash.parse('/a/b/c/'),{path:'/a/b/c',dir:'/a/b',file:'c',name:'c',ext:''})
         compare(slash.parse('/a'),{path:'/a',dir:'/',file:'a',name:'a',ext:''})
         user = slash.user()
-        compare(slash.parse('~'),{path:'~',dir:'/Users',file:user,name:user,ext:''})
+        homeDir = slash.dir(slash.home())
+        compare(slash.parse('~'),{path:'~',dir:homeDir,file:user,name:user,ext:''})
         if (slash.win())
         {
             compare(slash.parse('c:').root,'c:/')

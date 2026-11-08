@@ -15,6 +15,11 @@ export default async function ()
 {
     var cmd, cwd, opt, SRC, srcDir, srcFiles
 
+    if (process.platform !== 'darwin')
+    {
+        console.log('native Cocoa build skipped on ' + process.platform)
+        return
+    }
     srcDir = slash.path(_k_.dir(),'../../src')
     await fs.mkdir(slash.dir(slash.path(_k_.dir(),OUT)))
     srcFiles = await fs.list(srcDir)

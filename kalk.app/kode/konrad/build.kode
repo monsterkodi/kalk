@@ -19,7 +19,11 @@ use child_process
 use ../kxk ◆ slash fs
 
 export ○->
-    
+
+    if process.platform != 'darwin'
+        log 'native Cocoa build skipped on ' + process.platform
+        return
+
     srcDir = slash.path ◆dir, '../../src'
     
     ○ fs.mkdir slash.dir slash.path ◆dir, OUT
