@@ -15,6 +15,7 @@ use        ◆ knrd build spawn status version
 use child_process
 
 import fs from 'fs/promises'
+import { existsSync } from 'node:fs'
 
 args = karg """
     kk
@@ -183,20 +184,16 @@ class kk
         
         log '🚀'
         if os.platform != 'Darwin'
-            cmd = slash.path kk.appPath(), 'node_modules/.bin/electron'
-            scale = process.env.KALK_SCALE
-            if not scale
-                try
-                    monitors = JSON.parse (child_process.execSync 'hyprctl monitors -j', encoding:'utf8')
-                    monitor = monitors.find((m)->m.focused) or monitors[0]
-                    scale = "#{monitor.scale}" if monitor?.scale
-                catch err
-                    err
-            scale = '1' if not scale
-            electronArgs = ['.' '--ozone-platform=x11' '--force-device-scale-factor=' + scale].concat args
-            opt = {cwd:kk.appPath(), detached:true, stdio:'ignore'}
-            child = child_process.spawn cmd, electronArgs, opt
-            child.on 'error' (err) -> error 'could not launch electron', err.message
+            cmd = slash.path kk.appPath(), 'Contents/Linux/kakao'
+            if not existsSync cmd
+                return console.error "no linux build at #{cmd}, run ./kk -b"
+            scale = process.env.KALK_GDK_SCALE or '2'
+            env = Object.assign {}, process.env
+            env.GDK_BACKEND = 'x11'
+            env.GDK_SCALE = scale
+            opt = {cwd:kk.appPath(), detached:true, stdio:'ignore', env:env}
+            child = child_process.spawn cmd, args, opt
+            child.on 'error' (err) -> error 'could not launch', err.message
             child.unref()
             return child
         cmd = slash.path ◆dir, '../../Contents/MacOS/kakao'

@@ -19,6 +19,7 @@ import version from "./version.js"
 import child_process from "child_process"
 
 import fs from 'fs/promises'
+import { existsSync } from 'node:fs'
 args = karg(`kk
     options                                   **
     info       show build status              = false
@@ -202,42 +203,25 @@ class kk
 
     static launch (args = [])
     {
-        var child, cmd, electronArgs, monitor, monitors, opt, scale
+        var child, cmd, env, opt, scale
 
         console.log('🚀')
         if (os.platform !== 'Darwin')
         {
-            cmd = slash.path(kk.appPath(),'node_modules/.bin/electron')
-            scale = process.env.KALK_SCALE
-            if (!scale)
+            cmd = slash.path(kk.appPath(),'Contents/Linux/kakao')
+            if (!existsSync(cmd))
             {
-                try
-                {
-                    monitors = JSON.parse((child_process.execSync('hyprctl monitors -j',{encoding:'utf8'})))
-                    monitor = monitors.find(function (m)
-                    {
-                        return m.focused
-                    }) || monitors[0]
-                    if ((monitor != null ? monitor.scale : undefined))
-                    {
-                        scale = `${monitor.scale}`
-                    }
-                }
-                catch (err)
-                {
-                    err
-                }
+                return console.error(`no linux build at ${cmd}, run ./kk -b`)
             }
-            if (!scale)
-            {
-                scale = '1'
-            }
-            electronArgs = ['.','--ozone-platform=x11','--force-device-scale-factor=' + scale].concat(args)
-            opt = {cwd:kk.appPath(),detached:true,stdio:'ignore'}
-            child = child_process.spawn(cmd,electronArgs,opt)
+            scale = process.env.KALK_GDK_SCALE || '2'
+            env = Object.assign({},process.env)
+            env.GDK_BACKEND = 'x11'
+            env.GDK_SCALE = scale
+            opt = {cwd:kk.appPath(),detached:true,stdio:'ignore',env:env}
+            child = child_process.spawn(cmd,args,opt)
             child.on('error',function (err)
             {
-                console.error('could not launch electron',err.message)
+                console.error('could not launch',err.message)
             })
             child.unref()
             return child

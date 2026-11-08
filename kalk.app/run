@@ -1,0 +1,4 @@
+#!/bin/sh
+cd "$(dirname "$0")" || exit 1
+: "${KALK_GDK_SCALE:=2}"
+exec env GDK_BACKEND="${KALK_GDK_BACKEND:-x11}" GDK_SCALE="$KALK_GDK_SCALE" ./Contents/Linux/kakao "$@"

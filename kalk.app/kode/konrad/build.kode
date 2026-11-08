@@ -8,7 +8,8 @@
     builds the application executable
 ###
 
-CMD = "zig c++" # is awesome!
+ZIG = process.env.ZIG or 'zig'
+CMD = "#{ZIG} c++" # is awesome!
 
 OUT = "../../Contents/MacOS/kakao"
 
@@ -18,11 +19,39 @@ FLG = "-arch arm64 -Os -Wno-nullability-completeness -Wno-objc-method-access"
 use child_process
 use ../kxk ◆ slash fs
 
+build_linux = ○->
+
+    srcDir = slash.path ◆dir, '../../src/linux'
+    out = slash.path ◆dir, '../../Contents/Linux/kakao'
+
+    ○ fs.mkdir slash.dir out
+
+    srcFiles =○ fs.list srcDir
+    srcFiles = srcFiles.filter (f) -> slash.ext(f.path) == 'cpp' and slash.dir(f.path) == srcDir
+
+    SRC = srcFiles.map((f)-> 'src/linux/' + f.file).join ' '
+
+    cmd = "#{CMD} -std=c++17 -Os -I src/linux #{SRC} $(pkg-config --cflags --libs webkit2gtk-4.1 gtk+-3.0 json-glib-1.0) -Wl,-rpath,/usr/lib64 -o Contents/Linux/kakao"
+
+    cwd = slash.path ◆dir, '../..'
+    opt = shell:true cwd:cwd
+
+    new Promise (resolve, reject) ->
+
+        child_process.exec cmd, opt, (err, stdout, stderr) ->
+
+            if err
+                error 'ERROR' err
+                return reject err
+
+            log stdout if valid stdout
+            log stderr if valid stderr
+            resolve()
+
 export ○->
 
     if process.platform != 'darwin'
-        log 'native Cocoa build skipped on ' + process.platform
-        return
+        return ○ build_linux()
 
     srcDir = slash.path ◆dir, '../../src'
     
@@ -54,5 +83,4 @@ export ○->
             log stdout if valid stdout
             log stderr if valid stderr
             resolve()
-    
     

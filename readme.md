@@ -17,36 +17,46 @@ cd ./kalk/kalk.app
 ./kk -bkr
 ```
 
-#### How to run the app on linux
+#### How to build the app on linux
 
-Install [node](https://nodejs.org) and [pnpm](https://pnpm.io/), then:
+The linux host is native C++ in `src/linux/`, built with the same
+[zig](https://ziglang.org/) `c++` command as the mac app. It uses
+[GTK 3](https://gtk.org/) and [WebKitGTK 4.1](https://webkitgtk.org/), the
+same WebKit engine family as the mac WebView. There is no bundled browser.
+
+Install the build dependencies once:
+
+```
+sudo dnf install webkit2gtk4.1-devel gtk3-devel json-glib-devel
+```
+
+Install zig (for example with `mise use zig`, `brew`, or your package
+manager), then:
 
 ```
 cd ./kalk/kalk.app
-pnpm install
+./kk -b
 ./kk -r
 ```
 
-On linux the app runs in [electron](https://www.electronjs.org/) using the
-same js sources. The native cocoa host in `src/` is not built; `./kk -b`
-skips it.
+A prebuilt linux binary is included; `./run` starts it, and `pnpm start`
+calls `./run`. Rebuild after changing `src/linux/` with `./kk -b`.
 
-Chromium's native wayland backend does not share the clipboard with the
-desktop, so `kk` launches electron under x11 (xwayland). Xwayland does not
-know the compositor's scale factor, so `kk` also passes
-`--force-device-scale-factor` taken from the focused hyprland monitor. Set
-`KALK_SCALE` to override it. Both flags have to be on the command line
-because electron picks the ozone platform and the scale factor before the
-app code runs. `pnpm start` runs electron directly.
-
-The window is a small frameless panel that sizes itself. Tiling compositors
-stretch it, so on hyprland add this to `~/.config/hypr/apps.lua`:
+The app runs under x11 (xwayland) with `GDK_BACKEND=x11`; native wayland
+does not let the app position and restore its own window. `GDK_SCALE`
+defaults to 2 so the calculator is readable on this display; set
+`KALK_GDK_SCALE` to override it. On hyprland the window floats through this
+rule in `~/.config/hypr/apps.lua`:
 
 ```lua
-o.window("^kalk$", {
+o.window("(?i)^kalk$", {
   float = true,
 })
 ```
 
-`pnpm test:electron` runs the tests for the linux host.
+The tray status item, titlebar dragging and the development hot-reload
+watcher from the mac app are not ported. The window still positions,
+resizes, restores from its stash and expands its sheet natively.
+
+`pnpm test:native` runs the tests for the linux fs routes.
 
