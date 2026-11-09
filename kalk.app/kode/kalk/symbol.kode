@@ -24,7 +24,7 @@ symbol =
     close:      ')'
     pow:        '^'
     dot:        '.'
-    hex:        '⌗'
+    hex:        '#' #⌗
     bin:        '𝒷'
     oct:        '𝓸'
     

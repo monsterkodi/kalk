@@ -70,8 +70,7 @@ Delegate = (function ()
     Delegate.prototype["onWindowCreated"] = function ()
     {
         kakao('window.setMinSize',window.WIN_MIN_WIDTH,window.WIN_MIN_HEIGHT)
-        kakao('window.setMaxSize',window.WIN_MIN_WIDTH,6666)
-        return kakao('window.new','icon','window.statusIcon = "menu_kalk.png"')
+        return kakao('window.setMaxSize',window.WIN_MIN_WIDTH,6666)
     }
 
     Delegate.prototype["onWindowResize"] = function ()

@@ -43,7 +43,8 @@ function Delegate extends win.Delegate
         
         kakao 'window.setMinSize' window.WIN_MIN_WIDTH, window.WIN_MIN_HEIGHT
         kakao 'window.setMaxSize' window.WIN_MIN_WIDTH, 6666
-        kakao 'window.new' 'icon' 'window.statusIcon = "menu_kalk.png"'
+        # kakao 'window.new' 'icon' 'window.statusIcon = "menu_kalk.png"'
+        # kakao 'window.center'
         
     onWindowResize: => post.emit 'resize'
         

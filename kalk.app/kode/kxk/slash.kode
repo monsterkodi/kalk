@@ -313,7 +313,7 @@ class Slash
     
     @home:   -> globalThis.homeDir ? process.env.HOME  
     @user:   -> globalThis.useName ? process.env.USER  
-    @tmpdir: -> globalThis.tmpDir  ? '/tmp' # process.env.TMPDIR
+    @tmpdir: -> globalThis.tmpDir  ? '/home/kodi/tmp' # process.env.TMPDIR
     
     @tmpfile: ext ->
 

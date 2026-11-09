@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=kalk
+GenericName=Calculator
+Comment=Desktop calculator
+Exec=/home/kodi/s/kalk/kalk.app/run
+Path=/home/kodi/s/kalk/kalk.app
+Icon=/home/kodi/s/kalk/kalk.app/Contents/Resources/img/about_kalk.png
+Terminal=false
+Categories=Utility;Calculator;
+StartupNotify=false
+StartupWMClass=Kalk

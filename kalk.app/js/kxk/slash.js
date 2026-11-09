@@ -465,7 +465,7 @@ class Slash
     {
         var _316_35_
 
-        return ((_316_35_=globalThis.tmpDir) != null ? _316_35_ : '/tmp')
+        return ((_316_35_=globalThis.tmpDir) != null ? _316_35_ : '/home/kodi/tmp')
     }
 
     static tmpfile (ext)
