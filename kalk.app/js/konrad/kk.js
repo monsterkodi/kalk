@@ -213,10 +213,11 @@ class kk
             {
                 return console.error(`no linux build at ${cmd}, run ./kk -b`)
             }
-            scale = process.env.KALK_GDK_SCALE || '2'
+            scale = process.env.KALK_SCALE || process.env.KALK_GDK_SCALE || '2'
             env = Object.assign({},process.env)
             env.GDK_BACKEND = 'x11'
-            env.GDK_SCALE = scale
+            env.GDK_SCALE = '2'
+            env.KALK_SCALE = scale
             opt = {cwd:kk.appPath(),detached:true,stdio:'ignore',env:env}
             child = child_process.spawn(cmd,args,opt)
             child.on('error',function (err)

@@ -43,10 +43,18 @@ A prebuilt linux binary is included; `./run` starts it, and `pnpm start`
 calls `./run`. Rebuild after changing `src/linux/` with `./kk -b`.
 
 The app runs under x11 (xwayland) with `GDK_BACKEND=x11`; native wayland
-does not let the app position and restore its own window. `GDK_SCALE`
-defaults to 2 so the calculator is readable on this display; set
-`KALK_GDK_SCALE` to override it. On hyprland the window floats through this
-rule in `~/.config/hypr/apps.lua`:
+does not let the app position and restore its own window. `GDK_SCALE` stays
+at 2 for crisp rendering. The app's UI scale is `KALK_SCALE` (default 2);
+`KALK_GDK_SCALE` is accepted as an alias. The scale can be fractional:
+
+```
+KALK_SCALE=1.5 ./run
+KALK_SCALE=1.6666666 ./run
+```
+
+The app scales the window geometry and the WebKit zoom together, so the
+calculator layout stays the same at every scale. On hyprland the window
+floats through this rule in `~/.config/hypr/apps.lua`:
 
 ```lua
 o.window("(?i)^kalk$", {

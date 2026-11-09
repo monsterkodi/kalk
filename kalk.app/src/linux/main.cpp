@@ -47,6 +47,23 @@ static std::string g_bundle;
 static std::map<int, Win*> g_windows;
 static int g_next_id = 0;
 static bool g_quitting = false;
+static double g_ui_scale = 2.0;
+static double g_scale = 1.0;
+static int g_gdk_scale = 1;
+
+static int gtk_size (double css)
+{
+    return (int)std::lround(css * g_scale);
+}
+
+static int gtk_limit (int css)
+{
+    if (css >= 1000000)
+    {
+        return G_MAXINT;
+    }
+    return gtk_size(css);
+}
 
 static void on_kakao_received (WebKitUserContentManager* manager, WebKitJavascriptResult* result, gpointer data);
 static gboolean on_kakao_request (WebKitUserContentManager* manager, JSCValue* value, WebKitScriptMessageReply* reply, gpointer data);
@@ -359,21 +376,25 @@ static void center_window (Win* win)
     int height = win->requested_h;
     if (width <= 0 || height <= 0)
     {
-        gtk_window_get_size(GTK_WINDOW(win->window), &width, &height);
+        int actual_width = 0;
+        int actual_height = 0;
+        gtk_window_get_size(GTK_WINDOW(win->window), &actual_width, &actual_height);
+        width = (int)std::lround(actual_width / g_scale);
+        height = (int)std::lround(actual_height / g_scale);
     }
     gtk_window_move(GTK_WINDOW(win->window),
-                    area.x + (area.width - width) / 2,
-                    area.y + (area.height - height) / 2);
+                    area.x + (area.width - gtk_size(width)) / 2,
+                    area.y + (area.height - gtk_size(height)) / 2);
 }
 
 static void apply_hints (Win* win)
 {
     GdkGeometry hints;
     memset(&hints, 0, sizeof(hints));
-    hints.min_width = win->min_w;
-    hints.min_height = win->min_h;
-    hints.max_width = win->max_w;
-    hints.max_height = win->max_h;
+    hints.min_width = gtk_limit(win->min_w);
+    hints.min_height = gtk_limit(win->min_h);
+    hints.max_width = gtk_limit(win->max_w);
+    hints.max_height = gtk_limit(win->max_h);
     gtk_window_set_geometry_hints(GTK_WINDOW(win->window), nullptr, &hints,
                                   (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
 }
@@ -429,16 +450,16 @@ static void emit_frame (Win* win)
     JsonObject* info = json_node_get_object(node);
     json_object_set_int_member(info, "id", win->id);
     JsonObject* frame = json_object_new();
-    json_object_set_int_member(frame, "x", x);
-    json_object_set_int_member(frame, "y", cocoa_y(y, height, &geometry));
-    json_object_set_int_member(frame, "w", width);
-    json_object_set_int_member(frame, "h", height);
+    json_object_set_double_member(frame, "x", x / g_scale);
+    json_object_set_double_member(frame, "y", cocoa_y(y, height, &geometry) / g_scale);
+    json_object_set_double_member(frame, "w", width / g_scale);
+    json_object_set_double_member(frame, "h", height / g_scale);
     json_object_set_object_member(info, "frame", frame);
     JsonObject* screen = json_object_new();
-    json_object_set_int_member(screen, "x", geometry.x);
-    json_object_set_int_member(screen, "y", geometry.y);
-    json_object_set_int_member(screen, "w", geometry.width);
-    json_object_set_int_member(screen, "h", geometry.height);
+    json_object_set_double_member(screen, "x", geometry.x / g_scale);
+    json_object_set_double_member(screen, "y", geometry.y / g_scale);
+    json_object_set_double_member(screen, "w", geometry.width / g_scale);
+    json_object_set_double_member(screen, "h", geometry.height / g_scale);
     json_object_set_object_member(info, "screen", screen);
     emit_event(win, "window.frame", node);
 }
@@ -637,6 +658,7 @@ static WebKitWebView* make_view (Win* win, const std::string& script)
 
     GdkRGBA background = {0, 0, 0, 0};
     webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(view), &background);
+    webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(view), g_scale);
     g_signal_connect(view, "load-changed", G_CALLBACK(on_load_changed), win);
 
     return WEBKIT_WEB_VIEW(view);
@@ -672,7 +694,7 @@ static Win* create_window (const std::string& url_string, const std::string& ini
     gtk_window_set_title(GTK_WINDOW(window), "kalk");
     gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
-    gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
+    gtk_window_set_default_size(GTK_WINDOW(window), gtk_size(400), gtk_size(400));
     gtk_widget_set_app_paintable(window, TRUE);
     GdkScreen* screen = gtk_widget_get_screen(window);
     GdkVisual* visual = gdk_screen_get_rgba_visual(screen);
@@ -695,9 +717,10 @@ static Win* create_window (const std::string& url_string, const std::string& ini
     GdkMonitor* monitor = pointer_monitor();
     GdkRectangle area;
     gdk_monitor_get_workarea(monitor, &area);
+    int initial = gtk_size(400);
     gtk_window_move(GTK_WINDOW(window),
-                    area.x + (area.width - 400) / 2,
-                    area.y + (area.height - 400) / 2);
+                    area.x + (area.width - initial) / 2,
+                    area.y + (area.height - initial) / 2);
 
     g_windows[win->id] = win;
     gtk_widget_show_all(window);
@@ -721,16 +744,16 @@ static JsonNode* frame_info (Win* win)
     JsonObject* info = json_node_get_object(node);
     json_object_set_int_member(info, "id", win->id);
     JsonObject* frame = json_object_new();
-    json_object_set_int_member(frame, "x", x);
-    json_object_set_int_member(frame, "y", cocoa_y(y, height, &geometry));
-    json_object_set_int_member(frame, "w", width);
-    json_object_set_int_member(frame, "h", height);
+    json_object_set_double_member(frame, "x", x / g_scale);
+    json_object_set_double_member(frame, "y", cocoa_y(y, height, &geometry) / g_scale);
+    json_object_set_double_member(frame, "w", width / g_scale);
+    json_object_set_double_member(frame, "h", height / g_scale);
     json_object_set_object_member(info, "frame", frame);
     JsonObject* screen = json_object_new();
-    json_object_set_int_member(screen, "x", geometry.x);
-    json_object_set_int_member(screen, "y", geometry.y);
-    json_object_set_int_member(screen, "w", geometry.width);
-    json_object_set_int_member(screen, "h", geometry.height);
+    json_object_set_double_member(screen, "x", geometry.x / g_scale);
+    json_object_set_double_member(screen, "y", geometry.y / g_scale);
+    json_object_set_double_member(screen, "w", geometry.width / g_scale);
+    json_object_set_double_member(screen, "h", geometry.height / g_scale);
     json_object_set_object_member(info, "screen", screen);
     return node;
 }
@@ -888,9 +911,11 @@ static JsonNode* window_route (const std::string& req, JsonArray* args, Win* win
             GdkMonitor* monitor = monitor_for_window(win);
             GdkRectangle geometry;
             monitor_geometry(monitor, &geometry);
-            int x = json_object_get_int_member(point, "x");
-            int y = json_object_get_int_member(point, "y");
-            gtk_window_move(GTK_WINDOW(win->window), x, cocoa_y(y, 0, &geometry));
+            double x_css = json_object_get_double_member(point, "x");
+            double y_css = json_object_get_double_member(point, "y");
+            int x_gtk = gtk_size(x_css);
+            int y_gtk = (int)std::lround(geometry.y + geometry.height - y_css * g_scale);
+            gtk_window_move(GTK_WINDOW(win->window), x_gtk, y_gtk);
         }
         return make_null();
     }
@@ -902,24 +927,25 @@ static JsonNode* window_route (const std::string& req, JsonArray* args, Win* win
             GdkMonitor* monitor = monitor_for_frame(frame, win);
             GdkRectangle geometry;
             monitor_geometry(monitor, &geometry);
-            int x = json_object_get_int_member(frame, "x");
-            int y = json_object_get_int_member(frame, "y");
-            int width = json_object_get_int_member(frame, "w");
-            int height = json_object_get_int_member(frame, "h");
-            win->requested_w = width;
-            win->requested_h = height;
-            gtk_window_resize(GTK_WINDOW(win->window), width, height);
-            gtk_window_move(GTK_WINDOW(win->window), x, geometry.y + geometry.height - (y + height));
+            double x_css = json_object_get_double_member(frame, "x");
+            double y_css = json_object_get_double_member(frame, "y");
+            double width_css = json_object_get_double_member(frame, "w");
+            double height_css = json_object_get_double_member(frame, "h");
+            win->requested_w = (int)std::lround(width_css);
+            win->requested_h = (int)std::lround(height_css);
+            gtk_window_resize(GTK_WINDOW(win->window), gtk_size(width_css), gtk_size(height_css));
+            gtk_window_move(GTK_WINDOW(win->window), gtk_size(x_css),
+                            (int)std::lround(geometry.y + geometry.height - (y_css + height_css) * g_scale));
         }
         return make_null();
     }
     if (req == "setSize")
     {
-        int width = (int)std::round(arg_double(args, 0));
-        int height = (int)std::round(arg_double(args, 1));
-        win->requested_w = width;
-        win->requested_h = height;
-        gtk_window_resize(GTK_WINDOW(win->window), width, height);
+        double width = arg_double(args, 0);
+        double height = arg_double(args, 1);
+        win->requested_w = (int)std::lround(width);
+        win->requested_h = (int)std::lround(height);
+        gtk_window_resize(GTK_WINDOW(win->window), gtk_size(width), gtk_size(height));
         return make_null();
     }
     if (req == "setMinSize")
@@ -1245,6 +1271,39 @@ int main (int argc, char** argv)
     g_set_prgname("kalk");
     gdk_set_program_class("kalk");
     gtk_init(&argc, &argv);
+
+    GdkMonitor* primary = gdk_display_get_primary_monitor(display());
+    if (!primary)
+    {
+        primary = gdk_display_get_monitor(display(), 0);
+    }
+    g_gdk_scale = primary ? gdk_monitor_get_scale_factor(primary) : 1;
+    if (g_gdk_scale < 1)
+    {
+        g_gdk_scale = 1;
+    }
+    const char* scale_env = g_getenv("KALK_SCALE");
+    if (!scale_env)
+    {
+        scale_env = g_getenv("KALK_GDK_SCALE");
+    }
+    if (scale_env)
+    {
+        g_ui_scale = g_ascii_strtod(scale_env, nullptr);
+    }
+    if (!(g_ui_scale > 0.25))
+    {
+        g_ui_scale = 2.0;
+    }
+    if (g_ui_scale > 4.0)
+    {
+        g_ui_scale = 4.0;
+    }
+    g_scale = g_ui_scale / (double)g_gdk_scale;
+    if (!(g_scale > 0.1))
+    {
+        g_scale = 1.0;
+    }
 
     char* executable = g_file_read_link("/proc/self/exe", nullptr);
     if (executable)

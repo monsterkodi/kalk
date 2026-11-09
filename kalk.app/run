@@ -1,4 +1,11 @@
 #!/bin/sh
 cd "$(dirname "$0")" || exit 1
-: "${KALK_GDK_SCALE:=2}"
-exec env GDK_BACKEND="${KALK_GDK_BACKEND:-x11}" GDK_SCALE="$KALK_GDK_SCALE" ./Contents/Linux/kakao "$@"
+# GDK_SCALE is integer-only. The app applies the fractional KALK_SCALE itself.
+if [ -n "$KALK_SCALE" ]; then
+    scale="$KALK_SCALE"
+elif [ -n "$KALK_GDK_SCALE" ]; then
+    scale="$KALK_GDK_SCALE"
+else
+    scale=2
+fi
+exec env GDK_BACKEND="${KALK_GDK_BACKEND:-x11}" GDK_SCALE=2 KALK_SCALE="$scale" ./Contents/Linux/kakao "$@"
